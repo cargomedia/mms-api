@@ -29,7 +29,7 @@ module MMS
     end
 
     def groups
-      MMS::Resource::Group.new.load_list
+      MMS::Resource::Group.load_list
     end
 
     def clusters(group_list = [])

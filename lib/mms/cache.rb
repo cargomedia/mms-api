@@ -9,7 +9,7 @@ module MMS
     attr_accessor :storage
 
     def initialize
-      @storage = Hash.new {|hash, key| hash[key] = {} }
+      @storage = Hash.new {|hash, key| hash[key] = nil }
     end
 
     def set(key, value)
@@ -17,7 +17,11 @@ module MMS
     end
 
     def get(key)
-      @storage[key]
+      @storage[key].nil? ? nil : @storage[key]
+    end
+
+    def delete(key)
+      @storage.delete key unless @storage[key].nil?
     end
 
     def storage

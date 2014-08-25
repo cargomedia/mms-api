@@ -3,31 +3,35 @@ module MMS
   class Resource
 
     attr_accessor :id
-    attr_accessor :name
     attr_accessor :data
 
-    def initialize(id = nil, data = nil)
+    def initialize(id, data = nil)
       @id = id
       @data = data
 
-      from_hash(data)
-
-      unless id.nil?
-        MMS::Cache.instance.set "Class::#{self.class.name}:", self
-      end
-    end
-
-    def to_hash
+      load
     end
 
     def from_hash(data)
       unless data.nil?
         @id = data['id']
-        @name = data['name'] unless data['name'].nil?
+        _from_hash data
       end
     end
 
     def load
+      _data = MMS::Cache.instance.get "Class::#{self.class.name}:#{@id}"
+
+      if _data.nil? and @data.nil?
+        _data = _load(@id) unless @id.nil?
+      end
+
+      save _data || @data
+    end
+
+    def save(data)
+      from_hash data
+      MMS::Cache.instance.set "Class::#{self.class.name}:#{@id}", data
     end
   end
 end

@@ -2,13 +2,17 @@ module MMS
 
   class Resource::Snapshot < Resource
 
-    def initialize(id = nil, data = nil)
+    def initialize(id, data = nil)
     end
 
-    def load_list
+    def self.load_list
+      []
     end
 
-    def load_one
+    def _load(id)
+    end
+
+    def _from_hash(data)
     end
   end
 end

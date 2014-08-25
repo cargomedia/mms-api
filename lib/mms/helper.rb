@@ -29,11 +29,7 @@ module MMS
       response = http.request(req)
       response_json = JSON.parse(response.body)
 
-      if response_json['results'].nil?
-        fail("Error during API request!")
-      end
-
-      response_json['results']
+      response_json['results'].nil? ? response_json : response_json['results']
     end
   end
 end
