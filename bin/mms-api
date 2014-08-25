@@ -84,18 +84,26 @@ begin
       end
     when 'snapshots'
       heading = ['SnapshotId', 'Complete', 'Created increment', 'Created date', 'Expires']
-      results_sorted = results.sort_by { |k| k['created']['date'] }
-      results.first(options[:limit]).each do |snapshot|
+      results_sorted = results.sort_by { |k| k['created']['date'] }.reverse
+      results_sorted.first(options[:limit]).each do |snapshot|
         rows << [snapshot['id'], snapshot['complete'], snapshot['created']['increment'], snapshot['created']['date'], snapshot['expires']]
+        rows << :separator
+        part_count = 0
         snapshot['parts'].each do |part|
           file_size_mb = part['fileSizeBytes'].to_i / (1024*1024)
-          rows << ['', 'part:', part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
+          rows << ['', "part #{part_count}", part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
+          part_count += 1
         end
+        rows << :separator
       end
     when 'restorejobs'
-      heading = ['RestoreId', 'SnapshotId', 'Created', 'Status', 'Point in time', 'Delivery', 'Restore status', 'Restore URL']
-      results.first(options[:limit]).each do |restore|
-        rows << [restore['id'], restore['snapshotId'], restore['created'], restore['statusName'], restore['pointInTime'], restore['delivery']['methodName'], restore['delivery']['statusName'], restore['delivery']['url']]
+      heading = ['RestoreId', 'SnapshotId', 'Created', 'Status', 'Point in time', 'Delivery', 'Restore status']
+      results_sorted = results.sort_by { |k| k['created'] }.reverse
+      results_sorted.first(options[:limit]).each do |restore|
+        rows << [restore['id'], restore['snapshotId'], restore['created'], restore['statusName'], restore['pointInTime'], restore['delivery']['methodName'], restore['delivery']['statusName']]
+        rows << [{:value => 'download url:', :colspan => 7}]
+        rows << [{:value => restore['delivery']['url'], :colspan => 7}]
+        rows << :separator
       end
   end
 
