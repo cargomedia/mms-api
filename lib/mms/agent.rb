@@ -11,7 +11,9 @@ module MMS
     attr_accessor :username
     attr_accessor :apikey
 
-    def initialize(username = nil, apikey = nil)
+    attr_accessor :client
+
+    def initialize(username, apikey, client = nil)
       @api_protocol = 'https'
       @api_host = 'mms.mongodb.com'
       @api_port = '443'
@@ -20,6 +22,8 @@ module MMS
 
       @username = username
       @apikey = apikey
+
+      @client = client.nil? ? MMS::Client.new(get_url, @username, @apikey) : client
     end
 
     def get_url
@@ -27,13 +31,13 @@ module MMS
     end
 
     def groups
-      MMS::Helper.get get_url  + '/groups', @username, @apikey
+      MMS::Resource::Group.new(@client).load_list
     end
 
     def clusters(group_list = [])
       if group_list.empty?
         groups.each do |group|
-          group_list.push group['id']
+          group_list.push group.id
         end
       end
 
@@ -82,6 +86,10 @@ module MMS
       end
 
       results
+    end
+
+    def restorejobs_create(snapshot = nil, point_in_time = nil)
+
     end
 
   end
