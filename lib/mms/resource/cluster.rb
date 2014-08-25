@@ -4,16 +4,7 @@ module MMS
 
     attr_accessor :group
 
-    def initialize(data)
-
-    end
-
-    def group_id
-      @group.id
-    end
-
-    def group_name
-      @group.name
+    def initialize(id = nil, data = nil)
     end
 
     def load_list

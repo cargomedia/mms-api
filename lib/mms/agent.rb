@@ -11,9 +11,7 @@ module MMS
     attr_accessor :username
     attr_accessor :apikey
 
-    attr_accessor :client
-
-    def initialize(username, apikey, client = nil)
+    def initialize(username, apikey)
       @api_protocol = 'https'
       @api_host = 'mms.mongodb.com'
       @api_port = '443'
@@ -23,7 +21,7 @@ module MMS
       @username = username
       @apikey = apikey
 
-      @client = client.nil? ? MMS::Client.new(get_url, @username, @apikey) : client
+      MMS::Client.instance.setup(get_url, @username, @apikey)
     end
 
     def get_url
@@ -31,7 +29,7 @@ module MMS
     end
 
     def groups
-      MMS::Resource::Group.new(@client).load_list
+      MMS::Resource::Group.new.load_list
     end
 
     def clusters(group_list = [])

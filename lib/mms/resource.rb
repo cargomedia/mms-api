@@ -2,29 +2,22 @@ module MMS
 
   class Resource
 
-    attr_accessor :client
-
     attr_accessor :id
     attr_accessor :name
     attr_accessor :data
 
-    def initialize(client, data = nil)
-      @client = client
+    def initialize(id = nil, data = nil)
+      @id = id
       @data = data
 
       from_hash(data)
-    end
 
-    def name
-      @name
-    end
-
-    def id
-      @id
+      unless id.nil?
+        MMS::Cache.instance.set "Class::#{self.class.name}:", self
+      end
     end
 
     def to_hash
-
     end
 
     def from_hash(data)
@@ -35,7 +28,6 @@ module MMS
     end
 
     def load
-
     end
   end
 end
