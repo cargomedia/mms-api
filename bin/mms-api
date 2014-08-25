@@ -1,0 +1,108 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
+
+require 'mms'
+require 'optparse'
+require 'terminal-table'
+require 'pp'
+
+name = 'mms-api'
+version = MMS::VERSION
+
+actions_available = ["groups", "clusters", "snapshots", "restorejobs"]
+
+options = {}
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage: #{name} [options] action"
+
+  opts.on("-u", "--username <string>", "MMS user") do |u|
+    options[:username] = u
+  end
+
+  opts.on("-k", "--apikey <string>", "MMS api-key") do |k|
+    options[:apikey] = k
+  end
+
+  options[:limit] = 5
+  opts.on("-l", "--limit <string>", "Limit for result lines") do |l|
+    options[:limit] = l.to_i
+  end
+
+  opts.on("-v", "--version", "Version") do |v|
+    puts "#{name} v#{version}"
+    exit
+  end
+
+  opts.on("-h", "--help", "Show this help") do |h|
+    puts opts
+    exit
+  end
+end
+
+begin
+  optparse.parse!
+  if not options[:username]
+    puts "Missing options: MMS username [-u <string>]"
+    exit
+  end
+  if not options[:apikey]
+    puts "Missing options: MMS api-key [-k <string>]"
+    exit
+  end
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+  puts $!.to_s
+  puts optparse
+  exit
+end
+
+begin
+  action = ARGV.first.downcase
+  raise("Unknown action #{action.upcase}") unless actions_available.include? (action)
+rescue => e
+  puts "Error: #{e.message}"
+  puts "Available actions: #{(actions_available.join ', ').upcase}"
+  puts optparse
+  exit 1
+end
+
+begin
+  agent = MMS::Agent.new(options[:username], options[:apikey])
+  results = agent.send(action)
+
+  rows = []
+  case action
+    when 'groups'
+      heading = ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent']
+      results.each do |group|
+        rows << [group['name'], group['activeAgentCount'], group['replicaSetCount'], group['shardCount'], group['lastActiveAgent']]
+      end
+    when 'clusters'
+      heading = ['Name', 'Shard name', 'Replica name', 'Type', 'Last heartbeat']
+      results.each do |cluster|
+        rows << [cluster['clusterName'], cluster['shardName'], cluster['replicaSetName'], cluster['typeName'], cluster['lastHeartbeat']]
+      end
+    when 'snapshots'
+      heading = ['SnapshotId', 'Complete', 'Created increment', 'Created date', 'Expires']
+      results_sorted = results.sort_by { |k| k['created']['date'] }
+      results.first(options[:limit]).each do |snapshot|
+        rows << [snapshot['id'], snapshot['complete'], snapshot['created']['increment'], snapshot['created']['date'], snapshot['expires']]
+        snapshot['parts'].each do |part|
+          file_size_mb = part['fileSizeBytes'].to_i / (1024*1024)
+          rows << ['', 'part:', part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
+        end
+      end
+    when 'restorejobs'
+      heading = ['RestoreId', 'SnapshotId', 'Created', 'Status', 'Point in time', 'Delivery', 'Restore status', 'Restore URL']
+      results.first(options[:limit]).each do |restore|
+        rows << [restore['id'], restore['snapshotId'], restore['created'], restore['statusName'], restore['pointInTime'], restore['delivery']['methodName'], restore['delivery']['statusName'], restore['delivery']['url']]
+      end
+  end
+
+  table = Terminal::Table.new :title => action.upcase, :headings => (heading.nil? ? [] : heading), :rows => rows
+
+  puts table
+
+rescue => e
+  exit 1
+end
