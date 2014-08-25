@@ -78,9 +78,9 @@ end
         rows << [group.name, group.activeAgentCount, group.replicaSetCount, group.shardCount, group.lastActiveAgent]
       end
     when 'clusters'
-      heading = ['Name', 'Shard name', 'Replica name', 'Type', 'Last heartbeat']
+      heading = ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat']
       results.each do |cluster|
-        rows << [cluster['clusterName'], cluster['shardName'], cluster['replicaSetName'], cluster['typeName'], cluster['lastHeartbeat']]
+        rows << [cluster.group.name, cluster.name, cluster.shardName, cluster.replicaSetName, cluster.typeName, cluster.lastHeartbeat]
       end
     when 'snapshots'
       heading = ['SnapshotId', 'Complete', 'Created increment', 'Created date', 'Expires']

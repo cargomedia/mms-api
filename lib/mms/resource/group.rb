@@ -2,14 +2,27 @@ module MMS
 
   class Resource::Group < Resource
 
-    attr_accessor :name
-    attr_accessor :activeAgentCount
-    attr_accessor :replicaSetCount
-    attr_accessor :shardCount
-    attr_accessor :lastActiveAgent
+    attr_reader :name
+    attr_reader :activeAgentCount
+    attr_reader :replicaSetCount
+    attr_reader :shardCount
+    attr_reader :lastActiveAgent
 
     def initialize(id, data = nil)
       super id, data
+    end
+
+    def self.get_clusters(group = nil)
+      groups = group.nil? ? load_list : [group]
+
+      cluster_list = []
+      groups.each do |group|
+        MMS::Client.instance.get('/groups/' + group.id + '/clusters').each do |cluster|
+          cluster_list.push MMS::Resource::Cluster.new(cluster['id'], cluster)
+        end
+      end
+
+      cluster_list
     end
 
     def self.load_list

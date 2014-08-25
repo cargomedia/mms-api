@@ -32,35 +32,16 @@ module MMS
       MMS::Resource::Group.load_list
     end
 
-    def clusters(group_list = [])
-      if group_list.empty?
-        groups.each do |group|
-          group_list.push group.id
-        end
-      end
-
-      results = []
-      group_list.each do |group|
-        output = MMS::Helper.get get_url + '/groups/' + group + '/clusters', @username, @apikey
-        results = results + output
-      end
-
-      results
+    def clusters
+      MMS::Resource::Group.get_clusters
     end
 
     def snapshots(cluster_list = [])
-      if cluster_list.empty?
-        clusters.each do |cluster|
-          cluster_list.push({
-            :id => cluster['id'],
-            :group_id => cluster['groupId']
-          })
-        end
-      end
+      cluster_list = clusters if cluster_list.empty?
 
       results = []
       cluster_list.each do |cluster|
-        output = MMS::Helper.get get_url + '/groups/' + cluster[:group_id] + '/clusters/' + cluster[:id] + '/snapshots' , @username, @apikey
+        output = MMS::Helper.get get_url + '/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/snapshots' , @username, @apikey
         results = results + output
       end
 
@@ -71,8 +52,8 @@ module MMS
       if cluster_list.empty?
         clusters.each do |cluster|
           cluster_list.push({
-            :id => cluster['id'],
-            :group_id => cluster['groupId']
+            :id => cluster.id,
+            :group_id => cluster.group.id
           })
         end
       end
