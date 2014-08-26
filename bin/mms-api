@@ -10,7 +10,7 @@ require 'pp'
 name = 'mms-api'
 version = MMS::VERSION
 
-actions_available = ["groups", "clusters", "snapshots", "restorejobs"]
+actions_available = ["groups", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
 
 options = {}
 optparse = OptionParser.new do |opts|
@@ -68,7 +68,8 @@ end
 
 #begin
   agent = MMS::Agent.new(options[:username], options[:apikey])
-  results = agent.send(action)
+  ARGV.shift
+  results = agent.send action.sub('-', '_'), *ARGV
 
   rows = []
   case action
@@ -96,12 +97,12 @@ end
         end
         rows << :separator
       end
-    when 'restorejobs'
+    when 'restorejobs', 'restorejobs-create'
       heading = ['RestoreId', 'SnapshotId / Cluster / Group', 'Created', 'Status', 'Point in time', 'Delivery', 'Restore status']
       results_sorted = results.sort_by { |job| job.created }.reverse
       results_sorted.first(options[:limit]).each do |job|
         rows << [job.id, job.snapshot_id, job.created, job.status_name, job.point_in_time, job.delivery_method_name, job.delivery_status_name]
-        rows << ['', job.cluster.name, {:value => '', :colspan => 5}]
+        rows << ['', "#{job.cluster.name} (#{job.cluster.id})", {:value => '', :colspan => 5}]
         rows << ['', job.cluster.group.name, {:value => '', :colspan => 5}]
         rows << [{:value => 'download url:', :colspan => 7}]
         rows << [{:value => job.delivery_url, :colspan => 7}]
