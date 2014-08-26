@@ -12,17 +12,18 @@ module MMS
       super id, data
     end
 
-    def self.get_clusters(group = nil)
-      groups = group.nil? ? load_list : [group]
-
+    def self.get_clusters
       cluster_list = []
-      groups.each do |group|
+      load_list.each do |group|
         MMS::Client.instance.get('/groups/' + group.id + '/clusters').each do |cluster|
-          cluster_list.push MMS::Resource::Cluster.new(cluster['id'], cluster)
+          cluster_list.push MMS::Resource::Cluster.new(cluster['id'], cluster['groupId'], cluster)
         end
       end
-
       cluster_list
+    end
+
+    def get_cluster(id)
+      MMS::Resource::Cluster.new(id, self.id)
     end
 
     def self.load_list

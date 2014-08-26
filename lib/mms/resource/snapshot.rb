@@ -2,17 +2,30 @@ module MMS
 
   class Resource::Snapshot < Resource
 
-    def initialize(id, data = nil)
-    end
+    attr_accessor :name
+    attr_accessor :cluster
 
-    def self.load_list
-      []
+    attr_accessor :complete
+    attr_accessor :created_date
+    attr_accessor :created_increment
+    attr_accessor :expires
+    attr_accessor :parts
+
+    def initialize(id, cluster_id, group_id, data = nil)
+      @cluster = MMS::Resource::Cluster.new(cluster_id, group_id)
+
+      super id, data
     end
 
     def _load(id)
     end
 
     def _from_hash(data)
+      @complete = data['complete']
+      @created_date = data['created']['date']
+      @created_increment = data['created']['increment']
+      @expires = data['expires']
+      @parts = data['parts']
     end
   end
 end

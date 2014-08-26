@@ -36,16 +36,8 @@ module MMS
       MMS::Resource::Group.get_clusters
     end
 
-    def snapshots(cluster_list = [])
-      cluster_list = clusters if cluster_list.empty?
-
-      results = []
-      cluster_list.each do |cluster|
-        output = MMS::Helper.get get_url + '/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/snapshots' , @username, @apikey
-        results = results + output
-      end
-
-      results
+    def snapshots
+      MMS::Resource::Cluster.get_snapshots
     end
 
     def restorejobs(cluster_list = [])
@@ -65,10 +57,6 @@ module MMS
       end
 
       results
-    end
-
-    def restorejobs_create(snapshot = nil, point_in_time = nil)
-
     end
 
   end
