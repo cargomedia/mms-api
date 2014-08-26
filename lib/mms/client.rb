@@ -42,6 +42,10 @@ module MMS
       _get site + path, @username, @apikey
     end
 
+    def post(path, data)
+      _post site + path, data, @username, @apikey
+    end
+
     private
 
     def _get(path, username, password)
@@ -66,7 +70,40 @@ module MMS
       response = http.request(req)
       response_json = JSON.parse(response.body)
 
-      response_json['results'].nil? ? response_json : response_json['results']
+      unless response_json['error'].nil?
+       response_json = nil
+      end
+
+      (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
+    end
+
+    def _post(path, data, username, password)
+      digest_auth = Net::HTTP::DigestAuth.new
+      digest_auth.next_nonce
+
+      uri = URI.parse path
+      uri.user= CGI.escape(username)
+      uri.password= CGI.escape(password)
+
+      http = Net::HTTP.new uri.host, uri.port
+      http.use_ssl = true
+
+      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' =>'application/json'}
+      res = http.request req
+
+      auth = digest_auth.auth_header uri, res['WWW-Authenticate'], 'POST'
+      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' =>'application/json'}
+      req.add_field 'Authorization', auth
+      req.body = data.to_json
+
+      response = http.request req
+      response_json = JSON.parse response.body
+
+      unless response_json['error'].nil?
+        response_json = nil
+      end
+
+      (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
     end
 
   end
