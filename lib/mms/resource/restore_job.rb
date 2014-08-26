@@ -13,8 +13,7 @@ module MMS
     attr_accessor :delivery_status_name
     attr_accessor :delivery_url
 
-
-    def initialize(id, snapshot_id, cluster_id, group_id, data = nil)
+    def initialize(id, cluster_id, group_id, data = nil)
       @cluster = MMS::Resource::Cluster.new cluster_id, group_id
 
       super id, data
