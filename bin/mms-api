@@ -83,15 +83,15 @@ end
         rows << [cluster.group.name, cluster.name, cluster.shardName, cluster.replicaSetName, cluster.typeName, cluster.lastHeartbeat]
       end
     when 'snapshots'
-      heading = ['SnapshotId', 'Complete', 'Created increment', 'Created date', 'Expires']
+      heading = ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Created date', 'Expires']
       results_sorted = results.sort_by { |snapshot| snapshot.created_date }.reverse
       results_sorted.first(options[:limit]).each do |snapshot|
-        rows << [snapshot.id, snapshot.complete, snapshot.created_increment, snapshot.created_date, snapshot.expires]
+        rows << [snapshot.cluster.group.name, snapshot.cluster.name, snapshot.id, snapshot.complete, snapshot.created_increment, snapshot.created_date, snapshot.expires]
         rows << :separator
         part_count = 0
         snapshot.parts.each do |part|
           file_size_mb = part['fileSizeBytes'].to_i / (1024*1024)
-          rows << ['', "part #{part_count}", part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
+          rows << [{:value => "part #{part_count}", :colspan => 4, :alignment => :right}, part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
           part_count += 1
         end
         rows << :separator
