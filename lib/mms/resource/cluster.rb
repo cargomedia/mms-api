@@ -43,12 +43,11 @@ module MMS
         raise "Cannot create job from snapshot `#{id}`"
       end
 
-      restore_jobs = MMS::Resource::Cluster.get_restore_jobs
-
       job_list = []
+      # work around due to bug in MMS API; cannot read restoreJob using provided info.
+      restore_jobs = MMS::Resource::Cluster.get_restore_jobs
       jobs.each do |job|
         _list = restore_jobs.select {|restorejob| restorejob.id == job['id'] }
-
         _list.each do |restorejob|
           begin
             job_list.push MMS::Resource::RestoreJob.new(restorejob.id, restorejob.cluster.id, restorejob.cluster.group.id)
