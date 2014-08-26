@@ -29,8 +29,23 @@ module MMS
       job_list = []
       MMS::Resource::Group.get_clusters.each do |cluster|
         MMS::Client.instance.get('/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs').each do |job|
-          job_list.push MMS::Resource::RestoreJob.new(job['id'], job['snapshotId'], job['clusterId'], job['groupId'], job)
+          job_list.push MMS::Resource::RestoreJob.new(job['id'], job['clusterId'], job['groupId'], job)
         end
+      end
+      job_list
+    end
+
+    def create_restorejob_from_snapshot(id)
+      data = {:snapshotId => id}
+      jobs = MMS::Client.instance.post '/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data
+
+      if jobs.nil?
+        raise "Cannot create job from snapshot `#{id}`"
+      end
+
+      job_list = []
+      jobs.each do |job|
+        job_list.push MMS::Resource::RestoreJob.new(job['id'], job['clusterId'], job['groupId'])
       end
       job_list
     end
