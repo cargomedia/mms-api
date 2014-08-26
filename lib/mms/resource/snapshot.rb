@@ -12,12 +12,13 @@ module MMS
     attr_accessor :parts
 
     def initialize(id, cluster_id, group_id, data = nil)
-      @cluster = MMS::Resource::Cluster.new(cluster_id, group_id)
+      @cluster = MMS::Resource::Cluster.new cluster_id, group_id
 
       super id, data
     end
 
     def _load(id)
+      MMS::Client.instance.get('/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s)
     end
 
     def _from_hash(data)
