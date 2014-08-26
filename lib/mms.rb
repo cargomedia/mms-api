@@ -4,7 +4,6 @@ module MMS
   require 'mms/agent'
   require 'mms/client'
   require 'mms/cache'
-  require 'mms/helper'
   require 'mms/version'
   require 'mms/resource'
 
