@@ -24,6 +24,10 @@ module MMS
 
       if _data.nil? and @data.nil?
         _data = _load(@id) unless @id.nil?
+
+        if _data.nil?
+          raise "Cannot load data for #{self.class.name}, id `#{@id}`"
+        end
       end
 
       save _data || @data
