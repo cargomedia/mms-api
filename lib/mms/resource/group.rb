@@ -3,10 +3,10 @@ module MMS
   class Resource::Group < Resource
 
     attr_reader :name
-    attr_reader :activeAgentCount
-    attr_reader :replicaSetCount
-    attr_reader :shardCount
-    attr_reader :lastActiveAgent
+    attr_reader :active_agent_count
+    attr_reader :replicaset_count
+    attr_reader :shard_count
+    attr_reader :last_active_agent
 
     def initialize(id, data = nil)
       super id, data
@@ -40,10 +40,10 @@ module MMS
 
     def _from_hash(data)
       @name = data['name']
-      @activeAgentCount = data['activeAgentCount']
-      @replicaSetCount = data['replicaSetCount']
-      @shardCount = data['shardCount']
-      @lastActiveAgent = data['lastActiveAgent']
+      @active_agent_count = data['activeAgentCount']
+      @replicaset_count = data['replicaSetCount']
+      @shard_count = data['shardCount']
+      @last_active_agent = data['lastActiveAgent']
     end
   end
 end

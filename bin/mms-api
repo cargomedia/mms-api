@@ -75,12 +75,12 @@ end
     when 'groups'
       heading = ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent']
       results.each do |group|
-        rows << [group.name, group.activeAgentCount, group.replicaSetCount, group.shardCount, group.lastActiveAgent]
+        rows << [group.name, group.active_agent_count, group.replicaset_count, group.shard_count, group.last_active_agent]
       end
     when 'clusters'
       heading = ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat']
       results.each do |cluster|
-        rows << [cluster.group.name, cluster.name, cluster.shardName, cluster.replicaSetName, cluster.typeName, cluster.lastHeartbeat]
+        rows << [cluster.group.name, cluster.name, cluster.shard_name, cluster.replicaset_name, cluster.type_name, cluster.last_heartbeat]
       end
     when 'snapshots'
       heading = ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Created date', 'Expires']
@@ -97,12 +97,14 @@ end
         rows << :separator
       end
     when 'restorejobs'
-      heading = ['RestoreId', 'SnapshotId', 'Created', 'Status', 'Point in time', 'Delivery', 'Restore status']
-      results_sorted = results.sort_by { |k| k['created'] }.reverse
-      results_sorted.first(options[:limit]).each do |restore|
-        rows << [restore['id'], restore['snapshotId'], restore['created'], restore['statusName'], restore['pointInTime'], restore['delivery']['methodName'], restore['delivery']['statusName']]
+      heading = ['RestoreId', 'SnapshotId / Cluster / Group', 'Created', 'Status', 'Point in time', 'Delivery', 'Restore status']
+      results_sorted = results.sort_by { |job| job.created }.reverse
+      results_sorted.first(options[:limit]).each do |job|
+        rows << [job.id, job.snapshot_id, job.created, job.status_name, job.point_in_time, job.delivery_method_name, job.delivery_status_name]
+        rows << ['', job.cluster.name, {:value => '', :colspan => 5}]
+        rows << ['', job.cluster.group.name, {:value => '', :colspan => 5}]
         rows << [{:value => 'download url:', :colspan => 7}]
-        rows << [{:value => restore['delivery']['url'], :colspan => 7}]
+        rows << [{:value => job.delivery_url, :colspan => 7}]
         rows << :separator
       end
   end
@@ -112,5 +114,5 @@ end
   puts table
 
 #rescue => e
-#  exit 1
+ # exit 1
 #end
