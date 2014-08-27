@@ -7,7 +7,11 @@ module MMS
     end
 
     def groups
-      _findGroups
+      group_list = []
+      MMS::Client.instance.get('/groups').each do |group|
+        group_list.push MMS::Resource::Group.new group['id'], group
+      end
+      group_list
     end
 
     def clusters
@@ -35,19 +39,11 @@ module MMS
     end
 
     def restorejobs_create(group_id, cluster_id, snapshot_id)
-      snapshot = MMS::Resource::Snapshot.new snapshot_id, cluster_id, group_id
-      snapshot.create_restorejob
+      findGroup(group_id).cluster(cluster_id).snapshot(snapshot_id).create_restorejob
     end
 
-    private
-
-    def _findGroups(page = 1, limit = 1000)
-      group_list = []
-      MMS::Client.instance.get('/groups?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |group|
-        group_list.push MMS::Resource::Group.new(group['id'], group)
-      end
-      group_list
+    def findGroup(id)
+      MMS::Resource::Group.new id
     end
-
   end
 end
