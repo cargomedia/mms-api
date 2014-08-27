@@ -32,8 +32,8 @@ Options:
     -h, --help                        Show this help
 ```
 
-Development
------------
+Example
+-------
 ```ruby
 require 'mms'
 
