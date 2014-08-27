@@ -7,7 +7,7 @@ require 'optparse'
 require 'terminal-table'
 require 'pp'
 
-actions_available = ["groups", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
+actions_available = ["groups", "hosts", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
 
 app_name = 'mms-api'
 app_dscr = "#{app_name} is a tool for accessing MMS API"
@@ -87,6 +87,11 @@ begin
       heading = ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent']
       results.each do |group|
         rows << [group.name, group.active_agent_count, group.replicaset_count, group.shard_count, group.last_active_agent]
+      end
+    when 'hosts'
+      heading = ['Group', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId']
+      results.each do |host|
+        rows << [host.group.name, host.name, host.ip_address, host.port, host.last_ping, host.alerts_enabled, host.id]
       end
     when 'clusters'
       heading = ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat']
