@@ -24,6 +24,11 @@ optparse = OptionParser.new do |opts|
     options[:apikey] = k
   end
 
+  options[:name] = '.*'
+  opts.on("-n", "--name <string>", "Resource name using regexp") do |n|
+    options[:name] = n
+  end
+
   options[:limit] = 5
   opts.on("-l", "--limit <string>", "Limit for result items") do |l|
     options[:limit] = l.to_i
@@ -69,7 +74,9 @@ end
 begin
   ARGV.shift
   agent = MMS::Agent.new(options[:username], options[:apikey])
+
   results = agent.send action.sub('-', '_'), *ARGV
+  results.select! { |resource| !resource.name.match(Regexp.new(options[:name])).nil? }
 
   rows = []
   case action
@@ -84,7 +91,7 @@ begin
         rows << [cluster.group.name, cluster.name, cluster.shard_name, cluster.replicaset_name, cluster.type_name, cluster.last_heartbeat]
       end
     when 'snapshots'
-      heading = ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Created date', 'Expires']
+      heading = ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Created date (Name)', 'Expires']
       results_sorted = results.sort_by { |snapshot| snapshot.created_date }.reverse
       results_sorted.first(options[:limit]).each do |snapshot|
         rows << [snapshot.cluster.group.name, snapshot.cluster.name, snapshot.id, snapshot.complete, snapshot.created_increment, snapshot.created_date, snapshot.expires]
@@ -98,7 +105,7 @@ begin
         rows << :separator
       end
     when 'restorejobs', 'restorejobs-create'
-      heading = ['RestoreId', 'SnapshotId / Cluster / Group', 'Created', 'Status', 'Point in time', 'Delivery', 'Restore status']
+      heading = ['RestoreId', 'SnapshotId / Cluster / Group', 'Created (Name)', 'Status', 'Point in time', 'Delivery', 'Restore status']
       results_sorted = results.sort_by { |job| job.created }.reverse
       results_sorted.first(options[:limit]).each do |job|
         rows << [job.id, job.snapshot_id, job.created, job.status_name, job.point_in_time, job.delivery_method_name, job.delivery_status_name]
@@ -115,6 +122,6 @@ begin
   puts table
 
 rescue => e
-  puts "Cannot create restore job `#{e.message}`"
+  puts "Error: `#{e.message}`"
   exit 1
 end
