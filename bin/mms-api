@@ -117,9 +117,7 @@ begin
       end
   end
 
-  table = Terminal::Table.new :title => action.upcase, :headings => (heading.nil? ? [] : heading), :rows => rows
-
-  puts table
+  puts Terminal::Table.new :title => action.upcase, :headings => (heading.nil? ? [] : heading), :rows => rows
 
 rescue => e
   puts "Error: `#{e.message}`"
