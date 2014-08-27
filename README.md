@@ -26,7 +26,7 @@ Options:
 
     -u, --username <string>           MMS user
     -k, --apikey <string>             MMS api-key
-    -n, --name <string>               Resource name using regexp
+    -n, --name <string>               Filter by resource name using regexp
     -l, --limit <int>                 Limit for result items
     -v, --version                     Version
     -h, --help                        Show this help
