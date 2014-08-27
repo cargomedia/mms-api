@@ -1,3 +1,5 @@
+require 'date'
+
 module MMS
 
   class Resource::RestoreJob < Resource
@@ -31,7 +33,7 @@ module MMS
       @delivery_method_name = data['delivery']['methodName']
       @delivery_status_name = data['delivery']['statusName']
       @delivery_url = data['delivery']['url']
-      @name = @created
+      @name = DateTime.parse(@created).strftime("%Y-%m-%d %H:%M:%S")
     end
   end
 end

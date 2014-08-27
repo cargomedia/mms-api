@@ -1,3 +1,5 @@
+require 'date'
+
 module MMS
 
   class Resource::Snapshot < Resource
@@ -52,7 +54,7 @@ module MMS
       @created_increment = data['created']['increment']
       @expires = data['expires']
       @parts = data['parts']
-      @name = @created_date
+      @name = DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
     end
   end
 end
