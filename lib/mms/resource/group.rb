@@ -12,26 +12,16 @@ module MMS
       super id, data
     end
 
-    def self.get_clusters(page = 1, limit = 1000)
+    def clusters(page = 1, limit = 1000)
       cluster_list = []
-      load_list(page, limit).each do |group|
-        MMS::Client.instance.get('/groups/' + group.id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
-          cluster_list.push MMS::Resource::Cluster.new(cluster['id'], cluster['groupId'], cluster)
-        end
+      MMS::Client.instance.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
+        cluster_list.push MMS::Resource::Cluster.new(cluster['id'], cluster['groupId'], cluster)
       end
       cluster_list
     end
 
-    def get_cluster(id)
+    def cluster(id)
       MMS::Resource::Cluster.new(id, self.id)
-    end
-
-    def self.load_list(page = 1, limit = 1000)
-      group_list = []
-      MMS::Client.instance.get('/groups?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |group|
-        group_list.push MMS::Resource::Group.new(group['id'], group)
-      end
-      group_list
     end
 
     def _load(id)

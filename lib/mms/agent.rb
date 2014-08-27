@@ -6,25 +6,48 @@ module MMS
       MMS::Client.instance.auth_setup(username, apikey)
     end
 
-    def groups(page = 1, limit = 10)
-      MMS::Resource::Group.load_list page, limit
+    def groups
+      _findGroups
     end
 
-    def clusters(page = 1, limit = 10)
-      MMS::Resource::Group.get_clusters page, limit
+    def clusters
+      cluster_list = []
+      groups.each do |group|
+        cluster_list.concat group.clusters
+      end
+      cluster_list
     end
 
-    def snapshots(page = 1, limit = 10)
-      MMS::Resource::Cluster.get_snapshots page, limit
+    def snapshots
+      snapshot_list = []
+      clusters.each do |cluster|
+        snapshot_list.concat cluster.snapshots
+      end
+      snapshot_list
     end
 
-    def restorejobs(page = 1, limit = 10)
-      MMS::Resource::Cluster.get_restore_jobs page, limit
+    def restorejobs
+      restorejob_list = []
+      clusters.each do |cluster|
+        restorejob_list.concat cluster.restorejobs
+      end
+      restorejob_list
     end
 
-    def restorejobs_create(group_id, cluster_id, snapshot_id, page = 1, limit = 10)
-      cluster = MMS::Resource::Cluster.new cluster_id, group_id
-      cluster.create_restorejob_from_snapshot snapshot_id, page, limit
+    def restorejobs_create(group_id, cluster_id, snapshot_id)
+      snapshot = MMS::Resource::Snapshot.new snapshot_id, cluster_id, group_id
+      snapshot.create_restorejob
     end
+
+    private
+
+    def _findGroups(page = 1, limit = 1000)
+      group_list = []
+      MMS::Client.instance.get('/groups?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |group|
+        group_list.push MMS::Resource::Group.new(group['id'], group)
+      end
+      group_list
+    end
+
   end
 end

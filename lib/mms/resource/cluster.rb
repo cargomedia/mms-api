@@ -15,46 +15,18 @@ module MMS
       super id, data
     end
 
-    def self.get_snapshots(page = 1, limit = 10)
+    def snapshots(page = 1, limit = 1000)
       snapshot_list = []
-      MMS::Resource::Group.get_clusters.each do |cluster|
-        MMS::Client.instance.get('/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
-          snapshot_list.push MMS::Resource::Snapshot.new(snapshot['id'], snapshot['clusterId'], snapshot['groupId'], snapshot)
-        end
+      MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
+        snapshot_list.push MMS::Resource::Snapshot.new(snapshot['id'], snapshot['clusterId'], snapshot['groupId'], snapshot)
       end
       snapshot_list
     end
 
-    def self.get_restore_jobs(page = 1, limit = 10)
+    def restorejobs(page = 1, limit = 1000)
       job_list = []
-      MMS::Resource::Group.get_clusters.each do |cluster|
-          MMS::Client.instance.get('/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
-          job_list.push MMS::Resource::RestoreJob.new(job['id'], job['clusterId'], job['groupId'], job)
-        end
-      end
-      job_list
-    end
-
-    def create_restorejob_from_snapshot(id, page = 1, limit = 10)
-      data = {:snapshotId => id}
-      jobs = MMS::Client.instance.post '/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data
-
-      if jobs.nil?
-        raise "Cannot create job from snapshot `#{id}`"
-      end
-
-      job_list = []
-      # work around due to bug in MMS API; cannot read restoreJob using provided info.
-      restore_jobs = MMS::Resource::Cluster.get_restore_jobs page, limit
-      jobs.each do |job|
-        _list = restore_jobs.select {|restorejob| restorejob.id == job['id'] }
-        _list.each do |restorejob|
-          begin
-            job_list.push MMS::Resource::RestoreJob.new(restorejob.id, restorejob.cluster.id, restorejob.cluster.group.id)
-          rescue => e
-            puts "load error #{e.message}"
-          end
-        end
+      MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
+        job_list.push MMS::Resource::RestoreJob.new(job['id'], job['clusterId'], job['groupId'], job)
       end
       job_list
     end
