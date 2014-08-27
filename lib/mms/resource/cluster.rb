@@ -35,6 +35,30 @@ module MMS
       job_list
     end
 
+    def create_restorejob_from_snapshot(id, page = 1, limit = 10)
+      data = {:snapshotId => id}
+      jobs = MMS::Client.instance.post '/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data
+
+      if jobs.nil?
+        raise "Cannot create job from snapshot `#{id}`"
+      end
+
+      job_list = []
+      # work around due to bug in MMS API; cannot read restoreJob using provided info.
+      restore_jobs = MMS::Resource::Cluster.get_restore_jobs page, limit
+      jobs.each do |job|
+        _list = restore_jobs.select {|restorejob| restorejob.id == job['id'] }
+        _list.each do |restorejob|
+          begin
+            job_list.push MMS::Resource::RestoreJob.new(restorejob.id, restorejob.cluster.id, restorejob.cluster.group.id)
+          rescue => e
+            puts "load error #{e.message}"
+          end
+        end
+      end
+      job_list
+    end
+
     def _load(id)
       MMS::Client.instance.get '/groups/' + @group.id + '/clusters/' + id.to_s
     end

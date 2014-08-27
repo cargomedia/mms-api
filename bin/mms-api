@@ -7,14 +7,17 @@ require 'optparse'
 require 'terminal-table'
 require 'pp'
 
-name = 'mms-api'
-version = MMS::VERSION
-
 actions_available = ["groups", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
+
+app_name = 'mms-api'
+app_dscr = "#{app_name} is a tool for accessing MMS API"
+app_usage = "#{app_name} command [options]"
+app_version = MMS::VERSION
+app_commands = "#{actions_available.join(' | ')}"
 
 options = {}
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage: #{name} [options] action"
+  opts.banner = "#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\t#{app_commands}\n\nOptions:\n\n"
 
   opts.on("-u", "--username <string>", "MMS user") do |u|
     options[:username] = u
@@ -35,7 +38,7 @@ optparse = OptionParser.new do |opts|
   end
 
   opts.on("-v", "--version", "Version") do |v|
-    puts "#{name} v#{version}"
+    puts "#{app_name} v#{app_version}"
     exit
   end
 
