@@ -56,7 +56,10 @@ job_list = cluster.restorejobs
 snapshot = snapshot_list.first
 
 # create restore job for snapshot
-restorejob = agent.findGroup(snapshot.cluster.group.id).cluster(snapshot.cluster.id).snapshot(snapshot.id).create_restorejob
+group_id = snapshot.cluster.group.id
+cluster_id = snapshot.cluster.id
+snapshot_id = snapshot.id
+restorejob = agent.findGroup(group_id).cluster(cluster_id).snapshot(snapshot_id).create_restorejob
 # or simply using snapshot instance
 restorejob = snapshot.create_restorejob
 ```
