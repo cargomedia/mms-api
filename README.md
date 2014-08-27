@@ -24,12 +24,12 @@ Commands:
 
 Options:
 
-    -u, --username <string>          MMS user
-    -k, --apikey <string>            MMS api-key
-    -n, --name <string>              Resource name using regexp
-    -l, --limit <string>             Limit for result items
-    -v, --version                    Version
-    -h, --help                       Show this help
+    -u, --username <string>           MMS user
+    -k, --apikey <string>             MMS api-key
+    -n, --name <string>               Resource name using regexp
+    -l, --limit <int>                 Limit for result items
+    -v, --version                     Version
+    -h, --help                        Show this help
 ```
 
 Development
