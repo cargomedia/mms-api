@@ -4,12 +4,12 @@ Gem::Specification.new do |s|
   s.name        = 'mms-api'
   s.version     = MMS::VERSION
   s.summary     = 'MongoDB MMS API client'
-  s.description = 'Agent to collect data for MMS API'
+  s.description = 'Agent for MMS API'
   s.authors     = ['Cargo Media', 'kris-lab', 'tomaszdurka']
   s.email       = 'hello@cargomedia.ch'
-  s.files       = Dir['LICENSE*', 'README*', '{bin,lib,data}/**/*']
+  s.files       = Dir['LICENSE*', 'README*', '{bin,lib}/**/*']
   s.executables = ['mms-api']
-  s.homepage    = 'https://github.com/cargomedia/mms'
+  s.homepage    = 'https://github.com/cargomedia/mms-api'
   s.license     = 'MIT'
 
   s.add_development_dependency 'net-http-digest_auth', '~> 1.4'

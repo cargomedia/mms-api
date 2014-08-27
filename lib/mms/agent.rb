@@ -14,21 +14,17 @@ module MMS
       MMS::Resource::Group.get_clusters
     end
 
-    def snapshots
-      MMS::Resource::Cluster.get_snapshots
+    def snapshots(page = 1, limit = 10)
+      MMS::Resource::Cluster.get_snapshots page, limit
     end
 
-    def restorejobs
-      MMS::Resource::Cluster.get_restore_jobs
+    def restorejobs(page = 1, limit = 10)
+      MMS::Resource::Cluster.get_restore_jobs page, limit
     end
 
-    def restorejobs_create(group_id, cluster_id, snapshot_id)
-      begin
-        cluster = MMS::Resource::Cluster.new cluster_id, group_id
-        cluster.create_restorejob_from_snapshot snapshot_id
-      rescue => e
-        raise "Cannot create restore job `#{e.message}`"
-      end
+    def restorejobs_create(group_id, cluster_id, snapshot_id, page = 1, limit = 10)
+      cluster = MMS::Resource::Cluster.new cluster_id, group_id
+      cluster.create_restorejob_from_snapshot snapshot_id, page, limit
     end
   end
 end
