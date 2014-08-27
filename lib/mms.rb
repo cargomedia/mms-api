@@ -8,6 +8,7 @@ module MMS
   require 'mms/resource'
 
   require 'mms/resource/group'
+  require 'mms/resource/host'
   require 'mms/resource/cluster'
   require 'mms/resource/snapshot'
   require 'mms/resource/restore_job'
