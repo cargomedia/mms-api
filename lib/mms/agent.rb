@@ -6,12 +6,12 @@ module MMS
       MMS::Client.instance.auth_setup(username, apikey)
     end
 
-    def groups(page = 1, limit = 10)
-      MMS::Resource::Group.load_list page, limit
+    def groups
+      MMS::Resource::Group.load_list
     end
 
-    def clusters(page = 1, limit = 10)
-      MMS::Resource::Group.get_clusters page, limit
+    def clusters
+      MMS::Resource::Group.get_clusters
     end
 
     def snapshots(page = 1, limit = 10)
