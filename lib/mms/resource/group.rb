@@ -21,11 +21,11 @@ module MMS
     end
 
     def cluster(id)
-      MMS::Resource::Cluster.new(id, self.id)
+      MMS::Resource::Cluster.new id, self.id
     end
 
     def _load(id)
-      MMS::Client.instance.get('/groups/' + id.to_s)
+      MMS::Client.instance.get '/groups/' + id.to_s
     end
 
     def _from_hash(data)

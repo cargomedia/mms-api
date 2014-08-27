@@ -18,7 +18,7 @@ module MMS
     end
 
     def _load(id)
-      MMS::Client.instance.get('/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s)
+      MMS::Client.instance.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s
     end
 
     def create_restorejob
@@ -52,6 +52,7 @@ module MMS
       @created_increment = data['created']['increment']
       @expires = data['expires']
       @parts = data['parts']
+      @name = @created_date
     end
   end
 end
