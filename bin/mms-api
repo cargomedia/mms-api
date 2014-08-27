@@ -28,12 +28,12 @@ optparse = OptionParser.new do |opts|
   end
 
   options[:name] = '.*'
-  opts.on("-n", "--name <string>", "Resource name using regexp") do |n|
+  opts.on("-n", "--name <string>", "Filter for resource name using regexp") do |n|
     options[:name] = n
   end
 
   options[:limit] = 5
-  opts.on("-l", "--limit <string>", "Limit for result items") do |l|
+  opts.on("-l", "--limit <int>", "Limit for result items") do |l|
     options[:limit] = l.to_i
   end
 
