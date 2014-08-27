@@ -84,14 +84,14 @@ begin
   rows = []
   case action
     when 'groups'
-      heading = ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent']
+      heading = ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent', 'GroupId']
       results.each do |group|
-        rows << [group.name, group.active_agent_count, group.replicaset_count, group.shard_count, group.last_active_agent]
+        rows << [group.name, group.active_agent_count, group.replicaset_count, group.shard_count, group.last_active_agent, group.id]
       end
     when 'hosts'
-      heading = ['Group', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId']
+      heading = ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId']
       results.each do |host|
-        rows << [host.group.name, host.name, host.ip_address, host.port, host.last_ping, host.alerts_enabled, host.id]
+        rows << [host.group.name, host.type_name, host.name, host.ip_address, host.port, host.last_ping, host.alerts_enabled, host.id]
       end
     when 'clusters'
       heading = ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat']
