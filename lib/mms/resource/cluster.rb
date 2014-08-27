@@ -16,7 +16,7 @@ module MMS
     end
 
     def snapshot(id)
-      MS::Resource::Snapshot.new id, self.id, self.group.id
+      MMS::Resource::Snapshot.new id, self.id, self.group.id
     end
 
     def snapshots(page = 1, limit = 1000)
