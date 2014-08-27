@@ -14,6 +14,14 @@ module MMS
       group_list
     end
 
+    def hosts
+      host_list = []
+      groups.each do |group|
+        host_list.concat group.hosts
+      end
+      host_list
+    end
+
     def clusters
       cluster_list = []
       groups.each do |group|
