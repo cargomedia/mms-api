@@ -15,6 +15,10 @@ module MMS
       super id, data
     end
 
+    def snapshot(id)
+      MS::Resource::Snapshot.new id, self.id, self.group.id
+    end
+
     def snapshots(page = 1, limit = 1000)
       snapshot_list = []
       MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
@@ -32,7 +36,7 @@ module MMS
     end
 
     def _load(id)
-      MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + id.to_s)
+      MMS::Client.instance.get '/groups/' + @group.id + '/clusters/' + id.to_s
     end
 
     def _from_hash(data)
