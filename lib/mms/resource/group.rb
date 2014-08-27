@@ -12,6 +12,14 @@ module MMS
       super id, data
     end
 
+    def hosts(page = 1, limit = 1000)
+      host_list = []
+      MMS::Client.instance.get('/groups/' + @id + '/hosts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |host|
+        host_list.push MMS::Resource::Host.new(host['id'], host['groupId'], host)
+      end
+      host_list
+    end
+
     def clusters(page = 1, limit = 1000)
       cluster_list = []
       MMS::Client.instance.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|

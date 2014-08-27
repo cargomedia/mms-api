@@ -20,7 +20,7 @@ Usage:
 
 Commands:
 
-	groups | clusters | snapshots | restorejobs | restorejobs-create
+	groups | hosts | clusters | snapshots | restorejobs | restorejobs-create
 
 Options:
 
@@ -41,8 +41,10 @@ agent = MMS::Agent.new('username', 'apikey')
 
 # all available resources
 group_list = agent.groups
+host_list = agent.hosts
 cluster_list = agent.clusters
 snapshot_list = agent.snapshots
+job_list = agent.restorejobs
 
 # get first cluster from list
 cluster = cluster_list.first
