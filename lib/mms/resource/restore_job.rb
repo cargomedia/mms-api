@@ -1,3 +1,5 @@
+require 'date'
+
 module MMS
 
   class Resource::RestoreJob < Resource
@@ -20,7 +22,7 @@ module MMS
     end
 
     def _load(id)
-      MMS::Client.instance.get('/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs/' + id.to_s)
+      MMS::Client.instance.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs/' + id.to_s
     end
 
     def _from_hash(data)
@@ -31,6 +33,7 @@ module MMS
       @delivery_method_name = data['delivery']['methodName']
       @delivery_status_name = data['delivery']['statusName']
       @delivery_url = data['delivery']['url']
+      @name = DateTime.parse(@created).strftime("%Y-%m-%d %H:%M:%S")
     end
   end
 end

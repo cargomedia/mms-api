@@ -12,8 +12,9 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/cargomedia/mms-api'
   s.license     = 'MIT'
 
-  s.add_development_dependency 'net-http-digest_auth', '~> 1.4'
-  s.add_development_dependency 'terminal-table', '~> 1.4.5'
+  s.add_runtime_dependency 'net-http-digest_auth', '~> 1.4'
+  s.add_runtime_dependency 'terminal-table', '~> 1.4.5'
+
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 2.0'
 end

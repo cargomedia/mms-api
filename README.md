@@ -11,7 +11,7 @@ gem install mms-api
 Cli
 ---
 ```bash
-$ bin/mms-api --help
+$ mms-api --help
 mms-api is a tool for accessing MMS API
 
 Usage:

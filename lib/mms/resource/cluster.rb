@@ -15,22 +15,22 @@ module MMS
       super id, data
     end
 
-    def self.get_snapshots(page = 1, limit = 10)
+    def snapshot(id)
+      MMS::Resource::Snapshot.new id, self.id, self.group.id
+    end
+
+    def snapshots(page = 1, limit = 1000)
       snapshot_list = []
-      MMS::Resource::Group.get_clusters.each do |cluster|
-        MMS::Client.instance.get('/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
-          snapshot_list.push MMS::Resource::Snapshot.new(snapshot['id'], snapshot['clusterId'], snapshot['groupId'], snapshot)
-        end
+      MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
+        snapshot_list.push MMS::Resource::Snapshot.new(snapshot['id'], snapshot['clusterId'], snapshot['groupId'], snapshot)
       end
       snapshot_list
     end
 
-    def self.get_restore_jobs(page = 1, limit = 10)
+    def restorejobs(page = 1, limit = 1000)
       job_list = []
-      MMS::Resource::Group.get_clusters.each do |cluster|
-        MMS::Client.instance.get('/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
-          job_list.push MMS::Resource::RestoreJob.new(job['id'], job['clusterId'], job['groupId'], job)
-        end
+      MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
+        job_list.push MMS::Resource::RestoreJob.new(job['id'], job['clusterId'], job['groupId'], job)
       end
       job_list
     end
@@ -60,7 +60,7 @@ module MMS
     end
 
     def _load(id)
-      MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + id.to_s)
+      MMS::Client.instance.get '/groups/' + @group.id + '/clusters/' + id.to_s
     end
 
     def _from_hash(data)
