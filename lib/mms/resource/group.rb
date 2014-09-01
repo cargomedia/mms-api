@@ -32,6 +32,17 @@ module MMS
       MMS::Resource::Cluster.new id, self.id
     end
 
+    def findSnapshot(id)
+      snapshot = nil
+      clusters.each do |cluster|
+        begin
+          snapshot = cluster.snapshot(id)
+        rescue => e
+        end
+      end
+      snapshot
+    end
+
     def _load(id)
       MMS::Client.instance.get '/groups/' + id.to_s
     end
