@@ -14,6 +14,9 @@ module MMS
     attr_accessor :replicaset_name
     attr_accessor :replica_state_name
     attr_accessor :alerts_enabled
+    attr_accessor :host_enabled
+    attr_accessor :profiler_enabled
+    attr_accessor :logs_enabled
 
     def initialize(id, group_id, data = nil)
       @group = MMS::Resource::Group.new(group_id)
@@ -36,6 +39,9 @@ module MMS
       @replicaset_name = data['replicaSetName']
       @replica_state_name = data['replicaStateName']
       @alerts_enabled = data['alertsEnabled']
+      @host_enabled = data['hostEnabled']
+      @profiler_enabled = data['profilerEnabled']
+      @logs_enabled = data['logsEnabled']
       @name = @hostname
     end
   end
