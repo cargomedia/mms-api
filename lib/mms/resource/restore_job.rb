@@ -21,6 +21,11 @@ module MMS
       super id, data
     end
 
+    def snapshot_source_name
+      snapshot = @cluster.group.findSnapshot(@snapshot_id)
+      snapshot.source_name unless snapshot.nil?
+    end
+
     def _load(id)
       MMS::Client.instance.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs/' + id.to_s
     end
