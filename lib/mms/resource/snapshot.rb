@@ -61,16 +61,12 @@ module MMS
 
       job_list = []
       # work around due to bug in MMS API; cannot read restoreJob using provided info.
+      # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
       restore_jobs = @cluster.restorejobs
-
       jobs.each do |job|
         _list = restore_jobs.select {|restorejob| restorejob.id == job['id'] }
         _list.each do |restorejob|
-          begin
-            job_list.push MMS::Resource::RestoreJob.new(restorejob.id, restorejob.cluster.id, restorejob.cluster.group.id)
-          rescue => e
-            puts "load error #{e.message}"
-          end
+          job_list.push restorejob
         end
       end
       job_list
@@ -87,6 +83,8 @@ module MMS
       @expires = data['expires']
       @parts = data['parts']
       @name = DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
+
+      @cluster = MMS::Resource::Cluster.new data['clusterId'], data['groupId']
     end
   end
 end
