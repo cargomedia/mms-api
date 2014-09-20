@@ -19,6 +19,11 @@ module MMS
       end
     end
 
+    def reload
+      @data = _load(@id)
+      save @data unless @data.nil? or @data.empty?
+    end
+
     def load
       _data = MMS::Cache.instance.get "Class::#{self.class.name}:#{@id}"
 

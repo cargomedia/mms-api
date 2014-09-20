@@ -89,14 +89,14 @@ begin
         rows << [group.name, group.active_agent_count, group.replicaset_count, group.shard_count, group.last_active_agent, group.id]
       end
     when 'hosts'
-      heading = ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId']
+      heading = ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId', 'Shard', 'Replica']
       results.each do |host|
-        rows << [host.group.name, host.type_name, host.name, host.ip_address, host.port, host.last_ping, host.alerts_enabled, host.id]
+        rows << [host.group.name, host.type_name, host.name, host.ip_address, host.port, host.last_ping, host.alerts_enabled, host.id, host.shard_name, host.replicaset_name]
       end
     when 'clusters'
-      heading = ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat']
+      heading = ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat', 'Cluster Id']
       results.each do |cluster|
-        rows << [cluster.group.name, cluster.name, cluster.shard_name, cluster.replicaset_name, cluster.type_name, cluster.last_heartbeat]
+        rows << [cluster.group.name, cluster.name, cluster.shard_name, cluster.replicaset_name, cluster.type_name, cluster.last_heartbeat, cluster.id]
       end
     when 'snapshots'
       heading = ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']

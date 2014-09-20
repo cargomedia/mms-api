@@ -8,7 +8,11 @@ module MMS
     attr_reader :shard_count
     attr_reader :last_active_agent
 
+    attr_accessor :clusters
+
     def initialize(id, data = nil)
+      @clusters = []
+
       super id, data
     end
 
@@ -21,15 +25,29 @@ module MMS
     end
 
     def clusters(page = 1, limit = 1000)
-      cluster_list = []
-      MMS::Client.instance.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
-        cluster_list.push MMS::Resource::Cluster.new(cluster['id'], cluster['groupId'], cluster)
+      if @clusters.empty?
+        MMS::Client.instance.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
+          @clusters.push MMS::Resource::Cluster.new(cluster['id'], cluster['groupId'], cluster)
+        end
       end
-      cluster_list
+      @clusters
     end
 
     def cluster(id)
-      MMS::Resource::Cluster.new id, self.id
+      MMS::Resource::Cluster.new id, @id
+    end
+
+    def findSnapshot(id)
+      snapshot = nil
+      clusters.each do |cluster|
+        begin
+          snapshot = cluster.snapshot(id)
+        rescue => e
+          # cannot load snapshotId for cluster if config-server is the source?
+          # not supported in current MMS API version
+        end
+      end
+      snapshot
     end
 
     def _load(id)
