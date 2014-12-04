@@ -6,6 +6,27 @@ module MMS
       MMS::Client.instance.auth_setup(username, apikey)
     end
 
+    def set_apiurl(apiurl)
+      begin
+        url_info = URI(apiurl)
+      rescue URI::InvalidURIError
+        puts "Unable to parse given apiurl: #{apiurl}"
+        exit
+      end
+
+      # Split out version from URL path
+      path_parts = url_info.path.split '/'
+      api_version = path_parts.pop
+      url_info.path = path_parts.join '/'
+
+      # Update client singleton
+      MMS::Client.instance.api_protocol = url_info.scheme
+      MMS::Client.instance.api_host = url_info.host
+      MMS::Client.instance.api_port = url_info.port
+      MMS::Client.instance.api_path = url_info.path
+      MMS::Client.instance.api_version = api_version
+    end
+
     def groups
       group_list = []
       MMS::Client.instance.get('/groups').each do |group|

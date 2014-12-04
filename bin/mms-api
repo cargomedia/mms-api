@@ -27,6 +27,10 @@ optparse = OptionParser.new do |opts|
     options[:apikey] = k
   end
 
+  opts.on("-a", "--apiurl <string>", "MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0") do |a|
+    options[:apiurl] = a
+  end
+
   options[:name] = '.*'
   opts.on("-n", "--name <string>", "Filter for resource name using regexp") do |n|
     options[:name] = n
@@ -77,6 +81,9 @@ end
 begin
   ARGV.shift
   agent = MMS::Agent.new(options[:username], options[:apikey])
+  if options[:apiurl] then
+    agent.set_apiurl(options[:apiurl])
+  end
 
   results = agent.send action.sub('-', '_'), *ARGV
   results.select! { |resource| !resource.name.match(Regexp.new(options[:name])).nil? }
