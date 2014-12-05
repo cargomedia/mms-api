@@ -26,6 +26,7 @@ Options:
 
     -u, --username <string>           MMS user
     -k, --apikey <string>             MMS api-key
+    -a, --apiurl <string>             MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0
     -n, --name <string>               Filter by resource name using regexp
     -l, --limit <int>                 Limit for result items
     -v, --version                     Version
