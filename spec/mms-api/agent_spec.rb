@@ -115,4 +115,13 @@ describe MMS::Agent do
     snapshot_first.replica_name.should eq('rs0')
   end
 
+  it 'should override API end point' do
+    api_endpoint = MMS::Client.instance.site
+    agent.set_apiurl('http://some.example.com:8080/api/public/v1.0')
+
+    MMS::Client.instance.site.should eq('http://some.example.com:8080/api/public/v1.0')
+
+    agent.set_apiurl(api_endpoint) # setting to previous value as this is singleton
+  end
+
 end

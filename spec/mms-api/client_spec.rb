@@ -1,29 +1,9 @@
 require 'mms'
 
 describe MMS::Client do
-  let(:agent) { MMS::Client.new }
+  let(:client) { MMS::Client.instance }
 
   it 'should return default api uri' do
-
-  end
-
-  it 'should return custom api uri' do
-
-  end
-
-  it 'should return error GET response' do
-
-  end
-
-  it 'should return GET response' do
-
-  end
-
-  it 'should return error POST response' do
-
-  end
-
-  it 'should return POST response' do
-
+    client.site.should eq('https://mms.mongodb.com:443/api/public/v1.0')
   end
 end
