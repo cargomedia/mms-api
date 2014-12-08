@@ -42,6 +42,21 @@ optparse = OptionParser.new do |opts|
     options[:apiurl] = a
   end
 
+  options[:group_id] = config['group_id'] || nil
+  opts.on("-g", "--group-id <string>", "MMS group id") do |g|
+    options[:group_id] = g
+  end
+
+  options[:cluster_id] = config['cluster_id'] || nil
+  opts.on("-c", "--cluster-id <string>", "MMS cluster id") do |c|
+    options[:cluster_id] = c
+  end
+
+  options[:all] = false
+  opts.on(nil, "--all", "Clears flag of --group-id and -cluster-id") do |all|
+    options[:all] = true
+  end
+
   options[:name] = '.*'
   opts.on("-n", "--name <string>", "Filter for resource name using regexp") do |n|
     options[:name] = n
@@ -65,6 +80,10 @@ end
 
 begin
   optparse.parse!
+  if options[:all] == true
+    options[:group_id] = nil
+    options[:cluster_id] = nil
+  end
   if not options[:username]
     puts "Missing options: MMS username [-u <string>]"
     exit
@@ -91,7 +110,7 @@ end
 
 begin
   ARGV.shift
-  agent = MMS::Agent.new(options[:username], options[:apikey])
+  agent = MMS::Agent.new(options[:username], options[:apikey], options[:group_id], options[:cluster_id])
   if options[:apiurl] then
     agent.set_apiurl(options[:apiurl])
   end
@@ -144,6 +163,13 @@ begin
   end
 
   puts Terminal::Table.new :title => action.upcase, :headings => (heading.nil? ? [] : heading), :rows => rows
+
+  puts 'Default group: ' + options[:group_id] unless options[:group_id].nil?
+  puts 'Default cluster: ' + options[:cluster_id] unless options[:cluster_id].nil?
+
+  if !options[:group_id].nil? or !options[:cluster_id].nil?
+    puts 'Add flag --all or update --group-id, --cluster-id or update your `~/.mms-api` to see all resources'
+  end
 
 rescue => e
   puts "Error: `#{e.message}`"

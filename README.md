@@ -40,6 +40,8 @@ username=sysadmin@example.tld
 apikey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 # apiurl=https://mms.mydomain.tld/api/public/v1.0
 # action=hosts
+group_id=your-group-id
+cluster_id=your-cluster-id
 ```
 
 API coverage

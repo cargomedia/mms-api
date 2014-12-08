@@ -2,8 +2,13 @@ module MMS
 
   class Agent
 
-    def initialize(username, apikey)
+    @default_group = nil
+    @default_cluster = nil
+
+    def initialize(username, apikey, group = nil, cluster = nil)
       MMS::Client.instance.auth_setup(username, apikey)
+      @default_group = group
+      @default_cluster = cluster
     end
 
     def set_apiurl(apiurl)
@@ -32,7 +37,7 @@ module MMS
       MMS::Client.instance.get('/groups').each do |group|
         group_list.push MMS::Resource::Group.new group['id'], group
       end
-      group_list
+      group_list.select { |group| group.id == @default_group or @default_group.nil? }
     end
 
     def hosts
@@ -48,7 +53,7 @@ module MMS
       groups.each do |group|
         cluster_list.concat group.clusters
       end
-      cluster_list
+      cluster_list.select { |cluster| cluster.id == @default_cluster or @default_cluster.nil? }
     end
 
     def snapshots
