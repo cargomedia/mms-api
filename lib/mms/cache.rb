@@ -24,6 +24,10 @@ module MMS
       @storage.delete key unless @storage[key].nil?
     end
 
+    def clear
+      initialize
+    end
+
     def storage
       @storage
     end
