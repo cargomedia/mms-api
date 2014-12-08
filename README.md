@@ -38,8 +38,8 @@ Options:
 ```
 username=sysadmin@example.tld
 apikey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-apiurl=https://mms.mydomain.tld/api/public/v1.0 # optional
-action=hosts # optional
+# apiurl=https://mms.mydomain.tld/api/public/v1.0
+# action=hosts
 ```
 
 API coverage
