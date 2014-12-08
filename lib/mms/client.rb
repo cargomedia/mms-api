@@ -71,7 +71,7 @@ module MMS
       response_json = JSON.parse(response.body)
 
       unless response_json['error'].nil?
-       response_json = nil
+       raise(JSON.dump(response_json))
       end
 
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
@@ -100,7 +100,7 @@ module MMS
       response_json = JSON.parse response.body
 
       unless response_json['error'].nil?
-        response_json = nil
+        raise(JSON.dump(response_json))
       end
 
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
