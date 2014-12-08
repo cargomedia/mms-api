@@ -33,6 +33,15 @@ Options:
     -h, --help                        Show this help
 ```
 
+`mms-api` reads default configuration from your home directory `~/.mms-api`. Example configuration:
+
+```
+username=sysadmin@example.tld
+apikey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+# apiurl=https://mms.mydomain.tld/api/public/v1.0
+# action=hosts
+```
+
 API coverage
 ------------
 The MMS Public API follows the principles of the REST architectural style to expose a number of internal resources which enable programmatic access to [MMS’s features](http://mms.mongodb.com/help/reference/api/). Current implementation support only a few of API features.

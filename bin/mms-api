@@ -5,7 +5,8 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 require 'mms'
 require 'optparse'
 require 'terminal-table'
-require 'pp'
+require 'parseconfig'
+require 'pathname'
 
 actions_available = ["groups", "hosts", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
 
@@ -15,18 +16,28 @@ app_usage = "#{app_name} command [options]"
 app_version = MMS::VERSION
 app_commands = "#{actions_available.join(' | ')}"
 
+config = {}
 options = {}
+
+config_file = Pathname.new(Dir.home) + app_name.prepend('.')
+if config_file.exist?
+  config = ParseConfig.new(config_file)
+end
+
 optparse = OptionParser.new do |opts|
   opts.banner = "#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\t#{app_commands}\n\nOptions:\n\n"
 
+  options[:username] = config['username']
   opts.on("-u", "--username <string>", "MMS user") do |u|
     options[:username] = u
   end
 
+  options[:apikey] = config['apikey']
   opts.on("-k", "--apikey <string>", "MMS api-key") do |k|
     options[:apikey] = k
   end
 
+  options[:apiurl] = config['apiurl']
   opts.on("-a", "--apiurl <string>", "MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0") do |a|
     options[:apiurl] = a
   end
@@ -36,7 +47,7 @@ optparse = OptionParser.new do |opts|
     options[:name] = n
   end
 
-  options[:limit] = 5
+  options[:limit] = config['limit'] || 5
   opts.on("-l", "--limit <int>", "Limit for result items") do |l|
     options[:limit] = l.to_i
   end
@@ -69,7 +80,7 @@ rescue OptionParser::InvalidOption, OptionParser::MissingArgument
 end
 
 begin
-  action = ARGV.first.downcase
+  action = (ARGV.first || config['action'] || '').downcase
   raise("Unknown action #{action.upcase}") unless actions_available.include? (action)
 rescue => e
   puts "Error: #{e.message}"
