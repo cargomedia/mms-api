@@ -1,6 +1,5 @@
 require 'slop'
 require 'terminal-table'
-require 'parseconfig'
 require 'pathname'
 
 module MMS
