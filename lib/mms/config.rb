@@ -14,7 +14,7 @@ module MMS
           nil
         },
         apiurl: proc {
-          [api_protocol, '://', api_host, ':', api_port, api_path, '/',  api_version].join.to_s
+          [api_protocol, '://', api_host, ':', api_port, api_path, '/', api_version].join.to_s
         },
         limit: proc {
           5
@@ -52,7 +52,7 @@ module MMS
         end
         default[key]
       end
-      define_method("#{key}=") do |value|
+      define_singleton_method("#{key}=") do |value|
         default[key] = value
       end
     end
