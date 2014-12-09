@@ -5,10 +5,10 @@ module MMS
     @default_group = nil
     @default_cluster = nil
 
-    def initialize(username, apikey, group = nil, cluster = nil)
+    def initialize(username = nil, apikey = nil, group_id = nil, cluster_id = nil)
       MMS::Client.instance.auth_setup(username, apikey)
-      @default_group = group
-      @default_cluster = cluster
+      @default_group = group_id || MMS::Config.group_id
+      @default_cluster = cluster_id || MMS::Config.cluster_id
     end
 
     def set_apiurl(apiurl)

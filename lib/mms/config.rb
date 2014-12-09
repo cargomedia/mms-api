@@ -1,6 +1,10 @@
+require 'singleton'
+
 module MMS
 
   class Config
+
+    include Singleton
 
     default = {
         username: proc {
@@ -42,7 +46,7 @@ module MMS
     }
 
     default.each do |key, value|
-      define_method(key) do
+      define_singleton_method(key) do
         if default[key].equal?(value)
           default[key] = instance_eval(&value)
         end

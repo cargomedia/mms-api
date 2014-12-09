@@ -22,16 +22,16 @@ module MMS
     def initialize
       @username, @apikey = nil
 
-      @api_protocol = 'https'
-      @api_host = 'mms.mongodb.com'
-      @api_port = '443'
-      @api_path = '/api/public'
-      @api_version = 'v1.0'
+      @api_protocol = MMS::Config.api_protocol
+      @api_host = MMS::Config.api_host
+      @api_port = MMS::Config.api_port
+      @api_path = MMS::Config.api_path
+      @api_version = MMS::Config.api_version
     end
 
-    def auth_setup(username, apikey)
-      @username = username
-      @apikey = apikey
+    def auth_setup(username = nil, apikey = nil)
+      @username = username || MMS::Config.username
+      @apikey = apikey || MMS::Config.apikey
     end
 
     def site
