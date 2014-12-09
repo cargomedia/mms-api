@@ -12,10 +12,11 @@ module MMS
     class << self
 
       attr_accessor :options
-
       attr_accessor :option_processors
-
       attr_accessor :input_args
+
+      attr_accessor :actions_available
+      attr_accessor :app_name
 
       def add_options(&block)
         self.options = block
@@ -34,12 +35,27 @@ module MMS
         self
       end
 
+      def parse_config
+        config_file = Pathname.new(Dir.home) + @app_name.prepend('.')
+        if config_file.exist?
+          config = ParseConfig.new(config_file)
+
+          config.params.map do |key, value|
+            MMS::Config.instance.public_send("#{key}=", value)
+          end
+        end
+
+        self
+      end
+
       def parse_options(args=ARGV)
         unless options
           raise NoOptionsError, "No command line options defined! Use MMS::CLI.add_options to add command line options."
         end
 
         self.input_args = args
+
+        self.parse_config
 
         begin
           opts = opts = Slop.parse!(
@@ -66,25 +82,16 @@ module MMS
   end
 end
 
-actions_available = ["groups", "hosts", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
-
-app_name = 'mms-api'
-app_dscr = "#{app_name} is a tool for accessing MMS API"
-app_usage = "#{app_name} command [options]"
-app_version = MMS::VERSION
-app_commands = "#{actions_available.join(' | ')}"
-
-config = Hash.new {|h, k| nil}
-config_file = Pathname.new(Dir.home) + app_name.prepend('.')
-if config_file.exist?
-  config = ParseConfig.new(config_file)
-
-  config.params.map do |key, value|
-    MMS::Config.instance.public_send("#{key}=", value)
-  end
-end
+MMS::CLI.app_name = 'mms-api'
+MMS::CLI.actions_available = ["groups", "hosts", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
 
 MMS::CLI.add_options do
+
+  app_dscr = "#{MMS::CLI.app_name} is a tool for accessing MMS API"
+  app_usage = "#{MMS::CLI.app_name} command [options]"
+  app_version = MMS::VERSION
+  app_commands = "#{MMS::CLI.actions_available.join(' | ')}"
+
   banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\t#{app_commands}\n\nOptions:\n\n")
 
   on(:u, :username=, "MMS user") do |u|
@@ -116,7 +123,7 @@ MMS::CLI.add_options do
 end.add_option_processor do |options|
   exit if options.help?
 
-  if options[:i] == true
+  if options[:i]
     MMS::Config.group_id = nil
     MMS::Config.cluster_id = nil
   end
@@ -130,12 +137,11 @@ end.add_option_processor do |options|
   end
 
   begin
-    action = (ARGV.first || config['action'] || '').downcase
-    raise("Unknown action #{action.upcase}") unless actions_available.include? (action)
+    action = (ARGV.first || MMS::Config.action || '').downcase
+    raise("Unknown action #{action.upcase}") unless MMS::CLI.actions_available.include? (action)
   rescue => e
     puts "Error: #{e.message}"
-    puts "Available actions: #{(actions_available.join ', ').upcase}"
-    puts optparse
+    puts "Available actions: #{(MMS::CLI.actions_available.join ', ').upcase}"
     exit 1
   end
 
