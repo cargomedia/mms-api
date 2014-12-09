@@ -36,12 +36,12 @@ module MMS
       end
 
       def parse_config
-        config_file = Pathname.new(Dir.home) + @app_name.prepend('.')
+        config_file = Pathname.new(Dir.home) + '.' + @app_name
         if config_file.exist?
           config = ParseConfig.new(config_file)
 
           config.params.map do |key, value|
-            MMS::Config.instance.public_send("#{key}=", value)
+            MMS::Config.public_send("#{key}=", value)
           end
         end
 
@@ -58,14 +58,14 @@ module MMS
         self.parse_config
 
         begin
-          opts = opts = Slop.parse!(
+          opts = Slop.parse!(
               args,
               :help => true,
               :multiple_switches => false,
               :strict => true,
               &options
           )
-        rescue Slop::InvalidOptionError
+        rescue Slop::InvalidOptionError,Slop::MissingArgumentError
           # Display help message on unknown switches and exit.
           puts Slop.new(&options)
           exit
@@ -89,7 +89,6 @@ MMS::CLI.add_options do
 
   app_dscr = "#{MMS::CLI.app_name} is a tool for accessing MMS API"
   app_usage = "#{MMS::CLI.app_name} command [options]"
-  app_version = MMS::VERSION
   app_commands = "#{MMS::CLI.actions_available.join(' | ')}"
 
   banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\t#{app_commands}\n\nOptions:\n\n")
@@ -116,7 +115,7 @@ MMS::CLI.add_options do
   end
 
   on(:v, :version, "Version") do |v|
-    puts "#{app_name} v#{app_version}"
+    puts "#{MMS::CLI.app_name} v#{MMS::VERSION}"
     exit
   end
 
