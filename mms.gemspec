@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'net-http-digest_auth', '~> 1.4'
   s.add_runtime_dependency 'terminal-table', '~> 1.4.5'
-  s.add_runtime_dependency 'parseconfig', '~> 1.0.6'
+  s.add_runtime_dependency 'slop', '~> 3.4'
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec', '~> 2.0'
