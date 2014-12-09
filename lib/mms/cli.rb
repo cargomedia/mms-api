@@ -36,7 +36,7 @@ module MMS
       end
 
       def parse_config
-        config_file = Pathname.new(Dir.home) + '.' + @app_name
+        config_file = Pathname.new(Dir.home) + ('.' + @app_name)
         if config_file.exist?
           config = ParseConfig.new(config_file)
 
