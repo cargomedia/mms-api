@@ -1,7 +1,7 @@
 require 'mms'
 
 describe MMS::Agent do
-  let(:agent) { MMS::Agent.new('username', 'password') }
+  let(:agent) { MMS::Agent.new }
 
   it 'should list all mms groups' do
     MMS::Client.instance.stub(:get).and_return(
