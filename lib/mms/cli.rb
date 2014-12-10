@@ -120,6 +120,7 @@ MMS::CLI.add_options do
   end
 
 end.add_option_processor do |options|
+
   exit if options.help?
 
   if options[:i]
@@ -157,44 +158,31 @@ end.add_option_processor do |options|
     rows = []
     case action
       when 'groups'
-        heading = ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent', 'GroupId']
+        heading = MMS::Resource::Group.table_header
         results.each do |group|
-          rows << [group.name, group.active_agent_count, group.replicaset_count, group.shard_count, group.last_active_agent, group.id]
+          rows << group.table_row
         end
       when 'hosts'
-        heading = ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId', 'Shard', 'Replica']
+        heading = MMS::Resource::Host.table_header
         results.each do |host|
-          rows << [host.group.name, host.type_name, host.name, host.ip_address, host.port, host.last_ping, host.alerts_enabled, host.id, host.shard_name, host.replicaset_name]
+          rows << host.table_row
         end
       when 'clusters'
-        heading = ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat', 'Cluster Id']
+        heading = MMS::Resource::Cluster.table_header
         results.each do |cluster|
-          rows << [cluster.group.name, cluster.name, cluster.shard_name, cluster.replicaset_name, cluster.type_name, cluster.last_heartbeat, cluster.id]
+          rows << cluster.table_row
         end
       when 'snapshots'
-        heading = ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']
+        heading = MMS::Resource::Snapshot.table_header
         results_sorted = results.sort_by { |snapshot| snapshot.created_date }.reverse
         results_sorted.first(MMS::Config.limit).each do |snapshot|
-          rows << [snapshot.cluster.group.name, snapshot.cluster.name, snapshot.id, snapshot.complete, snapshot.created_increment, snapshot.name, snapshot.expires]
-          rows << :separator
-          part_count = 0
-          snapshot.parts.each do |part|
-            file_size_mb = part['fileSizeBytes'].to_i / (1024*1024)
-            rows << [{:value => "part #{part_count}", :colspan => 4, :alignment => :right}, part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
-            part_count += 1
-          end
-          rows << :separator
+          rows += snapshot.table_section
         end
       when 'restorejobs', 'restorejobs-create'
-        heading = ['RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
+        heading = MMS::Resource::RestoreJob.table_header
         results_sorted = results.sort_by { |job| job.created }.reverse
         results_sorted.first(MMS::Config.limit).each do |job|
-          rows << [job.id, job.snapshot_id, job.name, job.status_name, job.point_in_time, job.delivery_method_name, job.delivery_status_name]
-          rows << ['', "#{job.cluster.name} (#{job.cluster.id})", {:value => '', :colspan => 5}]
-          rows << ['', job.cluster.group.name, {:value => '', :colspan => 5}]
-          rows << [{:value => 'download url:', :colspan => 7}]
-          rows << [{:value => job.delivery_url, :colspan => 7}]
-          rows << :separator
+          rows += job.table_section
         end
     end
 
