@@ -61,7 +61,7 @@ module MMS
       clusters.each do |cluster|
         snapshot_list.concat cluster.snapshots
       end
-      snapshot_list
+      snapshot_list.sort_by { |snapshot| snapshot.created_date }.reverse
     end
 
     def restorejobs
@@ -69,7 +69,7 @@ module MMS
       clusters.each do |cluster|
         restorejob_list.concat cluster.restorejobs
       end
-      restorejob_list
+      restorejob_list.sort_by { |job| job.created }.reverse
     end
 
     def restorejobs_create(group_id, cluster_id, snapshot_id)
