@@ -65,7 +65,7 @@ module MMS
               :strict => true,
               &options
           )
-        rescue Slop::InvalidOptionError,Slop::MissingArgumentError
+        rescue Slop::InvalidOptionError, Slop::MissingArgumentError
           # Display help message on unknown switches and exit.
           puts Slop.new(&options)
           exit
@@ -83,13 +83,20 @@ module MMS
 end
 
 MMS::CLI.app_name = 'mms-api'
-MMS::CLI.actions_available = ["groups", "hosts", "clusters", "snapshots", "restorejobs", "restorejobs-create"]
+MMS::CLI.actions_available = {
+    'groups' => 'Group',
+    'hosts' => 'Host',
+    'clusters' => 'Cluster',
+    'snapshots' => 'Snapshot',
+    'restorejobs' => 'RestoreJob',
+    'restorejobs-create' => ''
+}
 
 MMS::CLI.add_options do
 
   app_dscr = "#{MMS::CLI.app_name} is a tool for accessing MMS API"
   app_usage = "#{MMS::CLI.app_name} command [options]"
-  app_commands = "#{MMS::CLI.actions_available.join(' | ')}"
+  app_commands = "#{MMS::CLI.actions_available.keys.join(' | ')}"
 
   banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\t#{app_commands}\n\nOptions:\n\n")
 
@@ -141,7 +148,7 @@ end.add_option_processor do |options|
     raise("Unknown action #{action.upcase}") unless MMS::CLI.actions_available.include? (action)
   rescue => e
     puts "Error: #{e.message}"
-    puts "Available actions: #{(MMS::CLI.actions_available.join ', ').upcase}"
+    puts "Available actions: #{(MMS::CLI.actions_available.keys.join ', ').upcase}"
     exit 1
   end
 
@@ -156,34 +163,9 @@ end.add_option_processor do |options|
     results.select! { |resource| !resource.name.match(Regexp.new(options[:name])).nil? }
 
     rows = []
-    case action
-      when 'groups'
-        heading = MMS::Resource::Group.table_header
-        results.each do |group|
-          rows << group.table_row
-        end
-      when 'hosts'
-        heading = MMS::Resource::Host.table_header
-        results.each do |host|
-          rows << host.table_row
-        end
-      when 'clusters'
-        heading = MMS::Resource::Cluster.table_header
-        results.each do |cluster|
-          rows << cluster.table_row
-        end
-      when 'snapshots'
-        heading = MMS::Resource::Snapshot.table_header
-        results_sorted = results.sort_by { |snapshot| snapshot.created_date }.reverse
-        results_sorted.first(MMS::Config.limit).each do |snapshot|
-          rows += snapshot.table_section
-        end
-      when 'restorejobs', 'restorejobs-create'
-        heading = MMS::Resource::RestoreJob.table_header
-        results_sorted = results.sort_by { |job| job.created }.reverse
-        results_sorted.first(MMS::Config.limit).each do |job|
-          rows += job.table_section
-        end
+    heading = MMS::Resource.const_get(MMS::CLI.actions_available[action]).table_header
+    results.first(MMS::Config.limit).each do |object|
+      rows += object.table_section
     end
 
     puts Terminal::Table.new :title => action.upcase, :headings => (heading.nil? ? [] : heading), :rows => rows
