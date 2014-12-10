@@ -28,6 +28,10 @@ module MMS
       [@group.name, @type_name, @name, @ip_address, @port, @last_ping, @alerts_enabled, @id, @shard_name, @replicaset_name]
     end
 
+    def table_section
+      [table_row]
+    end
+
     def self.table_header
       ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId', 'Shard', 'Replica']
     end

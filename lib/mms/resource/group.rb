@@ -54,6 +54,10 @@ module MMS
       [@name, @active_agent_count, @replicaset_count, @shard_count, @last_active_agent, @id]
     end
 
+    def table_section
+      [table_row]
+    end
+
     def self.table_header
       ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent', 'GroupId']
     end

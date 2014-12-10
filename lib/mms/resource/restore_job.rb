@@ -50,14 +50,14 @@ module MMS
     end
 
     def table_section
-      rows = []
-      rows << table_row
-      rows << ['', "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}]
-      rows << ['', @cluster.group.name, {:value => '', :colspan => 5}]
-      rows << [{:value => 'download url:', :colspan => 7}]
-      rows << [{:value => @delivery_url, :colspan => 7}]
-      rows << :separator
-      rows
+      [
+          table_row,
+          ['', "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}],
+          ['', @cluster.group.name, {:value => '', :colspan => 5}],
+          [{:value => 'download url:', :colspan => 7}],
+          [{:value => @delivery_url, :colspan => 7}],
+          :separator
+      ]
     end
 
     def self.table_header

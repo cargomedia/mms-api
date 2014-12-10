@@ -43,12 +43,16 @@ module MMS
       @restorejobs
     end
 
-    def self.table_header
-      ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat', 'Cluster Id']
-    end
-
     def table_row
       [@group.name, @name, @shard_name, @replicaset_name, @type_name, @last_heartbeat, @id]
+    end
+
+    def table_section
+      [table_row]
+    end
+
+    def self.table_header
+      ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat', 'Cluster Id']
     end
 
     private
