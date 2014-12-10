@@ -45,13 +45,34 @@ module MMS
       @snapshot
     end
 
+    def table_row
+      [@id, @snapshot_id, @name, @status_name, @point_in_time, @delivery_method_name, @delivery_status_name]
+    end
+
+    def table_section
+      rows = []
+      rows << table_row
+      rows << ['', "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}]
+      rows << ['', @cluster.group.name, {:value => '', :colspan => 5}]
+      rows << [{:value => 'download url:', :colspan => 7}]
+      rows << [{:value => @delivery_url, :colspan => 7}]
+      rows << :separator
+      rows
+    end
+
+    def self.table_header
+      ['RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
+    end
+
+    private
+
     def _load(id)
       if has_cluster
         data = MMS::Client.instance.get '/groups/' + snapshot.cluster.group.id + '/clusters/' + snapshot.cluster.id + '/restoreJobs/' + id.to_s
       else
         # config server has no cluster but owns RestoreJob and Snapshot
         restore_jobs = @cluster.restorejobs
-        job = restore_jobs.select {|restorejob| restorejob.id == id }
+        job = restore_jobs.select { |restorejob| restorejob.id == id }
         data = job.first.data unless job.nil? and job.empty?
       end
       data

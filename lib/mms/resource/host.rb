@@ -24,6 +24,16 @@ module MMS
       super id, data
     end
 
+    def table_row
+      [@group.name, @type_name, @name, @ip_address, @port, @last_ping, @alerts_enabled, @id, @shard_name, @replicaset_name]
+    end
+
+    def self.table_header
+      ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId', 'Shard', 'Replica']
+    end
+
+    private
+
     def _load(id)
       MMS::Client.instance.get '/groups/' + @group.id + '/hosts/' + id.to_s
     end

@@ -50,6 +50,16 @@ module MMS
       snapshot
     end
 
+    def table_row
+      [@name, @active_agent_count, @replicaset_count, @shard_count, @last_active_agent, @id]
+    end
+
+    def self.table_header
+      ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent', 'GroupId']
+    end
+
+    private
+
     def _load(id)
       MMS::Client.instance.get '/groups/' + id.to_s
     end

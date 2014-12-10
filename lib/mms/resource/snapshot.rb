@@ -64,13 +64,37 @@ module MMS
       # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
       restore_jobs = @cluster.restorejobs
       jobs.each do |job|
-        _list = restore_jobs.select {|restorejob| restorejob.id == job['id'] }
+        _list = restore_jobs.select { |restorejob| restorejob.id == job['id'] }
         _list.each do |restorejob|
           job_list.push restorejob
         end
       end
       job_list
     end
+
+    def table_row
+      [@cluster.group.name, @cluster.name, @id, @complete, @created_increment, @name, @expires]
+    end
+
+    def table_section
+      rows = []
+      rows << table_row
+      rows << :separator
+      part_count = 0
+      @parts.each do |part|
+        file_size_mb = part['fileSizeBytes'].to_i / (1024*1024)
+        rows << [{:value => "part #{part_count}", :colspan => 4, :alignment => :right}, part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
+        part_count += 1
+      end
+      rows << :separator
+      rows
+    end
+
+    def self.table_header
+      ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']
+    end
+
+    private
 
     def _load(id)
       MMS::Client.instance.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s

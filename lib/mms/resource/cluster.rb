@@ -43,6 +43,16 @@ module MMS
       @restorejobs
     end
 
+    def self.table_header
+      ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat', 'Cluster Id']
+    end
+
+    def table_row
+      [@group.name, @name, @shard_name, @replicaset_name, @type_name, @last_heartbeat, @id]
+    end
+
+    private
+
     def _load(id)
       MMS::Client.instance.get '/groups/' + @group.id + '/clusters/' + id.to_s
     end
