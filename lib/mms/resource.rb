@@ -42,5 +42,14 @@ module MMS
       from_hash data
       MMS::Cache.instance.set "Class::#{self.class.name}:#{@id}", data
     end
+
+    def table_row
+    end
+
+    def table_section
+    end
+
+    def self.table_header
+    end
   end
 end
