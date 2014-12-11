@@ -84,22 +84,24 @@ end
 
 MMS::CLI.app_name = 'mms-api'
 MMS::CLI.actions_available = {
-    'groups' => 'Group',
-    'hosts' => 'Host',
-    'clusters' => 'Cluster',
-    'snapshots' => 'Snapshot',
-    'alerts' => 'Alert',
-    'restorejobs' => 'RestoreJob',
-    'restorejobs-create' => ''
+    'groups' => {:class => 'Group', :action => :list},
+    'hosts' => {:class => 'Host', :action => :list},
+    'clusters' => {:class => 'Cluster', :action => :list},
+    'snapshots' => {:class => 'Snapshot', :action => :list},
+    'alerts' => {:class => 'Alert', :action => :list},
+    'restorejobs' => {:class => 'RestoreJob', :action => :list},
+    'restorejobs-create' => {:class => '', :action => :create, :cli_help => 'restorejobs-create <group-id> <cluster-id> <snapshot-id>'}
 }
 
 MMS::CLI.add_options do
 
   app_dscr = "#{MMS::CLI.app_name} is a tool for accessing MMS API"
   app_usage = "#{MMS::CLI.app_name} command [options]"
-  app_commands = "#{MMS::CLI.actions_available.keys.join(' | ')}"
 
-  banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\t#{app_commands}\n\nOptions:\n\n")
+  app_commands_list = "#{MMS::CLI.actions_available.select { |obj, options| options[:action] == :list }.keys.join(' | ')}"
+  app_commands_create = "#{MMS::CLI.actions_available.select { |obj, options| options[:action] == :create }.map{|h,k| k[:cli_help] }.join(' | ')}"
+
+  banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\tList:\n \t \t#{app_commands_list}\n \tCreate:\n \t \t#{app_commands_create}\n\nOptions:\n\n")
 
   on(:u, :username=, "MMS user") do |u|
     MMS::Config.username = u
@@ -164,7 +166,7 @@ end.add_option_processor do |options|
     results.select! { |resource| !resource.name.match(Regexp.new(options[:name])).nil? }
 
     rows = []
-    heading = MMS::Resource.const_get(MMS::CLI.actions_available[action]).table_header
+    heading = MMS::Resource.const_get(MMS::CLI.actions_available[action][:class]).table_header
     results.first(MMS::Config.limit).each do |object|
       rows += object.table_section
     end
