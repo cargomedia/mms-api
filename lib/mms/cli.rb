@@ -90,7 +90,7 @@ MMS::CLI.actions_available = {
     'snapshots' => {:class => 'Snapshot', :action => :list},
     'alerts' => {:class => 'Alert', :action => :list},
     'restorejobs' => {:class => 'RestoreJob', :action => :list},
-    'restorejobs-create' => {:class => 'RestoreJob', :action => :create, :cli_help => 'restorejobs-create <group-id> <cluster-id> <snapshot-id>'}
+    'restorejob-create' => {:class => 'RestoreJob', :action => :create, :cli_help => 'restorejob-create <snapshot|time> <group-id> <cluster-id> <snapshot-id|timestamp>'}
 }
 
 MMS::CLI.add_options do
@@ -101,7 +101,9 @@ MMS::CLI.add_options do
   app_commands_list = "#{MMS::CLI.actions_available.select { |obj, options| options[:action] == :list }.keys.join(' | ')}"
   app_commands_create = "#{MMS::CLI.actions_available.select { |obj, options| options[:action] == :create }.map{|h,k| k[:cli_help] }.join(' | ')}"
 
-  banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\tList:\n \t \t#{app_commands_list}\n \tCreate:\n \t \t#{app_commands_create}\n\nOptions:\n\n")
+  app_command_args = "\tID: string[24]\n\tTIMESTAMP: `YYYY-MM-DD H:M:S`"
+
+  banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\tList:\n \t \t#{app_commands_list}\n \tCreate:\n \t \t#{app_commands_create}\n\nArguments: \n\n#{app_command_args}\n\nOptions:\n")
 
   on(:u, :username=, "MMS user") do |u|
     MMS::Config.username = u
