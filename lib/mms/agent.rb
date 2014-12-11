@@ -64,6 +64,14 @@ module MMS
       snapshot_list.sort_by { |snapshot| snapshot.created_date }.reverse
     end
 
+    def alerts
+      alert_list = []
+      groups.each do |group|
+        alert_list.concat group.alerts
+      end
+      alert_list.sort_by { |alert| alert.created }.reverse
+    end
+
     def restorejobs
       restorejob_list = []
       clusters.each do |cluster|
