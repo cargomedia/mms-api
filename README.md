@@ -16,7 +16,7 @@ mms-api is a tool for accessing MMS API
 
 Usage:
 
-  mms-api command [options]
+  mms-api command <arguments> [options]
 
 Commands:
 
