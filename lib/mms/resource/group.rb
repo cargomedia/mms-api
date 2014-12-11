@@ -24,6 +24,14 @@ module MMS
       host_list
     end
 
+    def alerts(page = 1, limit = 1000)
+      alert_list = []
+      MMS::Client.instance.get('/groups/' + @id + '/alerts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
+        alert_list.push MMS::Resource::Alert.new(alert['id'], alert['groupId'], alert)
+      end
+      alert_list
+    end
+
     def clusters(page = 1, limit = 1000)
       if @clusters.empty?
         MMS::Client.instance.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
