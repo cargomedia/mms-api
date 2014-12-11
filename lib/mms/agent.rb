@@ -80,8 +80,17 @@ module MMS
       restorejob_list.sort_by { |job| job.created }.reverse
     end
 
-    def restorejobs_create(group_id, cluster_id, snapshot_id)
-      findGroup(group_id).cluster(cluster_id).snapshot(snapshot_id).create_restorejob
+    def restorejob_create(type, group_id, cluster_id, type_value)
+      raise('Unknown restore job type. Use `snapshot` or `time` type.') unless ['snapshot', 'time'].include? (type)
+
+      if type == 'snapshot'
+        findGroup(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
+      elsif type == 'time'
+        datetime = DateTime.parse(type_value)
+        raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
+        datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
+        findGroup(group_id).cluster(cluster_id).create_restorejob(datetime_string)
+      end
     end
 
     def findGroup(id)
