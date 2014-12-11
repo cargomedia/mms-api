@@ -15,7 +15,13 @@ module MMS
     attr_accessor :last_notified
     attr_accessor :current_value
 
-    def initialize(id, group_id, data = nil)
+    def initialize(data)
+      id = data['id']
+      group_id = data['groupId']
+
+      raise('`Id` for alert resource must be defined') if id.nil?
+      raise('`groupId` for alert resource must be defined') if group_id.nil?
+
       @group = MMS::Resource::Group.new(group_id)
 
       super id, data

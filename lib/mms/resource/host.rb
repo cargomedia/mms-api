@@ -18,8 +18,14 @@ module MMS
     attr_accessor :profiler_enabled
     attr_accessor :logs_enabled
 
-    def initialize(id, group_id, data = nil)
-      @group = MMS::Resource::Group.new(group_id)
+    def initialize(data)
+      id = data['id']
+      group_id = data['groupId']
+
+      raise('`Id` for host resource must be defined') if id.nil?
+      raise('`groupId` for host resource must be defined') if group_id.nil?
+
+      @group = MMS::Resource::Group.new({'id' => group_id})
 
       super id, data
     end

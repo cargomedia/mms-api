@@ -12,23 +12,29 @@ module MMS
     attr_accessor :snapshots
     attr_accessor :restorejobs
 
-    def initialize(id, group_id, data = nil)
+    def initialize(data)
+      id = data['id']
+      group_id = data['groupId']
+
+      raise('`Id` for cluster resource must be defined') if id.nil?
+      raise('`groupId` for cluster resource must be defined') if group_id.nil?
+
       @snapshots = []
       @restorejobs = []
 
-      @group = MMS::Resource::Group.new(group_id)
+      @group = MMS::Resource::Group.new({'id' => group_id})
 
       super id, data
     end
 
     def snapshot(id)
-      MMS::Resource::Snapshot.new id, @id, @group.id
+      MMS::Resource::Snapshot.new({'id' => id, 'clusterId' => @id, 'groupId' => @group.id})
     end
 
     def snapshots(page = 1, limit = 1000)
       if @snapshots.empty?
         MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
-          @snapshots.push MMS::Resource::Snapshot.new(snapshot['id'], snapshot['clusterId'], snapshot['groupId'], snapshot)
+          @snapshots.push MMS::Resource::Snapshot.new(snapshot)
         end
       end
       @snapshots
@@ -37,7 +43,7 @@ module MMS
     def restorejobs(page = 1, limit = 1000)
       if @restorejobs.empty?
         MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
-          @restorejobs.push MMS::Resource::RestoreJob.new(job['id'], job['clusterId'], job['groupId'], job)
+          @restorejobs.push MMS::Resource::RestoreJob.new(job)
         end
       end
       @restorejobs

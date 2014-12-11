@@ -35,7 +35,7 @@ module MMS
     def groups
       group_list = []
       MMS::Client.instance.get('/groups').each do |group|
-        group_list.push MMS::Resource::Group.new group['id'], group
+        group_list.push MMS::Resource::Group.new(group)
       end
       group_list.select { |group| group.id == @default_group or @default_group.nil? }
     end

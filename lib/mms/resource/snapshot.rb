@@ -13,8 +13,16 @@ module MMS
     attr_accessor :expires
     attr_accessor :parts
 
-    def initialize(id, cluster_id, group_id, data = nil)
-      @cluster = MMS::Resource::Cluster.new cluster_id, group_id
+    def initialize(data)
+      id = data['id']
+      cluster_id = data['clusterId']
+      group_id = data['groupId']
+
+      raise('`Id` for restorejob resource must be defined') if id.nil?
+      raise('`clusterId` for restorejob resource must be defined') if cluster_id.nil?
+      raise('`groupId` for restorejob resource must be defined') if group_id.nil?
+
+      @cluster = MMS::Resource::Cluster.new({'id' => cluster_id, 'groupId' => group_id})
 
       super id, data
     end
@@ -108,7 +116,7 @@ module MMS
       @parts = data['parts']
       @name = DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
 
-      @cluster = MMS::Resource::Cluster.new data['clusterId'], data['groupId']
+      @cluster = MMS::Resource::Cluster.new({'id' => data['clusterId'], 'groupId' => data['groupId']})
     end
   end
 end
