@@ -43,6 +43,32 @@ module MMS
       @restorejobs
     end
 
+    def create_restorejob(point_in_time = nil)
+      data = {
+          'timestamp' => {
+              'date' => point_in_time,
+              'increment' => 0
+          }
+      }
+      jobs = MMS::Client.instance.post '/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data
+
+      if jobs.nil?
+        raise "Cannot create job from snapshot `#{self.id}`"
+      end
+
+      job_list = []
+      # work around due to bug in MMS API; cannot read restoreJob using provided info.
+      # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
+      restore_jobs = restorejobs
+      jobs.each do |job|
+        _list = restore_jobs.select { |restorejob| restorejob.id == job['id'] }
+        _list.each do |restorejob|
+          job_list.push restorejob
+        end
+      end
+      job_list
+    end
+
     def table_row
       [@group.name, @name, @shard_name, @replicaset_name, @type_name, @last_heartbeat, @id]
     end
