@@ -22,7 +22,7 @@ module MMS
     end
 
     def table_row
-      [@group.name, JSON.dump(@current_value), @status, @type_name, @event_type_name, @created, @updated, @resolved, @last_notified]
+      [@status, @group.name, @type_name, @event_type_name, @created, @updated, @resolved, @last_notified, JSON.dump(@current_value)]
     end
 
     def table_section
@@ -30,7 +30,7 @@ module MMS
     end
 
     def self.table_header
-      ['Group', 'Value', 'Status', 'Type', 'Event name', 'Created', 'Updated', 'Resolved', 'Last notified']
+      ['Status', 'Group', 'Type', 'Event name', 'Created', 'Updated', 'Resolved', 'Last notified', 'Value']
     end
 
     private
