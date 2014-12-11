@@ -20,7 +20,7 @@ Usage:
 
 Commands:
 
-	groups | hosts | clusters | snapshots | restorejobs | restorejobs-create
+	groups | hosts | clusters | snapshots | alerts | restorejobs | restorejobs-create
 
 Options:
 
