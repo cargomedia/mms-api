@@ -88,6 +88,7 @@ MMS::CLI.actions_available = {
     'hosts' => 'Host',
     'clusters' => 'Cluster',
     'snapshots' => 'Snapshot',
+    'alerts' => 'Alert',
     'restorejobs' => 'RestoreJob',
     'restorejobs-create' => ''
 }
