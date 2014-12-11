@@ -16,11 +16,19 @@ mms-api is a tool for accessing MMS API
 
 Usage:
 
-	mms-api command [options]
+  mms-api command [options]
 
 Commands:
 
-	groups | hosts | clusters | snapshots | alerts | restorejobs | restorejobs-create
+  List:
+      groups | hosts | clusters | snapshots | alerts | restorejobs
+  Create:
+      restorejob-create <snapshot|time> <group-id> <cluster-id> <snapshot-id|timestamp>
+
+Arguments:
+
+    ID: string[24]
+    TIMESTAMP: `YYYY-MM-DD H:M:S`
 
 Options:
 
