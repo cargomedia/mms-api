@@ -55,7 +55,7 @@ module MMS
           ['', "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}],
           ['', @cluster.group.name, {:value => '', :colspan => 5}],
           [{:value => 'download url:', :colspan => 7}],
-          [{:value => @delivery_url, :colspan => 7}],
+          [{:value => @delivery_url || '(waiting for link)', :colspan => 7}],
           :separator
       ]
     end
