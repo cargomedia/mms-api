@@ -90,7 +90,7 @@ MMS::CLI.actions_available = {
     'snapshots' => {:class => 'Snapshot', :action => :list},
     'alerts' => {:class => 'Alert', :action => :list},
     'restorejobs' => {:class => 'RestoreJob', :action => :list},
-    'restorejobs-create' => {:class => '', :action => :create, :cli_help => 'restorejobs-create <group-id> <cluster-id> <snapshot-id>'}
+    'restorejobs-create' => {:class => 'RestoreJob', :action => :create, :cli_help => 'restorejobs-create <group-id> <cluster-id> <snapshot-id>'}
 }
 
 MMS::CLI.add_options do
