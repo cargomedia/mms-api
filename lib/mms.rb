@@ -14,4 +14,5 @@ module MMS
   require 'mms/resource/cluster'
   require 'mms/resource/snapshot'
   require 'mms/resource/restore_job'
+  require 'mms/resource/alert'
 end
