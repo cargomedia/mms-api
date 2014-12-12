@@ -1,7 +1,7 @@
 require 'mms'
 
 describe MMS::Resource::Group do
-  let(:group) { MMS::Resource::Group.new(1, {'id' => '1'}) }
+  let(:group) { MMS::Resource::Group.new({'id' => '1'}) }
 
   it 'should reload data' do
     MMS::Client.instance.stub(:get).and_return(
