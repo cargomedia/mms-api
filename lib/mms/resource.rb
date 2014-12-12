@@ -44,12 +44,23 @@ module MMS
     end
 
     def table_row
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
     def table_section
+      raise("`#{__method__}` Not implemented for `#{self.class.name}`")
     end
 
     def self.table_header
+      raise("`#{__method__}` Not implemented for `#{self.class.name}`")
+    end
+
+    def _load(id)
+      raise("`#{__method__}` Not implemented for `#{self.class.name}`")
+    end
+
+    def _from_hash(data)
+      raise("`#{__method__}` Not implemented for `#{self.class.name}`")
     end
   end
 end

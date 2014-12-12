@@ -197,7 +197,7 @@ end.add_option_processor do |options|
     end
 
   rescue => e
-    puts "Error: `#{e.message}`"
+    puts e
     exit 1
   end
 
