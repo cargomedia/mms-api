@@ -93,8 +93,23 @@ module MMS
       end
     end
 
-    def findGroup(id)
-      MMS::Resource::Group.new id
+    def alert_ack(group_id, alert_id, time)
+      time = DateTime.now if time == 'now'
+      time = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if time == 'forever'
+
+      group = findGroup(group_id)
+
+      if alert_id == 'all'
+        group.alerts.each do |alert|
+          alert.ack(time, 'Triggered by CLI for all alerts.')
+        end
+      elsif group.alert(alert_id).ack(time, 'Triggered by CLI.')
+      end
     end
+
+    def findGroup(id)
+      MMS::Resource::Group.new({'id' => id})
+    end
+
   end
 end
