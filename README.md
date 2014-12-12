@@ -24,11 +24,12 @@ Commands:
       groups | hosts | clusters | snapshots | alerts | restorejobs
   Create:
       restorejob-create <snapshot|time> <group-id> <cluster-id> <snapshot-id|timestamp>
+      alert-ack <group-id> <alert-id|all> <timestamp>
 
 Arguments:
 
-    ID: string[24]
-    TIMESTAMP: `YYYY-MM-DD H:M:S`
+    ID: string[24] or `all`
+    TIMESTAMP: `YYYY-MM-DD H:M:S` or `now` or `forever`
 
 Options:
 
