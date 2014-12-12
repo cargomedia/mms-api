@@ -80,24 +80,22 @@ module MMS
       restorejob_list.sort_by { |job| job.created }.reverse
     end
 
-    def restorejob_create(type, group_id, cluster_id, type_value)
-      raise('Unknown restore job type. Use `snapshot` or `time` type.') unless ['snapshot', 'time'].include? (type)
-
-      if type == 'snapshot'
-        findGroup(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
-      elsif type == 'time'
-        datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
+    def restorejob_create(type)
+      if type.length == 24
+        findGroup(@default_group).cluster(@default_cluster).snapshot(type_value).create_restorejob
+      elsif
+        datetime = (type == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
-        findGroup(group_id).cluster(cluster_id).create_restorejob(datetime_string)
+        findGroup(@default_group).cluster(@default_cluster).create_restorejob(datetime_string)
       end
     end
 
-    def alert_ack(group_id, alert_id, time)
+    def alert_ack(alert_id, time)
       time = DateTime.now if time == 'now'
       time = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if time == 'forever'
 
-      group = findGroup(group_id)
+      group = findGroup(@default_group)
 
       if alert_id == 'all'
         group.alerts.each do |alert|

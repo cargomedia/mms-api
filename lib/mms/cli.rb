@@ -90,8 +90,16 @@ MMS::CLI.actions_available = {
     'snapshots' => {:class => 'Snapshot', :action => :list},
     'alerts' => {:class => 'Alert', :action => :list},
     'restorejobs' => {:class => 'RestoreJob', :action => :list},
-    'restorejob-create' => {:class => 'RestoreJob', :action => :create, :cli_help => 'restorejob-create <snapshot|time> <group-id> <cluster-id> <snapshot-id|timestamp>'},
-    'alert-ack' => {:class => 'Alert', :action => :create, :cli_help => 'alert-ack <group-id> <alert-id> <timestamp>'}
+    'restorejob-create' => {
+        :class => 'RestoreJob', :action => :create,
+        :cli_help => 'restorejob-create <now|timestamp|snapshot-id>',
+        :require_config => [:group_id, :cluster_id]
+    },
+    'alert-ack' => {
+        :class => 'Alert', :action => :create,
+        :cli_help => 'alert-ack <all|alert-id> <forever|timestamp>',
+        :require_config => [:group_id, :cluster_id]
+    }
 }
 
 MMS::CLI.add_options do
@@ -100,9 +108,9 @@ MMS::CLI.add_options do
   app_usage = "#{MMS::CLI.app_name} command [options]"
 
   app_commands_list = "#{MMS::CLI.actions_available.select { |obj, options| options[:action] == :list }.keys.join(' | ')}"
-  app_commands_create = "#{MMS::CLI.actions_available.select { |obj, options| options[:action] == :create }.map{|h,k| k[:cli_help] }.join("\n \t \t")}"
+  app_commands_create = "#{MMS::CLI.actions_available.select { |obj, options| options[:action] == :create }.map { |h, k| k[:cli_help] }.join("\n \t \t")}"
 
-  app_command_args = "\tID: string[24] or `all`\n\tTIMESTAMP: `YYYY-MM-DD H:M:S` or `now` or `forever`"
+  app_command_args = "\tID: string[24]\n\tTIMESTAMP: `YYYY-MM-DD H:M:S`"
 
   banner("#{app_dscr}\n\nUsage:\n\n\t#{app_usage}\n\nCommands:\n\n\tList:\n \t \t#{app_commands_list}\n \tCreate:\n \t \t#{app_commands_create}\n\nArguments: \n\n#{app_command_args}\n\nOptions:\n")
 
@@ -151,6 +159,11 @@ end.add_option_processor do |options|
 
   begin
     action = (ARGV.first || MMS::Config.action || '').downcase
+    unless MMS::CLI.actions_available[action][:require_config].nil?
+      MMS::CLI.actions_available[action][:require_config].each do |option|
+        raise "`#{option}` is required for action `#{action}`" if options[option].nil? and MMS::Config.send(option).nil?
+      end
+    end
     raise("Unknown action #{action.upcase}") unless MMS::CLI.actions_available.include? (action)
   rescue => e
     puts "Error: #{e.message}"
