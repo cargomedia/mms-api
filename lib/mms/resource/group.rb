@@ -28,9 +28,9 @@ module MMS
       host_list
     end
 
-    def alerts(page = 1, limit = 1000)
+    def alerts(page = 1, limit = 1000, status = 'OPEN')
       alert_list = []
-      MMS::Client.instance.get('/groups/' + @id + '/alerts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
+      MMS::Client.instance.get('/groups/' + @id + '/alerts?status=' + status + '&pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
         alert_list.push MMS::Resource::Alert.new(alert)
       end
       alert_list
