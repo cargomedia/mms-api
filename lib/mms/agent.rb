@@ -86,7 +86,7 @@ module MMS
       if type == 'snapshot'
         findGroup(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
       elsif type == 'time'
-        datetime = DateTime.parse(type_value)
+        datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
         findGroup(group_id).cluster(cluster_id).create_restorejob(datetime_string)
