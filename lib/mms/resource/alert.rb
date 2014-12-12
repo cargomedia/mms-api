@@ -22,9 +22,18 @@ module MMS
       raise('`Id` for alert resource must be defined') if id.nil?
       raise('`groupId` for alert resource must be defined') if group_id.nil?
 
-      @group = MMS::Resource::Group.new(group_id)
+      @group = MMS::Resource::Group.new({'id' => group_id})
 
       super id, data
+    end
+
+    def ack(time, description)
+      data = {
+          :acknowledgedUntil => time,
+          :acknowledgementComment => description
+      }
+      alert = MMS::Client.instance.post '/groups/' + @group.id + '/alerts/' + @id, data
+      !alert.nil?
     end
 
     def table_row
@@ -32,7 +41,11 @@ module MMS
     end
 
     def table_section
-      [table_row]
+      rows = []
+      rows << table_row
+      rows << [{:value => "AlertId: #{@id}   GroupId: #{@group.id}", :colspan => 9, :alignment => :left}]
+      rows << :separator
+      rows
     end
 
     def self.table_header
