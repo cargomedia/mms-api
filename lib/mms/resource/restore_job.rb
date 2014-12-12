@@ -15,6 +15,7 @@ module MMS
     attr_accessor :snapshot
 
     attr_accessor :snapshot_id
+    attr_accessor :timestamp
     attr_accessor :created
     attr_accessor :status_name
     attr_accessor :point_in_time
@@ -54,13 +55,14 @@ module MMS
     end
 
     def table_row
-      [@id, @snapshot_id, @name, @status_name, @point_in_time, @delivery_method_name, @delivery_status_name]
+      time_str = DateTime.parse(@timestamp).strftime("%m/%d/%Y %H:%M")
+      [time_str, @snapshot_id, @name, @status_name, @point_in_time, @delivery_method_name, @delivery_status_name]
     end
 
     def table_section
       [
           table_row,
-          ['', "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}],
+          [@id, "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}],
           ['', @cluster.group.name, {:value => '', :colspan => 5}],
           [{:value => 'download url:', :colspan => 7}],
           [{:value => @delivery_url || '(waiting for link)', :colspan => 7}],
@@ -69,7 +71,7 @@ module MMS
     end
 
     def self.table_header
-      ['RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
+      ['Timestamp / RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
     end
 
     private
@@ -90,6 +92,7 @@ module MMS
       @snapshot_id = data['snapshotId']
       @created = data['created']
       @status_name = data['statusName']
+      @timestamp = data['timestamp']['date']
       @point_in_time = data['pointInTime']
       @delivery_method_name = data['delivery']['methodName'] unless data['delivery'].nil?
       @delivery_status_name = data['delivery']['statusName'] unless data['delivery'].nil?
