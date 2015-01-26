@@ -7,7 +7,7 @@ module MMS
 
   class Client
 
-    @config = nil
+    attr_accessor :config
 
     def initialize(config = nil)
       if config.nil?

@@ -2,7 +2,7 @@ module MMS
 
   class Agent
 
-    @client = nil
+    attr_accessor :client
 
     def initialize(config = nil, client = nil)
       if client.nil?
@@ -38,7 +38,7 @@ module MMS
 
     def groups
       group_list = MMS::Resource::Group.findGroups(@client)
-      group_list.select { |group| group.id == @config.group_id or @config.group_id.nil? }
+      group_list.select { |group| group.id == @client.config.group_id or @client.config.group_id.nil? }
     end
 
     def hosts
@@ -54,7 +54,7 @@ module MMS
       groups.each do |group|
         cluster_list.concat group.clusters
       end
-      cluster_list.select { |cluster| cluster.id == @config.cluster_id or @config.cluster_id.nil? }
+      cluster_list.select { |cluster| cluster.id == @client.config.cluster_id or @client.config.cluster_id.nil? }
     end
 
     def snapshots
@@ -83,11 +83,11 @@ module MMS
 
     def restorejob_create(type)
       if type.length == 24
-        findGroup(@config.group_id).cluster(@config.cluster_id).snapshot(type_value).create_restorejob
+        findGroup(@client.config.group_id).cluster(@client.config.cluster_id).snapshot(type_value).create_restorejob
       elsif datetime = (type == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
-        findGroup(@config.group_id).cluster(@config.cluster_id).create_restorejob(datetime_string)
+        findGroup(@client.config.group_id).cluster(@client.config.cluster_id).create_restorejob(datetime_string)
       end
     end
 
@@ -95,7 +95,7 @@ module MMS
       time = DateTime.now if time == 'now'
       time = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if time == 'forever'
 
-      group = findGroup(@config.group_id)
+      group = findGroup(@client.config.group_id)
 
       if alert_id == 'all'
         group.alerts.each do |alert|
