@@ -2,13 +2,29 @@ module MMS
 
   class Agent
 
+    @client = nil
+
     @default_group = nil
     @default_cluster = nil
 
-    def initialize(username = nil, apikey = nil, group_id = nil, cluster_id = nil)
-      MMS::Client.instance.auth_setup(username, apikey)
-      @default_group = group_id || MMS::Config.group_id
-      @default_cluster = cluster_id || MMS::Config.cluster_id
+    def initialize(config = nil, client = nil)
+
+      if client.nil?
+        @client = MMS::Client.new(
+            {
+                :username => config.username,
+                :apikey => config.apikey,
+                :api_protocol => config.api_protocol,
+                :api_host => config.api_host,
+                :api_port => config.api_port,
+                :api_path => config.api_path,
+                :api_version => config.api_version,
+            })
+      elsif @client = client
+      end
+
+      @default_group = config.group_id
+      @default_cluster = config.cluster_id
     end
 
     def set_apiurl(apiurl)
@@ -25,18 +41,19 @@ module MMS
       url_info.path = path_parts.join '/'
 
       # Update client singleton
-      MMS::Client.instance.api_protocol = url_info.scheme
-      MMS::Client.instance.api_host = url_info.host
-      MMS::Client.instance.api_port = url_info.port
-      MMS::Client.instance.api_path = url_info.path
-      MMS::Client.instance.api_version = api_version
+      @client.set_options(
+          {
+              :api_protocol => url_info.scheme,
+              :api_host => url_info.host,
+              :api_port => url_info.port,
+              :api_path => url_info.path,
+              :api_version => api_version,
+          }
+      )
     end
 
     def groups
-      group_list = []
-      MMS::Client.instance.get('/groups').each do |group|
-        group_list.push MMS::Resource::Group.new(group)
-      end
+      group_list = MMS::Resource::Group.findGroups(@client)
       group_list.select { |group| group.id == @default_group or @default_group.nil? }
     end
 
@@ -83,8 +100,7 @@ module MMS
     def restorejob_create(type)
       if type.length == 24
         findGroup(@default_group).cluster(@default_cluster).snapshot(type_value).create_restorejob
-      elsif
-        datetime = (type == 'now' ? DateTime.now : DateTime.parse(type_value))
+      elsif datetime = (type == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
         findGroup(@default_group).cluster(@default_cluster).create_restorejob(datetime_string)
@@ -106,7 +122,7 @@ module MMS
     end
 
     def findGroup(id)
-      MMS::Resource::Group.new({'id' => id})
+      MMS::Resource::Group.new(@client, {'id' => id})
     end
 
   end
