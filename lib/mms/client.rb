@@ -7,39 +7,36 @@ module MMS
 
   class Client
 
-    def initialize(options = {})
-      @options = Hash.new
+    @config = nil
 
-      set_options(options)
+    def initialize(config = nil)
+      if config.nil?
+        @config = MMS::Config.new
+      elsif @config = config
+      end
     end
 
     def set_options(options = {})
-      @options = {
-          :username => nil || @options[:username],
-          :apikey => nil || @options[:apikey],
-          :api_protocol => nil || @options[:api_protocol],
-          :api_host => nil || @options[:api_host],
-          :api_port => nil || @options[:api_port],
-          :api_path => nil || @options[:api_path],
-          :api_version => nil || @options[:api_version],
-      }.merge(options)
+      options.each do |h, k|
+        @config.public_send("#{h}=", k)
+      end
     end
 
-    def self.auth_setup(username = nil, apikey = nil)
-      @options[:username]= username
-      @options[:apikey] = apikey
+    def auth_setup(username = nil, apikey = nil)
+      @config.username = username
+      @config.apikey = apikey
     end
 
     def site
-      [@options[:api_protocol], '://', @options[:api_host], ':', @options[:api_port], @options[:api_path], '/', @options[:api_version]].join.to_s
+      [@config.api_protocol, '://', @config.api_host, ':', @config.api_port, @config.api_path, '/', @config.api_version].join.to_s
     end
 
     def get(path)
-      _get site + path, @options[:username], @options[:apikey]
+      _get(site + path, @config.username, @config.apikey)
     end
 
     def self.post(path, data)
-      _post site + path, data, @options[:username], @options[:apikey]
+      _post(site + path, data, @config.username, @config.apikey)
     end
 
     private
