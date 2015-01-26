@@ -1,8 +1,7 @@
-require 'singleton'
-require "net/http"
 require "uri"
-require 'net/http/digest_auth'
 require 'json'
+require "net/http"
+require 'net/http/digest_auth'
 
 module MMS
 

@@ -40,7 +40,7 @@ module MMS
       api_version = path_parts.pop
       url_info.path = path_parts.join '/'
 
-      # Update client singleton
+      # Update client
       @client.set_options(
           {
               :api_protocol => url_info.scheme,

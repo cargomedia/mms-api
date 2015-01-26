@@ -1,5 +1,3 @@
-require 'singleton'
-
 module MMS
 
   class Config
