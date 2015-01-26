@@ -1,10 +1,12 @@
 require 'mms'
 
 describe MMS::Agent do
-  let(:agent) { MMS::Agent.new }
+  let(:config) { MMS::Config.new }
+  let(:client) { MMS::Client.new }
+  let(:agent) { MMS::Agent.new(config, client) }
 
   it 'should list all mms groups' do
-    MMS::Client.instance.stub(:get).and_return(
+    client.stub(:get).and_return(
         [{
              "id" => "5196d3628d022db4cbc11111",
              "name" => "mms-group-1",
@@ -29,7 +31,7 @@ describe MMS::Agent do
   end
 
   it 'should list hosts' do
-    MMS::Client.instance.stub(:get).and_return(
+    client.stub(:get).and_return(
         [{
              "id" => "5196d3628d022db4cbc11111",
              "name" => "mms-group-1",
@@ -62,7 +64,7 @@ describe MMS::Agent do
   end
 
   it 'should list snapshots' do
-    MMS::Client.instance.stub(:get).and_return(
+    client.stub(:get).and_return(
         [{
              "id" => "5196d3628d022db4cbc11111",
              "name" => "mms-group-1",
@@ -116,10 +118,10 @@ describe MMS::Agent do
   end
 
   it 'should override API end point' do
-    api_endpoint = MMS::Client.instance.site
+    api_endpoint = client.site
     agent.set_apiurl('http://some.example.com:8080/api/public/v1.0')
 
-    MMS::Client.instance.site.should eq('http://some.example.com:8080/api/public/v1.0')
+    client.site.should eq('http://some.example.com:8080/api/public/v1.0')
 
     agent.set_apiurl(api_endpoint) # setting to previous value as this is singleton
   end

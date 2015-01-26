@@ -1,10 +1,11 @@
 require 'mms'
 
 describe MMS::Resource::Group do
-  let(:group) { MMS::Resource::Group.new({'id' => '1'}) }
+  let(:client) { MMS::Client.new }
+  let(:group) { MMS::Resource::Group.new(client, {'id' => '1'}) }
 
   it 'should reload data' do
-    MMS::Client.instance.stub(:get).and_return(
+    client.stub(:get).and_return(
         {
             "id" => "5196d3628d022db4cbc11111",
             "name" => "mms-group-1",
