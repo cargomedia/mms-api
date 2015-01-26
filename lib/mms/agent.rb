@@ -10,16 +10,7 @@ module MMS
     def initialize(config = nil, client = nil)
 
       if client.nil?
-        @client = MMS::Client.new(
-            {
-                :username => config.username,
-                :apikey => config.apikey,
-                :api_protocol => config.api_protocol,
-                :api_host => config.api_host,
-                :api_port => config.api_port,
-                :api_path => config.api_path,
-                :api_version => config.api_version,
-            })
+        @client = MMS::Client.new(config)
       elsif @client = client
       end
 
