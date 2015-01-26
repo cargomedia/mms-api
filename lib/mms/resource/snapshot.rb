@@ -4,6 +4,8 @@ module MMS
 
   class Resource::Snapshot < Resource
 
+    @client = nil
+
     attr_accessor :name
     attr_accessor :cluster
 
@@ -13,7 +15,7 @@ module MMS
     attr_accessor :expires
     attr_accessor :parts
 
-    def initialize(data)
+    def initialize(client, data)
       id = data['id']
       cluster_id = data['clusterId']
       group_id = data['groupId']
@@ -22,7 +24,9 @@ module MMS
       raise('`clusterId` for restorejob resource must be defined') if cluster_id.nil?
       raise('`groupId` for restorejob resource must be defined') if group_id.nil?
 
-      @cluster = MMS::Resource::Cluster.new({'id' => cluster_id, 'groupId' => group_id})
+      @client = client
+
+      @cluster = MMS::Resource::Cluster.new(client, {'id' => cluster_id, 'groupId' => group_id})
 
       super id, data
     end
@@ -61,7 +65,7 @@ module MMS
 
     def create_restorejob
       data = {:snapshotId => @id}
-      jobs = MMS::Client.instance.post '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs', data
+      jobs = @client.post '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs', data
 
       if jobs.nil?
         raise "Cannot create job from snapshot `#{self.id}`"
@@ -105,7 +109,7 @@ module MMS
     private
 
     def _load(id)
-      MMS::Client.instance.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s
+      @client.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s
     end
 
     def _from_hash(data)
@@ -116,7 +120,7 @@ module MMS
       @parts = data['parts']
       @name = DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
 
-      @cluster = MMS::Resource::Cluster.new({'id' => data['clusterId'], 'groupId' => data['groupId']})
+      @cluster = MMS::Resource::Cluster.new(@client, {'id' => data['clusterId'], 'groupId' => data['groupId']})
     end
   end
 end

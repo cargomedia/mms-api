@@ -2,6 +2,8 @@ module MMS
 
   class Resource::Host < Resource
 
+    @client = nil
+
     attr_accessor :name
     attr_accessor :group
     attr_accessor :hostname
@@ -18,14 +20,16 @@ module MMS
     attr_accessor :profiler_enabled
     attr_accessor :logs_enabled
 
-    def initialize(data)
+    def initialize(client, data)
       id = data['id']
       group_id = data['groupId']
 
       raise('`Id` for host resource must be defined') if id.nil?
       raise('`groupId` for host resource must be defined') if group_id.nil?
 
-      @group = MMS::Resource::Group.new({'id' => group_id})
+      @client = client
+
+      @group = MMS::Resource::Group.new(client, {'id' => group_id})
 
       super id, data
     end
@@ -45,7 +49,7 @@ module MMS
     private
 
     def _load(id)
-      MMS::Client.instance.get '/groups/' + @group.id + '/hosts/' + id.to_s
+      @client.get '/groups/' + @group.id + '/hosts/' + id.to_s
     end
 
     def _from_hash(data)

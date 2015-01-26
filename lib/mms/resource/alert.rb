@@ -2,6 +2,8 @@ module MMS
 
   class Resource::Alert < Resource
 
+    @client = nil
+
     attr_accessor :name
     attr_accessor :group
 
@@ -15,14 +17,16 @@ module MMS
     attr_accessor :last_notified
     attr_accessor :current_value
 
-    def initialize(data)
+    def initialize(client, data)
       id = data['id']
       group_id = data['groupId']
 
       raise('`Id` for alert resource must be defined') if id.nil?
       raise('`groupId` for alert resource must be defined') if group_id.nil?
 
-      @group = MMS::Resource::Group.new({'id' => group_id})
+      @client = client
+
+      @group = MMS::Resource::Group.new(client, {'id' => group_id})
 
       super id, data
     end
@@ -32,7 +36,7 @@ module MMS
           :acknowledgedUntil => time,
           :acknowledgementComment => description
       }
-      alert = MMS::Client.instance.post '/groups/' + @group.id + '/alerts/' + @id, data
+      alert = @client.post '/groups/' + @group.id + '/alerts/' + @id, data
       !alert.nil?
     end
 
@@ -55,7 +59,7 @@ module MMS
     private
 
     def _load(id)
-      MMS::Client.instance.get '/groups/' + @group.id + '/alerts/' + id.to_s
+      @client.get '/groups/' + @group.id + '/alerts/' + id.to_s
     end
 
     def _from_hash(data)

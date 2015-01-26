@@ -2,6 +2,8 @@ module MMS
 
   class Resource::Cluster < Resource
 
+    @client = nil
+
     attr_accessor :name
     attr_accessor :group
     attr_accessor :shard_name
@@ -12,7 +14,7 @@ module MMS
     attr_accessor :snapshots
     attr_accessor :restorejobs
 
-    def initialize(data)
+    def initialize(client, data)
       id = data['id']
       group_id = data['groupId']
 
@@ -22,19 +24,21 @@ module MMS
       @snapshots = []
       @restorejobs = []
 
-      @group = MMS::Resource::Group.new({'id' => group_id})
+      @client = client
+
+      @group = MMS::Resource::Group.new(client, {'id' => group_id})
 
       super id, data
     end
 
     def snapshot(id)
-      MMS::Resource::Snapshot.new({'id' => id, 'clusterId' => @id, 'groupId' => @group.id})
+      MMS::Resource::Snapshot.new(@client, {'id' => id, 'clusterId' => @id, 'groupId' => @group.id})
     end
 
     def snapshots(page = 1, limit = 1000)
       if @snapshots.empty?
-        MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
-          @snapshots.push MMS::Resource::Snapshot.new(snapshot)
+        @client.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
+          @snapshots.push MMS::Resource::Snapshot.new(@client, snapshot)
         end
       end
       @snapshots
@@ -42,8 +46,8 @@ module MMS
 
     def restorejobs(page = 1, limit = 1000)
       if @restorejobs.empty?
-        MMS::Client.instance.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
-          @restorejobs.push MMS::Resource::RestoreJob.new(job)
+        @client.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
+          @restorejobs.push MMS::Resource::RestoreJob.new(@client, job)
         end
       end
       @restorejobs
@@ -56,7 +60,7 @@ module MMS
               'increment' => 0
           }
       }
-      jobs = MMS::Client.instance.post '/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data
+      jobs = @client.post '/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data
 
       if jobs.nil?
         raise "Cannot create job from snapshot `#{self.id}`"
@@ -90,7 +94,7 @@ module MMS
     private
 
     def _load(id)
-      MMS::Client.instance.get '/groups/' + @group.id + '/clusters/' + id.to_s
+      @client.get '/groups/' + @group.id + '/clusters/' + id.to_s
     end
 
     def _from_hash(data)

@@ -4,6 +4,8 @@ module MMS
 
   class Resource::RestoreJob < Resource
 
+    @client = nil
+
     attr_accessor :name
 
     # this is restore point cluster e.g full cluster (configs, replicas)
@@ -23,7 +25,7 @@ module MMS
     attr_accessor :delivery_status_name
     attr_accessor :delivery_url
 
-    def initialize(data)
+    def initialize(client, data)
       id = data['id']
       cluster_id = data['clusterId']
       group_id = data['groupId']
@@ -32,7 +34,9 @@ module MMS
       raise('`clusterId` for restorejob resource must be defined') if cluster_id.nil?
       raise('`groupId` for restorejob resource must be defined') if group_id.nil?
 
-      @cluster = MMS::Resource::Cluster.new({'id' => cluster_id, 'groupId' => group_id})
+      @client = client
+
+      @cluster = MMS::Resource::Cluster.new(client, {'id' => cluster_id, 'groupId' => group_id})
 
       super id, data
     end
@@ -78,7 +82,7 @@ module MMS
 
     def _load(id)
       if has_cluster
-        data = MMS::Client.instance.get '/groups/' + snapshot.cluster.group.id + '/clusters/' + snapshot.cluster.id + '/restoreJobs/' + id.to_s
+        data = @client.get '/groups/' + snapshot.cluster.group.id + '/clusters/' + snapshot.cluster.id + '/restoreJobs/' + id.to_s
       else
         # config server has no cluster but owns RestoreJob and Snapshot
         restore_jobs = @cluster.restorejobs
