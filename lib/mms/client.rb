@@ -8,42 +8,39 @@ module MMS
 
   class Client
 
-    include Singleton
+    def initialize(options = {})
+      @options = Hash.new
 
-    attr_accessor :username
-    attr_accessor :apikey
-
-    attr_accessor :api_protocol
-    attr_accessor :api_host
-    attr_accessor :api_port
-    attr_accessor :api_path
-    attr_accessor :api_version
-
-    def initialize
-      @username, @apikey = nil
-
-      @api_protocol = MMS::Config.api_protocol
-      @api_host = MMS::Config.api_host
-      @api_port = MMS::Config.api_port
-      @api_path = MMS::Config.api_path
-      @api_version = MMS::Config.api_version
+      set_options(options)
     end
 
-    def auth_setup(username = nil, apikey = nil)
-      @username = username || MMS::Config.username
-      @apikey = apikey || MMS::Config.apikey
+    def set_options(options = {})
+      @options = {
+          :username => nil || @options[:username],
+          :apikey => nil || @options[:apikey],
+          :api_protocol => nil || @options[:api_protocol],
+          :api_host => nil || @options[:api_host],
+          :api_port => nil || @options[:api_port],
+          :api_path => nil || @options[:api_path],
+          :api_version => nil || @options[:api_version],
+      }.merge(options)
+    end
+
+    def self.auth_setup(username = nil, apikey = nil)
+      @options[:username]= username
+      @options[:apikey] = apikey
     end
 
     def site
-      [@api_protocol, '://', @api_host, ':', @api_port, @api_path, '/',  @api_version].join.to_s
+      [@options[:api_protocol], '://', @options[:api_host], ':', @options[:api_port], @options[:api_path], '/', @options[:api_version]].join.to_s
     end
 
     def get(path)
-      _get site + path, @username, @apikey
+      _get site + path, @options[:username], @options[:apikey]
     end
 
-    def post(path, data)
-      _post site + path, data, @username, @apikey
+    def self.post(path, data)
+      _post site + path, data, @options[:username], @options[:apikey]
     end
 
     private
@@ -71,7 +68,7 @@ module MMS
       response_json = JSON.parse(response.body)
 
       unless response_json['error'].nil?
-       raise(JSON.dump(response_json))
+        raise(JSON.dump(response_json))
       end
 
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
@@ -88,11 +85,11 @@ module MMS
       http = Net::HTTP.new uri.host, uri.port
       http.use_ssl = true
 
-      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' =>'application/json'}
+      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' => 'application/json'}
       res = http.request req
 
       auth = digest_auth.auth_header uri, res['WWW-Authenticate'], 'POST'
-      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' =>'application/json'}
+      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' => 'application/json'}
       req.add_field 'Authorization', auth
       req.body = data.to_json
 
