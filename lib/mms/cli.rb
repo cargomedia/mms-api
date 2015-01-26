@@ -202,8 +202,8 @@ end.add_option_processor do |options|
     end
 
   rescue => e
-      puts e
-#     exit 1
-end
+    puts e
+    exit 1
+  end
 
 end
