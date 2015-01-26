@@ -4,18 +4,11 @@ module MMS
 
     @client = nil
 
-    @default_group = nil
-    @default_cluster = nil
-
     def initialize(config = nil, client = nil)
-
       if client.nil?
         @client = MMS::Client.new(config)
       elsif @client = client
       end
-
-      @default_group = config.group_id
-      @default_cluster = config.cluster_id
     end
 
     def set_apiurl(apiurl)
@@ -45,7 +38,7 @@ module MMS
 
     def groups
       group_list = MMS::Resource::Group.findGroups(@client)
-      group_list.select { |group| group.id == @default_group or @default_group.nil? }
+      group_list.select { |group| group.id == @config.group_id or @config.group_id.nil? }
     end
 
     def hosts
@@ -61,7 +54,7 @@ module MMS
       groups.each do |group|
         cluster_list.concat group.clusters
       end
-      cluster_list.select { |cluster| cluster.id == @default_cluster or @default_cluster.nil? }
+      cluster_list.select { |cluster| cluster.id == @config.cluster_id or @config.cluster_id.nil? }
     end
 
     def snapshots
@@ -90,11 +83,11 @@ module MMS
 
     def restorejob_create(type)
       if type.length == 24
-        findGroup(@default_group).cluster(@default_cluster).snapshot(type_value).create_restorejob
+        findGroup(@config.group_id).cluster(@config.cluster_id).snapshot(type_value).create_restorejob
       elsif datetime = (type == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
-        findGroup(@default_group).cluster(@default_cluster).create_restorejob(datetime_string)
+        findGroup(@config.group_id).cluster(@config.cluster_id).create_restorejob(datetime_string)
       end
     end
 
@@ -102,7 +95,7 @@ module MMS
       time = DateTime.now if time == 'now'
       time = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if time == 'forever'
 
-      group = findGroup(@default_group)
+      group = findGroup(@config.group_id)
 
       if alert_id == 'all'
         group.alerts.each do |alert|
