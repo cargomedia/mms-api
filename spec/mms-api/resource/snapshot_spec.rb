@@ -23,7 +23,7 @@ describe MMS::Resource::Snapshot do
     snapshot.cluster.id.should eq('3')
     snapshot.cluster.group.id.should eq('2')
     snapshot.complete.should eq(nil)
-    snapshot.name.should eq(1)
+    snapshot.name.should eq('1')
 
     snapshot.reload
 
