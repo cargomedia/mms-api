@@ -114,11 +114,11 @@ module MMS
 
     def _from_hash(data)
       @complete = data['complete']
-      @created_date = data['created']['date']
-      @created_increment = data['created']['increment']
+      @created_date = data['created'].nil? ? nil : data['created']['date']
+      @created_increment = data['created'].nil? ? nil : data['created']['increment']
       @expires = data['expires']
       @parts = data['parts']
-      @name = DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
+      @name = @created_date.nil? ? @id : DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
 
       @cluster = MMS::Resource::Cluster.new(@client, {'id' => data['clusterId'], 'groupId' => data['groupId']})
     end
