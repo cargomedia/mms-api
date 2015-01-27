@@ -94,7 +94,7 @@ module MMS
     private
 
     def _load(id)
-      @client.get '/groups/' + @group.id + '/clusters/' + id.to_s
+      @client.get('/groups/' + @group.id + '/clusters/' + id.to_s)
     end
 
     def _from_hash(data)
