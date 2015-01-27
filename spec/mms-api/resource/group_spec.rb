@@ -17,9 +17,13 @@ describe MMS::Resource::Group do
     )
 
     group.id.should eq('1')
+    group.shard_count.should eq(nil)
+
     group.reload
+
     group.id.should eq('5196d3628d022db4cbc11111')
     group.name.should eq('mms-group-1')
+    group.shard_count.should eq(2)
   end
 
 end
