@@ -6,16 +6,17 @@ describe MMS::Resource::Snapshot do
 
   it 'should reload data' do
     client.stub(:get).and_return(
-        {"id" => "5196d3628d022db4cbc000000",
-         "groupId" => "2847387cd717dabc348a",
-         "clusterId" => "348938fbdbca74718cba",
-         "created" => {
-             "date" => "2014-02-01T12:34:12Z",
-             "increment" => 54
-         },
-         "expires" => "2014-08-01T12:34:12Z",
-         "complete" => true,
-         "isPossiblyInconsistent" => false,
+        {
+            "id" => "5196d3628d022db4cbc000000",
+            "groupId" => "2847387cd717dabc348a",
+            "clusterId" => "348938fbdbca74718cba",
+            "created" => {
+                "date" => "2014-02-01T12:34:12Z",
+                "increment" => 54
+            },
+            "expires" => "2014-08-01T12:34:12Z",
+            "complete" => true,
+            "isPossiblyInconsistent" => false,
         }
     )
 
