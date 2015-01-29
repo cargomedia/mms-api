@@ -7,36 +7,22 @@ module MMS
 
   class Client
 
-    attr_accessor :config
+    attr_accessor :username
+    attr_accessor :apikey
+    attr_accessor :url
 
-    def initialize(config = nil)
-      if config.nil?
-        @config = MMS::Config.new
-      elsif @config = config
-      end
-    end
-
-    def set_options(options = {})
-      options.each do |h, k|
-        @config.public_send("#{h}=", k)
-      end
-    end
-
-    def auth_setup(username = nil, apikey = nil)
-      @config.username = username
-      @config.apikey = apikey
-    end
-
-    def site
-      [@config.api_protocol, '://', @config.api_host, ':', @config.api_port, @config.api_path, '/', @config.api_version].join.to_s
+    def initialize(username = nil, apikey = nil, url = nil)
+      @username = username
+      @apikey = apikey
+      @url = url.nil? ? 'https://mms.mongodb.com:443/api/public/v1.0' : url
     end
 
     def get(path)
-      _get(site + path, @config.username, @config.apikey)
+      _get(@url + path, @username, @apikey)
     end
 
     def self.post(path, data)
-      _post(site + path, data, @config.username, @config.apikey)
+      _post(@url + path, data, @username, @apikey)
     end
 
     private

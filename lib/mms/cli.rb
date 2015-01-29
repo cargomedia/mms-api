@@ -178,10 +178,9 @@ end.add_option_processor do |options|
 
   begin
     ARGV.shift
-    agent = MMS::Agent.new(MMS::CLI.config)
-    unless MMS::CLI.config.apiurl.empty?
-      agent.set_apiurl(MMS::CLI.config.apiurl)
-    end
+
+    client = MMS::Client.new(MMS::CLI.config.username, MMS::CLI.config.apikey)
+    agent = MMS::Agent.new(client)
 
     results = agent.send action.sub('-', '_'), *ARGV
     results.select! { |resource| !resource.name.match(Regexp.new(options[:name])).nil? }

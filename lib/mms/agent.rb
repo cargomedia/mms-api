@@ -4,41 +4,17 @@ module MMS
 
     attr_accessor :client
 
-    def initialize(config = nil, client = nil)
-      if client.nil?
-        @client = MMS::Client.new(config)
-      elsif @client = client
-      end
+    def initialize(client)
+      @client = client
     end
 
     def set_apiurl(apiurl)
-      begin
-        url_info = URI(apiurl)
-      rescue URI::InvalidURIError
-        puts "Unable to parse given apiurl: #{apiurl}"
-        exit
-      end
-
-      # Split out version from URL path
-      path_parts = url_info.path.split '/'
-      api_version = path_parts.pop
-      url_info.path = path_parts.join '/'
-
-      # Update client
-      @client.set_options(
-          {
-              :api_protocol => url_info.scheme,
-              :api_host => url_info.host,
-              :api_port => url_info.port,
-              :api_path => url_info.path,
-              :api_version => api_version,
-          }
-      )
+      @client.url = apiurl
     end
 
-    def groups
+    def groups(group_id = nil)
       group_list = MMS::Resource::Group.findGroups(@client)
-      group_list.select { |group| group.id == @client.config.group_id or @client.config.group_id.nil? }
+      group_list.select { |group| group.id == group_id or group_id.nil? }
     end
 
     def hosts
@@ -49,12 +25,13 @@ module MMS
       host_list
     end
 
-    def clusters
+    def clusters(cluster_id = nil)
       cluster_list = []
       groups.each do |group|
         cluster_list.concat group.clusters
       end
-      cluster_list.select { |cluster| cluster.id == @client.config.cluster_id or @client.config.cluster_id.nil? }
+      cluster_list
+      cluster_list.select { |cluster| cluster.id == cluster_id or cluster_id.nil? }
     end
 
     def snapshots
@@ -81,27 +58,27 @@ module MMS
       restorejob_list.sort_by { |job| job.created }.reverse
     end
 
-    def restorejob_create(type)
-      if type.length == 24
-        findGroup(@client.config.group_id).cluster(@client.config.cluster_id).snapshot(type_value).create_restorejob
-      elsif datetime = (type == 'now' ? DateTime.now : DateTime.parse(type_value))
+    def restorejob_create(timestamp, group_id, cluster_id)
+      if timestamp.length == 24
+        findGroup(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
+      elsif datetime = (timestamp == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
-        findGroup(@client.config.group_id).cluster(@client.config.cluster_id).create_restorejob(datetime_string)
+        findGroup(group_id).cluster(cluster_id).create_restorejob(datetime_string)
       end
     end
 
-    def alert_ack(alert_id, time)
-      time = DateTime.now if time == 'now'
-      time = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if time == 'forever'
+    def alert_ack(alert_id, timestamp, group_id)
+      timestamp = DateTime.now if timestamp == 'now'
+      timestamp = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if timestamp == 'forever'
 
-      group = findGroup(@client.config.group_id)
+      group = findGroup(group_id)
 
       if alert_id == 'all'
         group.alerts.each do |alert|
-          alert.ack(time, 'Triggered by CLI for all alerts.')
+          alert.ack(timestamp, 'Triggered by CLI for all alerts.')
         end
-      elsif group.alert(alert_id).ack(time, 'Triggered by CLI.')
+      elsif group.alert(alert_id).ack(timestamp, 'Triggered by CLI.')
       end
     end
 
