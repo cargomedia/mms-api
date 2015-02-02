@@ -6,6 +6,7 @@ module MMS
   require "cgi"
   require "net/http"
   require 'net/http/digest_auth'
+  require 'terminal-table'
 
   require 'mms/config'
   require 'mms/agent'

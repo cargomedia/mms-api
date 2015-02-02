@@ -1,8 +1,6 @@
-require 'slop'
-require 'terminal-table'
-require 'parseconfig'
-require 'pathname'
 require 'clamp'
+require 'pathname'
+require 'parseconfig'
 
 module MMS
 
@@ -66,7 +64,7 @@ module MMS
         puts 'Default group: ' + @config.default_group_id unless @config.default_group_id.nil?
         puts 'Default cluster: ' + @config.default_cluster_id unless @config.default_cluster_id.nil?
 
-        if !@config.group_id.nil? or !@config.cluster_id.nil?
+        if !@config.default_group_id.nil? or !@config.default_cluster_id.nil?
           puts 'Add flag --ignore or update --default-group-id, --default-cluster-id or update your `~/.mms-api` to see all resources'
         end
       end
