@@ -33,10 +33,10 @@ module MMS
           action: proc {
             nil
           },
-          group_id: proc {
+          default_group_id: proc {
             nil
           },
-          cluster_id: proc {
+          default_cluster_id: proc {
             nil
           }
       }

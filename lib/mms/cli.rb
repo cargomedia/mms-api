@@ -16,12 +16,12 @@ module MMS
       attr_accessor :client
       attr_accessor :agent
 
-      option ['-g', '--group-id'], "<string>", "MMS group id" do |g|
-        @config.group_id = g
+      option ['-g', '--default-group-id'], "<string>", "Default MMS group id" do |g|
+        @config.default_group_id = g
       end
 
-      option ['-c', '--cluster-id'], "<string>", "MMS cluster id" do |c|
-        @config.cluster_id = c
+      option ['-c', '--default-cluster-id'], "<string>", "Default MMS cluster id" do |c|
+        @config.default_cluster_id = c
       end
 
       option ['-i', '--ignore'], :flag, "Ignore flag of --group-id and -cluster-id", :default => false
@@ -63,11 +63,11 @@ module MMS
 
         puts Terminal::Table.new :title => "Hosts", :headings => (heading.nil? ? [] : heading), :rows => rows
 
-        puts 'Default group: ' + @config.group_id unless @config.group_id.nil?
-        puts 'Default cluster: ' + @config.cluster_id unless @config.cluster_id.nil?
+        puts 'Default group: ' + @config.default_group_id unless @config.default_group_id.nil?
+        puts 'Default cluster: ' + @config.default_cluster_id unless @config.default_cluster_id.nil?
 
         if !@config.group_id.nil? or !@config.cluster_id.nil?
-          puts 'Add flag --ignore or update --group-id, --cluster-id or update your `~/.mms-api` to see all resources'
+          puts 'Add flag --ignore or update --default-group-id, --default-cluster-id or update your `~/.mms-api` to see all resources'
         end
       end
 
@@ -116,10 +116,13 @@ module MMS
 
       class MMS::CLI::Command::Alerts::Ack < MMS::CLI::Command
 
-        parameter "[id]", "Alert ID", :default => 'all'
+        parameter "[alert-id]", "Alert ID", :default => 'all'
+        parameter "[group-id]", "Group ID", :default => '--default-group-id'
         parameter "[timestamp]", "Postpone to timestamp", :default => 'forever'
 
         def execute
+          g_id = group_id == '--default-group-id' ? @config.default_group_id : group_id
+          agent.alert_ack(alert_id, timestamp, g_id)
         end
 
       end
@@ -152,8 +155,14 @@ module MMS
       class MMS::CLI::Command::RestoreJobs::Create < MMS::CLI::Command
 
         parameter "[snapshot-source]", "Restore from source. Options: now | timestamp | snapshot-id", :default => 'now'
+        parameter "[group-id]", "Group ID", :default => '--default-group-id'
+        parameter "[cluster-id]", "Cluster ID", :default => '--default-cluster-id'
 
         def execute
+          g_id = group_id == '--default-group-id' ? @config.default_group_id : group_id
+          c_id = cluster_id == '--default-cluster-id' ? @config.default_cluster_id : cluster_id
+
+          agent.restorejob_create(snapshot_source, g_id, c_id)
         end
 
       end
