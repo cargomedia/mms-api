@@ -4,4 +4,4 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 
 require 'mms'
 
-MMS::CLI.parse_options
+MMS::CLI::CommandManager.run

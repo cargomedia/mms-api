@@ -1,8 +1,3 @@
-require "uri"
-require 'json'
-require "net/http"
-require 'net/http/digest_auth'
-
 module MMS
 
   class Client
