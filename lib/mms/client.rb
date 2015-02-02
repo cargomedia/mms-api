@@ -16,7 +16,7 @@ module MMS
       _get(@url + path, @username, @apikey)
     end
 
-    def self.post(path, data)
+    def post(path, data)
       _post(@url + path, data, @username, @apikey)
     end
 
