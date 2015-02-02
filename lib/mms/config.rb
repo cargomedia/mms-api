@@ -30,9 +30,6 @@ module MMS
           api_version: proc {
             'v1.0'
           },
-          action: proc {
-            nil
-          },
           default_group_id: proc {
             nil
           },

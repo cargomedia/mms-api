@@ -72,6 +72,8 @@ module MMS
       def run(arguments)
         begin
           super
+        rescue Clamp::HelpWanted => e
+          puts help
         rescue Exception => e
           if e.message.empty?
             puts 'Unknown error/Interrupt'
@@ -185,7 +187,7 @@ module MMS
 
     end
 
-    class MMS::CLI::CommandManager < Clamp::Command
+    class MMS::CLI::CommandManager < MMS::CLI::Command
 
       option ['-u', '--username'], "<string>", "MMS user" do |u|
         @config.username = u
@@ -210,6 +212,7 @@ module MMS
       subcommand 'alerts', 'Alerts list', MMS::CLI::Command::Alerts
       subcommand 'snapshots', 'Snapshot lists', MMS::CLI::Command::Snapshots
       subcommand 'restorejobs', 'Restorejobs list', MMS::CLI::Command::RestoreJobs
+
     end
 
   end
