@@ -69,6 +69,19 @@ module MMS
         end
       end
 
+      def run(arguments)
+        begin
+          super
+        rescue Exception => e
+          if e.message.empty?
+            puts 'Unknown error/Interrupt'
+          else
+            puts e.message
+          end
+          exit 1
+        end
+      end
+
     end
 
     class MMS::CLI::Command::Hosts < MMS::CLI::Command
