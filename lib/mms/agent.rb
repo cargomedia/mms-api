@@ -56,10 +56,10 @@ module MMS
       restorejob_list.sort_by { |job| job.created }.reverse
     end
 
-    def restorejob_create(timestamp, group_id, cluster_id)
-      if timestamp.length == 24
+    def restorejob_create(type_value, group_id, cluster_id)
+      if type_value.length == 24
         findGroup(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
-      elsif datetime = (timestamp == 'now' ? DateTime.now : DateTime.parse(type_value))
+      elsif datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
         findGroup(group_id).cluster(cluster_id).create_restorejob(datetime_string)
