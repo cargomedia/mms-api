@@ -12,9 +12,8 @@ module MMS
       @client.url = apiurl
     end
 
-    def groups(group_id = nil)
-      group_list = MMS::Resource::Group.findGroups(@client)
-      group_list.select { |group| group.id == group_id or group_id.nil? }
+    def groups
+      MMS::Resource::Group.findGroups(@client)
     end
 
     def hosts
@@ -25,13 +24,12 @@ module MMS
       host_list
     end
 
-    def clusters(cluster_id = nil)
+    def clusters
       cluster_list = []
       groups.each do |group|
         cluster_list.concat group.clusters
       end
       cluster_list
-      cluster_list.select { |cluster| cluster.id == cluster_id or cluster_id.nil? }
     end
 
     def snapshots

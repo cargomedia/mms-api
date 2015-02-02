@@ -84,7 +84,10 @@ module MMS
     class MMS::CLI::Command::Groups < MMS::CLI::Command
 
       def execute
-        print(MMS::Resource::Group.table_header, agent.groups)
+        group_list = agent.groups
+        group_list.reject! { |group| group.id != @config.group_id } unless @config.group_id.nil?
+
+        print(MMS::Resource::Group.table_header, group_list)
       end
 
     end
@@ -92,7 +95,10 @@ module MMS
     class MMS::CLI::Command::Clusters < MMS::CLI::Command
 
       def execute
-        print(MMS::Resource::Cluster.table_header, agent.clusters)
+        cluster_list = agent.clusters
+        cluster_list.reject! { |cluster| cluster.id != @config.cluster_id } unless @config.cluster_id.nil?
+
+        print(MMS::Resource::Cluster.table_header, cluster_list)
       end
 
     end
