@@ -12,34 +12,27 @@ Cli
 ---
 ```bash
 $ mms-api --help
-mms-api is a tool for accessing MMS API
-
 Usage:
+    mms-api [OPTIONS] SUBCOMMAND [ARG] ...
 
-  mms-api command <arguments> [options]
+Parameters:
+    SUBCOMMAND                    subcommand
+    [ARG] ...                     subcommand arguments
 
-Commands:
-
-  List:
-      groups | hosts | clusters | snapshots | alerts | restorejobs
-  Create:
-      restorejob-create <now|timestamp|snapshot-id>
-      alert-ack <group-id> <all|alert-id> <forever|timestamp>
-
-Arguments:
-
-    ID: string[24]
-    TIMESTAMP: `YYYY-MM-DD H:M:S`
+Subcommands:
+    groups                        Groups list
+    hosts                         Hosts list in the mms group
+    clusters                      Clusters list in the mms groups
+    alerts                        Alerts list
+    snapshots                     Snapshot lists
+    restorejobs                   Restorejobs list
 
 Options:
-
-    -u, --username <string>           MMS user
-    -k, --apikey <string>             MMS api-key
-    -a, --apiurl <string>             MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0
-    -n, --name <string>               Filter by resource name using regexp
-    -l, --limit <int>                 Limit for result items
-    -v, --version                     Version
-    -h, --help                        Show this help
+    -u, --username <string>       MMS user
+    -k, --apikey <string>         MMS api-key
+    -a, --apiurl <string>         MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0
+    -v, --version                 Version
+    -h, --help                    print help
 ```
 
 `mms-api` reads default configuration from your home directory `~/.mms-api`. Example configuration:
