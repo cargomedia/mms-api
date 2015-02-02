@@ -96,7 +96,7 @@ module MMS
 
       def execute
         group_list = agent.groups
-        group_list.reject! { |group| group.id != @config.group_id } unless @config.group_id.nil?
+        group_list.reject! { |group| group.id != @config.default_group_id } unless @config.default_group_id.nil? or ignore?
 
         print(MMS::Resource::Group.table_header, group_list)
       end
@@ -107,7 +107,7 @@ module MMS
 
       def execute
         cluster_list = agent.clusters
-        cluster_list.reject! { |cluster| cluster.id != @config.cluster_id } unless @config.cluster_id.nil?
+        cluster_list.reject! { |cluster| cluster.id != @config.default_cluster_id } unless @config.default_cluster_id.nil? or ignore?
 
         print(MMS::Resource::Cluster.table_header, cluster_list)
       end
