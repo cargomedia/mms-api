@@ -25,7 +25,7 @@ module MMS
       option ['-i', '--ignore'], :flag, "Ignore flag of --group-id and -cluster-id", :default => false
 
       option ['-l', '--limit'], "<integer>", "Limit for result items" do |l|
-        @config.limit = l
+        @config.limit = Integer(l)
       end
 
       def initialize(invocation_path, context = {}, parent_attribute_values = {})
