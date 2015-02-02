@@ -136,6 +136,7 @@ module MMS
         def execute
           g_id = group_id == '--default-group-id' ? @config.default_group_id : group_id
           agent.alert_ack(alert_id, timestamp, g_id)
+          puts 'Done.'
         end
 
       end
@@ -176,6 +177,8 @@ module MMS
           c_id = cluster_id == '--default-cluster-id' ? @config.default_cluster_id : cluster_id
 
           agent.restorejob_create(snapshot_source, g_id, c_id)
+
+          puts 'Done.'
         end
 
       end

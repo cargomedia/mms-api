@@ -35,7 +35,7 @@ module MMS
       MMS::Resource::Snapshot.new(@client, {'id' => id, 'clusterId' => @id, 'groupId' => @group.id})
     end
 
-    def snapshots(page = 1, limit = 1000)
+    def snapshots(page = 1, limit = 10)
       if @snapshots.empty?
         @client.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
           @snapshots.push MMS::Resource::Snapshot.new(@client, snapshot)
@@ -44,9 +44,17 @@ module MMS
       @snapshots
     end
 
-    def restorejobs(page = 1, limit = 1000)
+    def restorejobs(page = 1, limit = 10)
       if @restorejobs.empty?
         @client.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
+
+          if job['snapshotId'].nil? and job['clusterId'].nil?
+            raise("RestoreJob `#{job['id']}` with status `#{job['statusName']}` has no `clusterId` and no `snapshotId`.")
+          elsif job['clusterId'].nil?
+            snapshot = @group.findSnapshot(job['snapshotId'])
+            job['clusterId'] = snapshot.cluster.id unless snapshot.nil?
+          end
+
           @restorejobs.push MMS::Resource::RestoreJob.new(@client, job)
         end
       end
@@ -60,7 +68,7 @@ module MMS
               'increment' => 0
           }
       }
-      jobs = @client.post '/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data
+      jobs = @client.post('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data)
 
       if jobs.nil?
         raise "Cannot create job from snapshot `#{self.id}`"
@@ -69,7 +77,21 @@ module MMS
       job_list = []
       # work around due to bug in MMS API; cannot read restoreJob using provided info.
       # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
-      restore_jobs = restorejobs
+      tries = 5
+      while tries > 0
+        begin
+          restore_jobs = restorejobs
+          tries = 0
+        rescue Exception => e
+          tries-=1;
+          raise(e.message) if tries < 1
+
+          puts e.message
+          puts 'Sleeping for 5 seconds. Trying again...'
+          sleep(5)
+        end
+      end
+
       jobs.each do |job|
         _list = restore_jobs.select { |restorejob| restorejob.id == job['id'] }
         _list.each do |restorejob|

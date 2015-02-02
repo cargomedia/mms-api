@@ -32,7 +32,7 @@ module MMS
       group_list
     end
 
-    def hosts(page = 1, limit = 1000)
+    def hosts(page = 1, limit = 10)
       host_list = []
       @client.get('/groups/' + @id + '/hosts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |host|
         host_list.push MMS::Resource::Host.new(@client, host)
@@ -40,7 +40,7 @@ module MMS
       host_list
     end
 
-    def alerts(page = 1, limit = 1000, status = 'OPEN')
+    def alerts(page = 1, limit = 10, status = 'OPEN')
       alert_list = []
       @client.get('/groups/' + @id + '/alerts?status=' + status + '&pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
         alert_list.push MMS::Resource::Alert.new(@client, alert)
@@ -52,7 +52,7 @@ module MMS
       MMS::Resource::Alert.new(@client, {'id' => id, 'groupId' => @id})
     end
 
-    def clusters(page = 1, limit = 1000)
+    def clusters(page = 1, limit = 10)
       if @clusters.empty?
         @client.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
           @clusters.push MMS::Resource::Cluster.new(@client, cluster)
