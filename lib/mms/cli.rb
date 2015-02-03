@@ -14,6 +14,23 @@ module MMS
       attr_accessor :client
       attr_accessor :agent
 
+      option ['-u', '--username'], "<string>", "MMS user" do |u|
+        @config.username = u
+      end
+
+      option ['-k', '--apikey'], "<string>", "MMS api-key" do |a|
+        @config.apikey = a
+      end
+
+      option ['-a', '--apiurl'], "<string>", "MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0" do |u|
+        @config.apiurl = u
+      end
+
+      option ['-v', '--version'], :flag, "Version" do |v|
+        puts "mms-api v#{MMS::VERSION}"
+        exit
+      end
+
       option ['-g', '--default-group-id'], "<string>", "Default MMS group id" do |g|
         @config.default_group_id = g
       end
@@ -198,23 +215,6 @@ module MMS
     end
 
     class MMS::CLI::CommandManager < MMS::CLI::Command
-
-      option ['-u', '--username'], "<string>", "MMS user" do |u|
-        @config.username = u
-      end
-
-      option ['-k', '--apikey'], "<string>", "MMS api-key" do |a|
-        @config.apikey = a
-      end
-
-      option ['-a', '--apiurl'], "<string>", "MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0" do |u|
-        @config.apiurl = u
-      end
-
-      option ['-v', '--version'], :flag, "Version" do |v|
-        puts "mms-api v#{MMS::VERSION}"
-        exit
-      end
 
       subcommand 'groups', 'Groups list', MMS::CLI::Command::Groups
       subcommand 'hosts', 'Hosts list in the mms group', MMS::CLI::Command::Hosts
