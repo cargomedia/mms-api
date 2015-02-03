@@ -14,6 +14,7 @@ module MMS
   require 'mms/cache'
   require 'mms/version'
   require 'mms/resource'
+  require 'mms/errors'
 
   require 'mms/resource/group'
   require 'mms/resource/host'
