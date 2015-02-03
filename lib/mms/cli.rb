@@ -41,6 +41,8 @@ module MMS
 
       option ['-i', '--ignore'], :flag, "Ignore flag of --group-id and -cluster-id", :default => false
 
+      option ['-j', '--json'], :flag, "Print JSON output", :default => false
+
       option ['-l', '--limit'], "<integer>", "Limit for result items" do |l|
         @config.limit = Integer(l)
       end
@@ -70,6 +72,10 @@ module MMS
       end
 
       def print(heading, resource_list)
+        json? ? print_json(resource_list) : print_human(heading, resource_list)
+      end
+
+      def print_human(heading, resource_list)
         rows = []
 
         resource_list.first(@config.limit).each do |resource|
@@ -79,6 +85,16 @@ module MMS
         puts Terminal::Table.new :title => "Hosts", :headings => (heading.nil? ? [] : heading), :rows => rows
 
         print_tips unless ignore?
+      end
+
+      def print_json(resource_list)
+        rows = []
+
+        resource_list.first(@config.limit).each do |resource|
+          rows.push(resource.to_hash)
+        end
+
+        puts JSON.pretty_generate(rows)
       end
 
       def print_tips
