@@ -24,8 +24,8 @@ module MMS
       id = data['id']
       group_id = data['groupId']
 
-      raise('`Id` for host resource must be defined') if id.nil?
-      raise('`groupId` for host resource must be defined') if group_id.nil?
+      raise MMS::ResourceError.new('`Id` for host resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`groupId` for host resource must be defined', self) if group_id.nil?
 
       @client = client
 

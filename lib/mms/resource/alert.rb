@@ -21,8 +21,8 @@ module MMS
       id = data['id']
       group_id = data['groupId']
 
-      raise('`Id` for alert resource must be defined') if id.nil?
-      raise('`groupId` for alert resource must be defined') if group_id.nil?
+      raise MMS::ResourceError.new('`Id` for alert resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`groupId` for alert resource must be defined', self) if group_id.nil?
 
       @client = client
 

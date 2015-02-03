@@ -18,8 +18,8 @@ module MMS
       id = data['id']
       group_id = data['groupId']
 
-      raise('`Id` for cluster resource must be defined') if id.nil?
-      raise('`groupId` for cluster resource must be defined') if group_id.nil?
+      raise MMS::ResourceError.new('`Id` for cluster resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`groupId` for cluster resource must be defined', self) if group_id.nil?
 
       @snapshots = []
       @restorejobs = []
@@ -49,7 +49,7 @@ module MMS
         @client.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
 
           if job['snapshotId'].nil? and job['clusterId'].nil?
-            raise("RestoreJob `#{job['id']}` with status `#{job['statusName']}` has no `clusterId` and no `snapshotId`.")
+            raise MMS::ResourceError.new("RestoreJob `#{job['id']}` with status `#{job['statusName']}` has no `clusterId` and no `snapshotId`.", self)
           elsif job['clusterId'].nil?
             snapshot = @group.findSnapshot(job['snapshotId'])
             job['clusterId'] = snapshot.cluster.id unless snapshot.nil?
@@ -71,7 +71,7 @@ module MMS
       jobs = @client.post('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data)
 
       if jobs.nil?
-        raise "Cannot create job from snapshot `#{self.id}`"
+        raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
       end
 
       job_list = []
@@ -84,7 +84,7 @@ module MMS
           tries = 0
         rescue Exception => e
           tries-=1;
-          raise(e.message) if tries < 1
+          raise MMS::ResourceError.new(e.message, self) if tries < 1
 
           puts e.message
           puts 'Sleeping for 5 seconds. Trying again...'

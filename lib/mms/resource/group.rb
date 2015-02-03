@@ -15,7 +15,7 @@ module MMS
     def initialize(client, data)
       id = data['id']
 
-      raise('`Id` for group resource must be defined') if id.nil?
+      raise MMS::ResourceError.new('`Id` for group resource must be defined', self) if id.nil?
 
       @client = client
 

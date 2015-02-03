@@ -30,9 +30,9 @@ module MMS
       cluster_id = data['clusterId']
       group_id = data['groupId']
 
-      raise('`Id` for restorejob resource must be defined') if id.nil?
-      raise('`clusterId` for restorejob resource must be defined') if cluster_id.nil?
-      raise('`groupId` for restorejob resource must be defined') if group_id.nil?
+      raise MMS::ResourceError.new('`Id` for restorejob resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`clusterId` for restorejob resource must be defined', self) if cluster_id.nil?
+      raise MMS::ResourceError.new('`groupId` for restorejob resource must be defined', self) if group_id.nil?
 
       @client = client
 

@@ -20,9 +20,9 @@ module MMS
       cluster_id = data['clusterId']
       group_id = data['groupId']
 
-      raise('`Id` for restorejob resource must be defined') if id.nil?
-      raise('`clusterId` for restorejob resource must be defined') if cluster_id.nil?
-      raise('`groupId` for restorejob resource must be defined') if group_id.nil?
+      raise MMS::ResourceError.new('`Id` for restorejob resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`clusterId` for restorejob resource must be defined', self) if cluster_id.nil?
+      raise MMS::ResourceError.new('`groupId` for restorejob resource must be defined', self) if group_id.nil?
 
       @client = client
 
@@ -68,7 +68,7 @@ module MMS
       jobs = @client.post '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs', data
 
       if jobs.nil?
-        raise "Cannot create job from snapshot `#{self.id}`"
+        raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
       end
 
       job_list = []
