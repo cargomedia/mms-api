@@ -44,8 +44,12 @@ module MMS
       response = http.request(req)
       response_json = JSON.parse(response.body)
 
-      unless response_json['error'].nil?
-        raise(JSON.dump(response_json))
+      unless response.code == 200 or response_json['error'].nil?
+        msg = "http 'get' error for url `#{url}`"
+        msg = response_json['detail'] unless response_json['detail'].nil?
+
+        raise MMS::AuthError.new(msg, req, response) if response.code == '401'
+        raise MMS::ApiError.new(msg, req, response)
       end
 
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
@@ -73,8 +77,12 @@ module MMS
       response = http.request req
       response_json = JSON.parse response.body
 
-      unless response_json['error'].nil?
-        raise(JSON.dump(response_json))
+      unless response.code == 200 or response_json['error'].nil?
+        msg = "http 'get' error for url `#{url}`"
+        msg = response_json['detail'] unless response_json['detail'].nil?
+
+        raise MMS::AuthError.new(msg, req, response) if response.code == '401'
+        raise MMS::ApiError.new(msg, req, response)
       end
 
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
