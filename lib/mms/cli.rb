@@ -74,6 +74,13 @@ module MMS
           super
         rescue Clamp::HelpWanted => e
           puts help
+        rescue MMS::AuthError => e
+          puts 'Authorisation problem. Please check you credential!'
+        rescue MMS::ApiError => e
+          puts e.message
+        rescue MMS::ResourceError => e
+          puts "Resource #{e.resource.class.name} problem:"
+          puts e.message
         rescue Exception => e
           if e.message.empty?
             puts 'Unknown error/Interrupt'
