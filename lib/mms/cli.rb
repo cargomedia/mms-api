@@ -78,6 +78,10 @@ module MMS
 
         puts Terminal::Table.new :title => "Hosts", :headings => (heading.nil? ? [] : heading), :rows => rows
 
+        print_tips unless ignore?
+      end
+
+      def print_tips
         puts 'Default group: ' + @config.default_group_id unless @config.default_group_id.nil?
         puts 'Default cluster: ' + @config.default_cluster_id unless @config.default_cluster_id.nil?
 
