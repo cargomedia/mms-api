@@ -103,5 +103,10 @@ module MMS
       @shard_count = data['shardCount']
       @last_active_agent = data['lastActiveAgent']
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end

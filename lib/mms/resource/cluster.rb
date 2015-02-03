@@ -126,5 +126,10 @@ module MMS
       @type_name = data['typeName']
       @last_heartbeat = data['lastHeartbeat']
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end

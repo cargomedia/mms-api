@@ -19,6 +19,10 @@ module MMS
       end
     end
 
+    def to_hash
+      _to_hash
+    end
+
     def reload
       @data = _load(@id)
       save @data unless @data.nil? or @data.empty?
@@ -60,6 +64,10 @@ module MMS
     end
 
     def _from_hash(data)
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
+    end
+
+    def _to_hash
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
   end

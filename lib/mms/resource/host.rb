@@ -68,5 +68,10 @@ module MMS
       @logs_enabled = data['logsEnabled']
       @name = @hostname
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end

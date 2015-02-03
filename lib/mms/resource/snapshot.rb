@@ -122,5 +122,10 @@ module MMS
 
       @cluster = MMS::Resource::Cluster.new(@client, {'id' => data['clusterId'], 'groupId' => data['groupId']})
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end

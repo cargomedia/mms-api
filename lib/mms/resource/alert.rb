@@ -74,5 +74,10 @@ module MMS
       @current_value = data['currentValue']
       @name = @type_name
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end

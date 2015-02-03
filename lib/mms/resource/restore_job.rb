@@ -103,5 +103,10 @@ module MMS
       @delivery_url = data['delivery']['url'] unless data['delivery'].nil?
       @name = DateTime.parse(@created).strftime("%Y-%m-%d %H:%M:%S")
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end
