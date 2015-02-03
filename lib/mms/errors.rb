@@ -1,8 +1,5 @@
 module MMS
 
-  class DeclarationError < StandardError
-  end
-
   class RuntimeError < StandardError;
 
     def initialize(message, request, response)
