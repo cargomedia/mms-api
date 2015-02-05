@@ -123,8 +123,6 @@ module MMS
           raise('Authorisation problem. Please check you credential!')
         rescue MMS::ResourceError => e
           raise(["Resource #{e.resource.class.name} problem:", e.message].join("\n"))
-        rescue Exception => e
-          abort(e.message.empty? ? 'Unknown error/Interrupt' : e.message)
         end
       end
     end
@@ -234,6 +232,14 @@ module MMS
     end
 
     class MMS::CLI::CommandManager < MMS::CLI::Command
+
+      def run(arguments)
+        begin
+          super
+        rescue Exception => e
+          abort(e.message.empty? ? 'Unknown error/Interrupt' : e.message)
+        end
+      end
 
       subcommand 'groups', 'Groups list', MMS::CLI::Command::Groups
       subcommand 'hosts', 'Hosts list in the mms group', MMS::CLI::Command::Hosts
