@@ -13,41 +13,41 @@ module MMS
       attr_accessor :client
       attr_accessor :agent
 
-      option ['-u', '--username'], "<string>", "MMS user" do |u|
+      option ['-u', '--username'], '<string>', 'MMS user' do |u|
         @config.username = u
       end
 
-      option ['-k', '--apikey'], "<string>", "MMS api-key" do |a|
+      option ['-k', '--apikey'], '<string>', 'MMS api-key' do |a|
         @config.apikey = a
       end
 
-      option ['-a', '--apiurl'], "<string>", "MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0" do |u|
+      option ['-a', '--apiurl'], '<string>', 'MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0' do |u|
         @config.apiurl = u
       end
 
-      option ['-v', '--version'], :flag, "Version" do |v|
+      option ['-v', '--version'], :flag, 'Version' do |v|
         puts "mms-api v#{MMS::VERSION}"
         exit
       end
 
-      option ['-g', '--default-group-id'], "<string>", "Default MMS group id" do |g|
+      option ['-g', '--default-group-id'], '<string>', 'Default MMS group id' do |g|
         @config.default_group_id = g
       end
 
-      option ['-c', '--default-cluster-id'], "<string>", "Default MMS cluster id" do |c|
+      option ['-c', '--default-cluster-id'], '<string>', 'Default MMS cluster id' do |c|
         @config.default_cluster_id = c
       end
 
-      option ['--cfg'], "<string>", "Config file path" do |p|
+      option ['--cfg'], '<string>', 'Config file path' do |p|
         @config.config_path = p
         parse_user_home_config
       end
 
-      option ['-i', '--ignore'], :flag, "Ignore flag of --group-id and -cluster-id", :default => false
+      option ['-i', '--ignore'], :flag, 'Ignore flag of --group-id and -cluster-id', :default => false
 
-      option ['-j', '--json'], :flag, "Print JSON output", :default => false
+      option ['-j', '--json'], :flag, 'Print JSON output', :default => false
 
-      option ['-l', '--limit'], "<integer>", "Limit for result items" do |l|
+      option ['-l', '--limit'], '<integer>', 'Limit for result items' do |l|
         @config.limit = Integer(l)
       end
 
@@ -56,7 +56,7 @@ module MMS
       end
 
       def parse_user_home_config
-        raise(MMS::ConfigError.new("Config file path is not set!")) if @config.config_path.nil?
+        raise(MMS::ConfigError.new('Config file path is not set!')) if @config.config_path.nil?
         config_file = Pathname.new(@config.config_path)
         raise(MMS::ConfigError.new("Config file `#{config_file}` does not exist")) unless config_file.exist?
 
@@ -87,7 +87,7 @@ module MMS
           rows += resource.table_section
         end
 
-        puts Terminal::Table.new :title => "Hosts", :headings => (heading.nil? ? [] : heading), :rows => rows
+        puts Terminal::Table.new :title => 'Hosts', :headings => (heading.nil? ? [] : heading), :rows => rows
 
         print_tips unless ignore?
       end
@@ -129,7 +129,7 @@ module MMS
 
     class MMS::CLI::Command::Hosts < MMS::CLI::Command
 
-      self.default_subcommand = "list"
+      self.default_subcommand = 'list'
 
       subcommand 'list', 'Host list' do
 
@@ -142,11 +142,12 @@ module MMS
 
     class MMS::CLI::Command::Groups < MMS::CLI::Command
 
-      self.default_subcommand = "list"
+      self.default_subcommand = 'list'
 
       subcommand 'list', 'Group list' do
 
         def execute
+
           group_list = agent.groups
           group_list.reject! { |group| group.id != @config.default_group_id } unless @config.default_group_id.nil? or ignore?
 
@@ -158,7 +159,7 @@ module MMS
 
     class MMS::CLI::Command::Clusters < MMS::CLI::Command
 
-      self.default_subcommand = "list"
+      self.default_subcommand = 'list'
 
       subcommand 'list', 'Cluster list' do
 
@@ -175,7 +176,7 @@ module MMS
 
     class MMS::CLI::Command::Alerts < MMS::CLI::Command
 
-      self.default_subcommand = "list"
+      self.default_subcommand = 'list'
 
       subcommand 'list', 'Alerts list' do
 
@@ -187,9 +188,9 @@ module MMS
 
       subcommand 'ack', 'Acknowledge alert' do
 
-        parameter "[alert-id]", "Alert ID", :default => 'all'
-        parameter "[group-id]", "Group ID", :default => '--default-group-id'
-        parameter "[timestamp]", "Postpone to timestamp", :default => 'forever'
+        parameter '[alert-id]', 'Alert ID', :default => 'all'
+        parameter '[group-id]', 'Group ID', :default => '--default-group-id'
+        parameter '[timestamp]', 'Postpone to timestamp', :default => 'forever'
 
         def execute
           g_id = group_id == '--default-group-id' ? @config.default_group_id : group_id
@@ -203,7 +204,7 @@ module MMS
 
     class MMS::CLI::Command::Snapshots < MMS::CLI::Command
 
-      self.default_subcommand = "list"
+      self.default_subcommand = 'list'
 
       subcommand 'list', 'Snapshot list' do
 
@@ -216,7 +217,7 @@ module MMS
 
     class MMS::CLI::Command::RestoreJobs < MMS::CLI::Command
 
-      self.default_subcommand = "list"
+      self.default_subcommand = 'list'
 
       subcommand 'list', 'Restorejob list' do
 
@@ -228,9 +229,9 @@ module MMS
 
       subcommand 'create', 'Restorejob create' do
 
-        parameter "[snapshot-source]", "Restore from source. Options: now | timestamp | snapshot-id", :default => 'now'
-        parameter "[group-id]", "Group ID", :default => '--default-group-id'
-        parameter "[cluster-id]", "Cluster ID", :default => '--default-cluster-id'
+        parameter '[snapshot-source]', 'Restore from source. Options: now | timestamp | snapshot-id', :default => 'now'
+        parameter '[group-id]', 'Group ID', :default => '--default-group-id'
+        parameter '[cluster-id]', 'Cluster ID', :default => '--default-cluster-id'
 
         def execute
           g_id = group_id == '--default-group-id' ? @config.default_group_id : group_id
