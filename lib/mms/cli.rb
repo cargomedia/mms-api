@@ -129,30 +129,45 @@ module MMS
 
     class MMS::CLI::Command::Hosts < MMS::CLI::Command
 
-      def execute
-        print(MMS::Resource::Host.table_header, agent.hosts)
+      self.default_subcommand = "list"
+
+      subcommand 'list', 'Host list' do
+
+        def execute
+          print(MMS::Resource::Host.table_header, agent.hosts)
+        end
       end
 
     end
 
     class MMS::CLI::Command::Groups < MMS::CLI::Command
 
-      def execute
-        group_list = agent.groups
-        group_list.reject! { |group| group.id != @config.default_group_id } unless @config.default_group_id.nil? or ignore?
+      self.default_subcommand = "list"
 
-        print(MMS::Resource::Group.table_header, group_list)
+      subcommand 'list', 'Group list' do
+
+        def execute
+          group_list = agent.groups
+          group_list.reject! { |group| group.id != @config.default_group_id } unless @config.default_group_id.nil? or ignore?
+
+          print(MMS::Resource::Group.table_header, group_list)
+        end
       end
 
     end
 
     class MMS::CLI::Command::Clusters < MMS::CLI::Command
 
-      def execute
-        cluster_list = agent.clusters
-        cluster_list.reject! { |cluster| cluster.id != @config.default_cluster_id } unless @config.default_cluster_id.nil? or ignore?
+      self.default_subcommand = "list"
 
-        print(MMS::Resource::Cluster.table_header, cluster_list)
+      subcommand 'list', 'Cluster list' do
+
+        def execute
+          cluster_list = agent.clusters
+          cluster_list.reject! { |cluster| cluster.id != @config.default_cluster_id } unless @config.default_cluster_id.nil? or ignore?
+
+          print(MMS::Resource::Cluster.table_header, cluster_list)
+        end
       end
 
     end
@@ -160,7 +175,9 @@ module MMS
 
     class MMS::CLI::Command::Alerts < MMS::CLI::Command
 
-      class MMS::CLI::Command::Alerts::List < MMS::CLI::Command
+      self.default_subcommand = "list"
+
+      subcommand 'list', 'Alerts list' do
 
         def execute
           print(MMS::Resource::Alert.table_header, agent.alerts)
@@ -168,7 +185,7 @@ module MMS
 
       end
 
-      class MMS::CLI::Command::Alerts::Ack < MMS::CLI::Command
+      subcommand 'ack', 'Acknowledge alert' do
 
         parameter "[alert-id]", "Alert ID", :default => 'all'
         parameter "[group-id]", "Group ID", :default => '--default-group-id'
@@ -182,24 +199,26 @@ module MMS
 
       end
 
-      self.default_subcommand = "list"
-
-      subcommand 'list', 'Alerts list', MMS::CLI::Command::Alerts::List
-      subcommand 'ack', 'Acknowledge alert', MMS::CLI::Command::Alerts::Ack
-
     end
 
     class MMS::CLI::Command::Snapshots < MMS::CLI::Command
 
-      def execute
-        print(MMS::Resource::Snapshot.table_header, agent.snapshots)
+      self.default_subcommand = "list"
+
+      subcommand 'list', 'Snapshot list' do
+
+        def execute
+          print(MMS::Resource::Snapshot.table_header, agent.snapshots)
+        end
       end
 
     end
 
     class MMS::CLI::Command::RestoreJobs < MMS::CLI::Command
 
-      class MMS::CLI::Command::RestoreJobs::List < MMS::CLI::Command
+      self.default_subcommand = "list"
+
+      subcommand 'list', 'Restorejob list' do
 
         def execute
           print(MMS::Resource::RestoreJob.table_header, agent.restorejobs)
@@ -207,7 +226,7 @@ module MMS
 
       end
 
-      class MMS::CLI::Command::RestoreJobs::Create < MMS::CLI::Command
+      subcommand 'create', 'Restorejob create' do
 
         parameter "[snapshot-source]", "Restore from source. Options: now | timestamp | snapshot-id", :default => 'now'
         parameter "[group-id]", "Group ID", :default => '--default-group-id'
@@ -224,11 +243,6 @@ module MMS
 
       end
 
-      self.default_subcommand = "list"
-
-      subcommand 'list', 'Alerts list', MMS::CLI::Command::RestoreJobs::List
-      subcommand 'create', 'Acknowledge alert', MMS::CLI::Command::RestoreJobs::Create
-
     end
 
     class MMS::CLI::CommandManager < MMS::CLI::Command
@@ -241,12 +255,12 @@ module MMS
         end
       end
 
-      subcommand 'groups', 'Groups list', MMS::CLI::Command::Groups
-      subcommand 'hosts', 'Hosts list in the mms group', MMS::CLI::Command::Hosts
-      subcommand 'clusters', 'Clusters list in the mms groups', MMS::CLI::Command::Clusters
-      subcommand 'alerts', 'Alerts list', MMS::CLI::Command::Alerts
-      subcommand 'snapshots', 'Snapshot lists', MMS::CLI::Command::Snapshots
-      subcommand 'restorejobs', 'Restorejobs list', MMS::CLI::Command::RestoreJobs
+      subcommand 'groups', 'Groups ', MMS::CLI::Command::Groups
+      subcommand 'hosts', 'Hosts', MMS::CLI::Command::Hosts
+      subcommand 'clusters', 'Clusters', MMS::CLI::Command::Clusters
+      subcommand 'alerts', 'Alerts', MMS::CLI::Command::Alerts
+      subcommand 'snapshots', 'Snapshots', MMS::CLI::Command::Snapshots
+      subcommand 'restorejobs', 'Restorejobs', MMS::CLI::Command::RestoreJobs
 
     end
 
