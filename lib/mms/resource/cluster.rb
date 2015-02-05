@@ -86,8 +86,8 @@ module MMS
           tries-=1;
           raise MMS::ResourceError.new(e.message, self) if tries < 1
 
-          puts e.message
-          puts 'Sleeping for 5 seconds. Trying again...'
+          STDERR.puts e.message
+          STDERR.puts 'Sleeping for 5 seconds. Trying again...'
           sleep(5)
         end
       end
