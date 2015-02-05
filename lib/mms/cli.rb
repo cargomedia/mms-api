@@ -56,8 +56,8 @@ module MMS
       end
 
       def parse_user_home_config
+        raise(MMS::ConfigError.new("Config file path is not set!")) if @config.config_path.nil?
         config_file = Pathname.new(@config.config_path)
-
         raise(MMS::ConfigError.new("Config file `#{config_file}` does not exist")) unless config_file.exist?
 
         config = ParseConfig.new(config_file)
