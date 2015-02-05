@@ -1,5 +1,4 @@
 require 'clamp'
-require 'pathname'
 require 'parseconfig'
 
 module MMS
@@ -39,6 +38,10 @@ module MMS
         @config.default_cluster_id = c
       end
 
+      option ['--cfg'], "<string>", "Config file path" do |p|
+        @config.config_path = p
+      end
+
       option ['-i', '--ignore'], :flag, "Ignore flag of --group-id and -cluster-id", :default => false
 
       option ['-j', '--json'], :flag, "Print JSON output", :default => false
@@ -54,7 +57,7 @@ module MMS
       end
 
       def parse_user_home_config
-        config_file = Pathname.new(Dir.home) + ('.mms-api')
+        config_file = @config.config_path
         if config_file.exist?
           config = ParseConfig.new(config_file)
 

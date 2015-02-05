@@ -35,6 +35,9 @@ module MMS
           },
           default_cluster_id: proc {
             nil
+          },
+          config_path: proc {
+            (Pathname.new(Dir.home) + ('.mms-api'))
           }
       }
 
