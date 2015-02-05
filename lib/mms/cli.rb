@@ -117,6 +117,9 @@ module MMS
           super
         rescue Clamp::HelpWanted => e
           puts help
+        rescue Clamp::UsageError => e
+          puts e.message
+          puts help
         rescue MMS::AuthError => e
           puts 'Authorisation problem. Please check you credential!'
         rescue MMS::ApiError => e
