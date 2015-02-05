@@ -40,6 +40,7 @@ module MMS
 
       option ['--cfg'], "<string>", "Config file path" do |p|
         @config.config_path = p
+        parse_user_home_config
       end
 
       option ['-i', '--ignore'], :flag, "Ignore flag of --group-id and -cluster-id", :default => false
@@ -52,21 +53,22 @@ module MMS
 
       def initialize(invocation_path, context = {}, parent_attribute_values = {})
         @config ||= MMS::Config.new
-
-        parse_user_home_config
       end
 
       def parse_user_home_config
-        config_file = @config.config_path
-        if config_file.exist?
-          config = ParseConfig.new(config_file)
+        config_file = Pathname.new(@config.config_path)
 
-          config.params.map do |key, value|
+        raise(MMS::ConfigError.new("Config file `#{config_file}` does not exist")) unless config_file.exist?
+
+        config = ParseConfig.new(config_file)
+        config.params.map do |key, value|
+          begin
             @config.send("#{key}=", value)
+          rescue Exception => e
+            raise MMS::ConfigError.new("Config option `#{key}` from file `#{config_file}` is not allowed!")
           end
         end
 
-        self
       end
 
       def agent
@@ -111,6 +113,7 @@ module MMS
 
       def run(arguments)
         begin
+          parse_user_home_config
           super
         rescue Clamp::HelpWanted => e
           puts help
@@ -120,6 +123,8 @@ module MMS
           puts e.message
         rescue MMS::ResourceError => e
           puts "Resource #{e.resource.class.name} problem:"
+          puts e.message
+        rescue MMS::ConfigError => e
           puts e.message
         rescue Exception => e
           if e.message.empty?
