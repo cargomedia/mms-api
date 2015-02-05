@@ -115,25 +115,17 @@ module MMS
         begin
           parse_user_home_config
           super
-          return
         rescue Clamp::HelpWanted => e
-          puts help
+          raise(help)
         rescue Clamp::UsageError => e
-          puts e.message
-          puts help
+          raise([e.message, help].join("\n"))
         rescue MMS::AuthError => e
-          puts 'Authorisation problem. Please check you credential!'
+          raise('Authorisation problem. Please check you credential!')
         rescue MMS::ResourceError => e
-          puts "Resource #{e.resource.class.name} problem:"
-          puts e.message
+          raise(["Resource #{e.resource.class.name} problem:", e.message].join("\n"))
         rescue Exception => e
-          if e.message.empty?
-            puts 'Unknown error/Interrupt'
-          else
-            puts e.message
-          end
+          abort(e.message.empty? ? 'Unknown error/Interrupt' : e.message)
         end
-        Process.exit!(1)
       end
     end
 
