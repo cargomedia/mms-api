@@ -2,37 +2,18 @@ module MMS
 
   class Agent
 
-    def initialize(username, apikey)
-      MMS::Client.instance.auth_setup(username, apikey)
+    attr_accessor :client
+
+    def initialize(client)
+      @client = client
     end
 
     def set_apiurl(apiurl)
-      begin
-        url_info = URI(apiurl)
-      rescue URI::InvalidURIError
-        puts "Unable to parse given apiurl: #{apiurl}"
-        exit
-      end
-
-      # Split out version from URL path
-      path_parts = url_info.path.split '/'
-      api_version = path_parts.pop
-      url_info.path = path_parts.join '/'
-
-      # Update client singleton
-      MMS::Client.instance.api_protocol = url_info.scheme
-      MMS::Client.instance.api_host = url_info.host
-      MMS::Client.instance.api_port = url_info.port
-      MMS::Client.instance.api_path = url_info.path
-      MMS::Client.instance.api_version = api_version
+      @client.url = apiurl
     end
 
     def groups
-      group_list = []
-      MMS::Client.instance.get('/groups').each do |group|
-        group_list.push MMS::Resource::Group.new group['id'], group
-      end
-      group_list
+      MMS::Resource::Group.findGroups(@client)
     end
 
     def hosts
@@ -56,7 +37,15 @@ module MMS
       clusters.each do |cluster|
         snapshot_list.concat cluster.snapshots
       end
-      snapshot_list
+      snapshot_list.sort_by { |snapshot| snapshot.created_date }.reverse
+    end
+
+    def alerts
+      alert_list = []
+      groups.each do |group|
+        alert_list.concat group.alerts
+      end
+      alert_list.sort_by { |alert| alert.created }.reverse
     end
 
     def restorejobs
@@ -64,15 +53,36 @@ module MMS
       clusters.each do |cluster|
         restorejob_list.concat cluster.restorejobs
       end
-      restorejob_list
+      restorejob_list.sort_by { |job| job.created }.reverse
     end
 
-    def restorejobs_create(group_id, cluster_id, snapshot_id)
-      findGroup(group_id).cluster(cluster_id).snapshot(snapshot_id).create_restorejob
+    def restorejob_create(type_value, group_id, cluster_id)
+      if type_value.length == 24
+        findGroup(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
+      elsif datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
+        raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
+        datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
+        findGroup(group_id).cluster(cluster_id).create_restorejob(datetime_string)
+      end
+    end
+
+    def alert_ack(alert_id, timestamp, group_id)
+      timestamp = DateTime.now if timestamp == 'now'
+      timestamp = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if timestamp == 'forever'
+
+      group = findGroup(group_id)
+
+      if alert_id == 'all'
+        group.alerts.each do |alert|
+          alert.ack(timestamp, 'Triggered by CLI for all alerts.')
+        end
+      elsif group.alert(alert_id).ack(timestamp, 'Triggered by CLI.')
+      end
     end
 
     def findGroup(id)
-      MMS::Resource::Group.new id
+      MMS::Resource::Group.new(@client, {'id' => id})
     end
+
   end
 end

@@ -1,49 +1,23 @@
-require 'singleton'
-require "net/http"
-require "uri"
-require 'net/http/digest_auth'
-require 'json'
-
 module MMS
 
   class Client
 
-    include Singleton
-
     attr_accessor :username
     attr_accessor :apikey
+    attr_accessor :url
 
-    attr_accessor :api_protocol
-    attr_accessor :api_host
-    attr_accessor :api_port
-    attr_accessor :api_path
-    attr_accessor :api_version
-
-    def initialize
-      @username, @apikey = nil
-
-      @api_protocol = 'https'
-      @api_host = 'mms.mongodb.com'
-      @api_port = '443'
-      @api_path = '/api/public'
-      @api_version = 'v1.0'
-    end
-
-    def auth_setup(username, apikey)
+    def initialize(username = nil, apikey = nil, url = nil)
       @username = username
       @apikey = apikey
-    end
-
-    def site
-      [@api_protocol, '://', @api_host, ':', @api_port, @api_path, '/',  @api_version].join.to_s
+      @url = url.nil? ? 'https://mms.mongodb.com:443/api/public/v1.0' : url
     end
 
     def get(path)
-      _get site + path, @username, @apikey
+      _get(@url + path, @username, @apikey)
     end
 
     def post(path, data)
-      _post site + path, data, @username, @apikey
+      _post(@url + path, data, @username, @apikey)
     end
 
     private
@@ -70,8 +44,12 @@ module MMS
       response = http.request(req)
       response_json = JSON.parse(response.body)
 
-      unless response_json['error'].nil?
-       response_json = nil
+      unless response.code == 200 or response_json['error'].nil?
+        msg = "http 'get' error for url `#{url}`"
+        msg = response_json['detail'] unless response_json['detail'].nil?
+
+        raise MMS::AuthError.new(msg, req, response) if response.code == '401'
+        raise MMS::ApiError.new(msg, req, response)
       end
 
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
@@ -88,19 +66,23 @@ module MMS
       http = Net::HTTP.new uri.host, uri.port
       http.use_ssl = true
 
-      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' =>'application/json'}
+      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' => 'application/json'}
       res = http.request req
 
       auth = digest_auth.auth_header uri, res['WWW-Authenticate'], 'POST'
-      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' =>'application/json'}
+      req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' => 'application/json'}
       req.add_field 'Authorization', auth
       req.body = data.to_json
 
       response = http.request req
       response_json = JSON.parse response.body
 
-      unless response_json['error'].nil?
-        response_json = nil
+      unless response.code == 200 or response_json['error'].nil?
+        msg = "http 'get' error for url `#{url}`"
+        msg = response_json['detail'] unless response_json['detail'].nil?
+
+        raise MMS::AuthError.new(msg, req, response) if response.code == '401'
+        raise MMS::ApiError.new(msg, req, response)
       end
 
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']

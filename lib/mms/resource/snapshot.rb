@@ -4,6 +4,8 @@ module MMS
 
   class Resource::Snapshot < Resource
 
+    @client = nil
+
     attr_accessor :name
     attr_accessor :cluster
 
@@ -13,8 +15,18 @@ module MMS
     attr_accessor :expires
     attr_accessor :parts
 
-    def initialize(id, cluster_id, group_id, data = nil)
-      @cluster = MMS::Resource::Cluster.new cluster_id, group_id
+    def initialize(client, data)
+      id = data['id']
+      cluster_id = data['clusterId']
+      group_id = data['groupId']
+
+      raise MMS::ResourceError.new('`Id` for restorejob resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`clusterId` for restorejob resource must be defined', self) if cluster_id.nil?
+      raise MMS::ResourceError.new('`groupId` for restorejob resource must be defined', self) if group_id.nil?
+
+      @client = client
+
+      @cluster = MMS::Resource::Cluster.new(client, {'id' => cluster_id, 'groupId' => group_id})
 
       super id, data
     end
@@ -53,10 +65,10 @@ module MMS
 
     def create_restorejob
       data = {:snapshotId => @id}
-      jobs = MMS::Client.instance.post '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs', data
+      jobs = @client.post '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs', data
 
       if jobs.nil?
-        raise "Cannot create job from snapshot `#{self.id}`"
+        raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
       end
 
       job_list = []
@@ -64,7 +76,7 @@ module MMS
       # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
       restore_jobs = @cluster.restorejobs
       jobs.each do |job|
-        _list = restore_jobs.select {|restorejob| restorejob.id == job['id'] }
+        _list = restore_jobs.select { |restorejob| restorejob.id == job['id'] }
         _list.each do |restorejob|
           job_list.push restorejob
         end
@@ -72,19 +84,48 @@ module MMS
       job_list
     end
 
+    def table_row
+      [@cluster.group.name, @cluster.name, @id, @complete, @created_increment, @name, @expires]
+    end
+
+    def table_section
+      rows = []
+      rows << table_row
+      rows << :separator
+      part_count = 0
+      @parts.each do |part|
+        file_size_mb = part['fileSizeBytes'].to_i / (1024*1024)
+        rows << [{:value => "part #{part_count}", :colspan => 4, :alignment => :right}, part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
+        part_count += 1
+      end
+      rows << :separator
+      rows
+    end
+
+    def self.table_header
+      ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']
+    end
+
+    private
+
     def _load(id)
-      MMS::Client.instance.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s
+      @client.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s
     end
 
     def _from_hash(data)
       @complete = data['complete']
-      @created_date = data['created']['date']
-      @created_increment = data['created']['increment']
+      @created_date = data['created'].nil? ? nil : data['created']['date']
+      @created_increment = data['created'].nil? ? nil : data['created']['increment']
       @expires = data['expires']
       @parts = data['parts']
-      @name = DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
+      @name = @created_date.nil? ? @id : DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
 
-      @cluster = MMS::Resource::Cluster.new data['clusterId'], data['groupId']
+      @cluster = MMS::Resource::Cluster.new(@client, {'id' => data['clusterId'], 'groupId' => data['groupId']})
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end

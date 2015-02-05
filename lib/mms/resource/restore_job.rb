@@ -4,6 +4,8 @@ module MMS
 
   class Resource::RestoreJob < Resource
 
+    @client = nil
+
     attr_accessor :name
 
     # this is restore point cluster e.g full cluster (configs, replicas)
@@ -15,6 +17,7 @@ module MMS
     attr_accessor :snapshot
 
     attr_accessor :snapshot_id
+    attr_accessor :timestamp
     attr_accessor :created
     attr_accessor :status_name
     attr_accessor :point_in_time
@@ -22,8 +25,18 @@ module MMS
     attr_accessor :delivery_status_name
     attr_accessor :delivery_url
 
-    def initialize(id, cluster_id, group_id, data = nil)
-      @cluster = MMS::Resource::Cluster.new cluster_id, group_id
+    def initialize(client, data)
+      id = data['id']
+      cluster_id = data['clusterId']
+      group_id = data['groupId']
+
+      raise MMS::ResourceError.new('`Id` for restorejob resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`clusterId` for restorejob resource must be defined', self) if cluster_id.nil?
+      raise MMS::ResourceError.new('`groupId` for restorejob resource must be defined', self) if group_id.nil?
+
+      @client = client
+
+      @cluster = MMS::Resource::Cluster.new(client, {'id' => cluster_id, 'groupId' => group_id})
 
       super id, data
     end
@@ -45,13 +58,35 @@ module MMS
       @snapshot
     end
 
+    def table_row
+      time_str = DateTime.parse(@timestamp).strftime("%m/%d/%Y %H:%M")
+      [time_str, @snapshot_id, @name, @status_name, @point_in_time, @delivery_method_name, @delivery_status_name]
+    end
+
+    def table_section
+      [
+          table_row,
+          [@id, "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}],
+          ['', @cluster.group.name, {:value => '', :colspan => 5}],
+          [{:value => 'download url:', :colspan => 7}],
+          [{:value => @delivery_url || '(waiting for link)', :colspan => 7}],
+          :separator
+      ]
+    end
+
+    def self.table_header
+      ['Timestamp / RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
+    end
+
+    private
+
     def _load(id)
       if has_cluster
-        data = MMS::Client.instance.get '/groups/' + snapshot.cluster.group.id + '/clusters/' + snapshot.cluster.id + '/restoreJobs/' + id.to_s
+        data = @client.get '/groups/' + snapshot.cluster.group.id + '/clusters/' + snapshot.cluster.id + '/restoreJobs/' + id.to_s
       else
         # config server has no cluster but owns RestoreJob and Snapshot
         restore_jobs = @cluster.restorejobs
-        job = restore_jobs.select {|restorejob| restorejob.id == id }
+        job = restore_jobs.select { |restorejob| restorejob.id == id }
         data = job.first.data unless job.nil? and job.empty?
       end
       data
@@ -61,11 +96,17 @@ module MMS
       @snapshot_id = data['snapshotId']
       @created = data['created']
       @status_name = data['statusName']
+      @timestamp = data['timestamp']['date']
       @point_in_time = data['pointInTime']
       @delivery_method_name = data['delivery']['methodName'] unless data['delivery'].nil?
       @delivery_status_name = data['delivery']['statusName'] unless data['delivery'].nil?
       @delivery_url = data['delivery']['url'] unless data['delivery'].nil?
       @name = DateTime.parse(@created).strftime("%Y-%m-%d %H:%M:%S")
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end

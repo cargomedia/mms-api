@@ -2,6 +2,8 @@ module MMS
 
   class Resource::Host < Resource
 
+    @client = nil
+
     attr_accessor :name
     attr_accessor :group
     attr_accessor :hostname
@@ -18,14 +20,36 @@ module MMS
     attr_accessor :profiler_enabled
     attr_accessor :logs_enabled
 
-    def initialize(id, group_id, data = nil)
-      @group = MMS::Resource::Group.new(group_id)
+    def initialize(client, data)
+      id = data['id']
+      group_id = data['groupId']
+
+      raise MMS::ResourceError.new('`Id` for host resource must be defined', self) if id.nil?
+      raise MMS::ResourceError.new('`groupId` for host resource must be defined', self) if group_id.nil?
+
+      @client = client
+
+      @group = MMS::Resource::Group.new(client, {'id' => group_id})
 
       super id, data
     end
 
+    def table_row
+      [@group.name, @type_name, @name, @ip_address, @port, @last_ping, @alerts_enabled, @id, @shard_name, @replicaset_name]
+    end
+
+    def table_section
+      [table_row]
+    end
+
+    def self.table_header
+      ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId', 'Shard', 'Replica']
+    end
+
+    private
+
     def _load(id)
-      MMS::Client.instance.get '/groups/' + @group.id + '/hosts/' + id.to_s
+      @client.get '/groups/' + @group.id + '/hosts/' + id.to_s
     end
 
     def _from_hash(data)
@@ -44,5 +68,10 @@ module MMS
       @logs_enabled = data['logsEnabled']
       @name = @hostname
     end
+
+    def _to_hash
+      @data
+    end
+
   end
 end
