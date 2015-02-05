@@ -107,7 +107,7 @@ module MMS
         puts 'Default cluster: ' + @config.default_cluster_id unless @config.default_cluster_id.nil?
 
         if !@config.default_group_id.nil? or !@config.default_cluster_id.nil?
-          puts 'Add flag --ignore or update --default-group-id, --default-cluster-id or update your `~/.mms-api` to see all resources'
+          puts "Add flag --ignore or update --default-group-id, --default-cluster-id or update your `#{@config.config_path}` to see all resources"
         end
       end
 
@@ -115,6 +115,7 @@ module MMS
         begin
           parse_user_home_config
           super
+          return
         rescue Clamp::HelpWanted => e
           puts help
         rescue Clamp::UsageError => e
@@ -122,12 +123,8 @@ module MMS
           puts help
         rescue MMS::AuthError => e
           puts 'Authorisation problem. Please check you credential!'
-        rescue MMS::ApiError => e
-          puts e.message
         rescue MMS::ResourceError => e
           puts "Resource #{e.resource.class.name} problem:"
-          puts e.message
-        rescue MMS::ConfigError => e
           puts e.message
         rescue Exception => e
           if e.message.empty?
@@ -135,10 +132,9 @@ module MMS
           else
             puts e.message
           end
-          exit 1
         end
+        Process.exit!(1)
       end
-
     end
 
     class MMS::CLI::Command::Hosts < MMS::CLI::Command

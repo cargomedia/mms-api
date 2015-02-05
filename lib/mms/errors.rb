@@ -34,20 +34,8 @@ module MMS
 
   end
 
-  class AuthError < ApiError
+  class AuthError < RuntimeError; end
 
-    def initialize(message, request, response)
-      super("Authentication needed!", request, response)
-    end
-
-  end
-
-  class ConfigError < StandardError
-
-    def initialize(message)
-      super(message)
-    end
-
-  end
+  class ConfigError < StandardError; end
 
 end
