@@ -129,8 +129,6 @@ module MMS
 
     class MMS::CLI::Command::Hosts < MMS::CLI::Command
 
-      self.default_subcommand = 'list'
-
       subcommand 'list', 'Host list' do
 
         def execute
@@ -141,8 +139,6 @@ module MMS
     end
 
     class MMS::CLI::Command::Groups < MMS::CLI::Command
-
-      self.default_subcommand = 'list'
 
       subcommand 'list', 'Group list' do
 
@@ -159,8 +155,6 @@ module MMS
 
     class MMS::CLI::Command::Clusters < MMS::CLI::Command
 
-      self.default_subcommand = 'list'
-
       subcommand 'list', 'Cluster list' do
 
         def execute
@@ -175,8 +169,6 @@ module MMS
 
 
     class MMS::CLI::Command::Alerts < MMS::CLI::Command
-
-      self.default_subcommand = 'list'
 
       subcommand 'list', 'Alerts list' do
 
@@ -204,8 +196,6 @@ module MMS
 
     class MMS::CLI::Command::Snapshots < MMS::CLI::Command
 
-      self.default_subcommand = 'list'
-
       subcommand 'list', 'Snapshot list' do
 
         def execute
@@ -216,8 +206,6 @@ module MMS
     end
 
     class MMS::CLI::Command::RestoreJobs < MMS::CLI::Command
-
-      self.default_subcommand = 'list'
 
       subcommand 'list', 'Restorejob list' do
 
