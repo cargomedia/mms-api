@@ -76,6 +76,35 @@ module MMS
         @agent = MMS::Agent.new(client)
       end
 
+      def group_list
+        id = ignore? ? nil : @config.default_group_id
+        id.nil? ? agent.groups : [agent.findGroup(id)]
+      end
+
+      def cluster_list
+        id = ignore? ? nil : @config.default_cluster_id
+
+        group_list.collect! do |group|
+          id.nil? ? group.clusters : group.cluster(id)
+        end.flatten
+      end
+
+      def host_list
+        group_list.collect! { |group| group.hosts }.flatten
+      end
+
+      def alert_list
+        group_list.collect! { |group| group.alerts }.flatten
+      end
+
+      def snapshot_list
+        cluster_list.collect! { |cluster| cluster.snapshots }.flatten.sort_by { |snapshot| snapshot.created_date }.reverse
+      end
+
+      def restorejob_list
+        cluster_list.collect! { |cluster| cluster.restorejobs }.flatten.sort_by { |job| job.created }.reverse
+      end
+
       def print(heading, resource_list)
         json? ? print_json(resource_list) : print_human(heading, resource_list)
       end
@@ -127,24 +156,23 @@ module MMS
       end
     end
 
-    class MMS::CLI::Command::Hosts < MMS::CLI::Command
-
-      subcommand 'list', 'Host list' do
-
-        def execute
-          print(MMS::Resource::Host.table_header, agent.hosts(@config.default_group_id))
-        end
-      end
-
-    end
-
     class MMS::CLI::Command::Groups < MMS::CLI::Command
 
       subcommand 'list', 'Group list' do
 
         def execute
-          group_id = ignore? ? nil : @config.default_group_id
-          print(MMS::Resource::Group.table_header, agent.groups(group_id))
+          print(MMS::Resource::Group.table_header, group_list)
+        end
+      end
+
+    end
+
+    class MMS::CLI::Command::Hosts < MMS::CLI::Command
+
+      subcommand 'list', 'Host list' do
+
+        def execute
+          print(MMS::Resource::Host.table_header, host_list)
         end
       end
 
@@ -155,11 +183,6 @@ module MMS
       subcommand 'list', 'Cluster list' do
 
         def execute
-          group_id = ignore? ? nil : @config.default_group_id
-
-          cluster_list = agent.clusters(group_id)
-          cluster_list.reject! { |cluster| cluster.id != @config.default_cluster_id } unless @config.default_cluster_id.nil? or ignore?
-
           print(MMS::Resource::Cluster.table_header, cluster_list)
         end
       end
@@ -172,8 +195,7 @@ module MMS
       subcommand 'list', 'Alerts list' do
 
         def execute
-          group_id = ignore? ? nil : @config.default_group_id
-          print(MMS::Resource::Alert.table_header, agent.alerts(group_id))
+          print(MMS::Resource::Alert.table_header, alert_list)
         end
 
       end
@@ -199,8 +221,7 @@ module MMS
       subcommand 'list', 'Snapshot list' do
 
         def execute
-          group_id = ignore? ? nil : @config.default_group_id
-          print(MMS::Resource::Snapshot.table_header, agent.snapshots(group_id))
+          print(MMS::Resource::Snapshot.table_header, snapshot_list)
         end
       end
 
@@ -211,8 +232,7 @@ module MMS
       subcommand 'list', 'Restorejob list' do
 
         def execute
-          group_id = ignore? ? nil : @config.default_group_id
-          print(MMS::Resource::RestoreJob.table_header, agent.restorejobs(group_id))
+          print(MMS::Resource::RestoreJob.table_header, restorejob_list)
         end
 
       end
