@@ -4,12 +4,7 @@ module MMS
 
   class Resource::RestoreJob < Resource
 
-    @client = nil
-
     attr_accessor :name
-
-    # this is restore point cluster e.g full cluster (configs, replicas)
-    attr_accessor :cluster
 
     # this is source point from where RestoreJob was created
     # RestoreJob.snapshot.cluster is e.g replica, config server
@@ -25,20 +20,18 @@ module MMS
     attr_accessor :delivery_status_name
     attr_accessor :delivery_url
 
-    def initialize(client, data)
-      id = data['id']
-      cluster_id = data['clusterId']
-      group_id = data['groupId']
-
-      raise MMS::ResourceError.new('`Id` for restorejob resource must be defined', self) if id.nil?
-      raise MMS::ResourceError.new('`clusterId` for restorejob resource must be defined', self) if cluster_id.nil?
-      raise MMS::ResourceError.new('`groupId` for restorejob resource must be defined', self) if group_id.nil?
-
-      @client = client
-
-      @cluster = MMS::Resource::Cluster.new(client, {'id' => cluster_id, 'groupId' => group_id})
-
-      super id, data
+    def cluster
+      begin
+        cluster = MMS::Resource::Cluster.find(@client, @data['groupId'], @data['clusterId'])
+      rescue
+        # Workaround
+        # time to time the mms-api return data without "clusterId" defined
+        # creation of empty clluster instance is a good solution here.
+        cluster = MMS::Resource::Cluster.new
+        cluster.set_client(@client)
+        cluster.set_data({'groupId' => @data['groupId']})
+      end
+      cluster
     end
 
     def has_cluster
@@ -53,7 +46,7 @@ module MMS
       # snapshot details for config-server cannot be loaded
       # as there is no clusterId. See also has_cluster()
       if @snapshot.nil?
-        @snapshot = @cluster.group.findSnapshot(@snapshot_id)
+        @snapshot = cluster.group.find_snapshot(@snapshot_id)
       end
       @snapshot
     end
@@ -66,8 +59,8 @@ module MMS
     def table_section
       [
           table_row,
-          [@id, "#{@cluster.name} (#{@cluster.id})", {:value => '', :colspan => 5}],
-          ['', @cluster.group.name, {:value => '', :colspan => 5}],
+          [@id, "#{cluster.name} (#{cluster.id})", {:value => '', :colspan => 5}],
+          ['', cluster.group.name, {:value => '', :colspan => 5}],
           [{:value => 'download url:', :colspan => 7}],
           [{:value => @delivery_url || '(waiting for link)', :colspan => 7}],
           :separator
@@ -78,19 +71,19 @@ module MMS
       ['Timestamp / RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
     end
 
-    private
-
-    def _load(id)
-      if has_cluster
-        data = @client.get '/groups/' + snapshot.cluster.group.id + '/clusters/' + snapshot.cluster.id + '/restoreJobs/' + id.to_s
-      else
-        # config server has no cluster but owns RestoreJob and Snapshot
-        restore_jobs = @cluster.restorejobs
-        job = restore_jobs.select { |restorejob| restorejob.id == id }
-        data = job.first.data unless job.nil? and job.empty?
-      end
-      data
+    def self.find_recursively(client, group_id, cluster_id, id)
+      cluster = MMS::Resource::Cluster.find(client, group_id, cluster_id)
+      # config server has no cluster but owns RestoreJob and Snapshot
+      restore_jobs = cluster.restorejobs
+      job = restore_jobs.select { |restorejob| restorejob.id == id }
+      job.first.data unless job.nil? and job.empty?
     end
+
+    def self._find(client, group_id, cluster_id, id)
+      client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/restoreJobs/' + id)
+    end
+
+    private
 
     def _from_hash(data)
       @snapshot_id = data['snapshotId']
@@ -107,6 +100,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end

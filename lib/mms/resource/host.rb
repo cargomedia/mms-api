@@ -2,10 +2,7 @@ module MMS
 
   class Resource::Host < Resource
 
-    @client = nil
-
     attr_accessor :name
-    attr_accessor :group
     attr_accessor :hostname
     attr_accessor :port
     attr_accessor :type_name
@@ -20,22 +17,12 @@ module MMS
     attr_accessor :profiler_enabled
     attr_accessor :logs_enabled
 
-    def initialize(client, data)
-      id = data['id']
-      group_id = data['groupId']
-
-      raise MMS::ResourceError.new('`Id` for host resource must be defined', self) if id.nil?
-      raise MMS::ResourceError.new('`groupId` for host resource must be defined', self) if group_id.nil?
-
-      @client = client
-
-      @group = MMS::Resource::Group.new(client, {'id' => group_id})
-
-      super id, data
+    def group
+      MMS::Resource::Group.find(@client, @data['groupId'])
     end
 
     def table_row
-      [@group.name, @type_name, @name, @ip_address, @port, @last_ping, @alerts_enabled, @id, @shard_name, @replicaset_name]
+      [group.name, @type_name, @name, @ip_address, @port, @last_ping, @alerts_enabled, @id, @shard_name, @replicaset_name]
     end
 
     def table_section
@@ -46,11 +33,11 @@ module MMS
       ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId', 'Shard', 'Replica']
     end
 
-    private
-
-    def _load(id)
-      @client.get '/groups/' + @group.id + '/hosts/' + id.to_s
+    def self._find(client, group_id, id)
+      client.get('/groups/' + group_id + '/hosts/' + id)
     end
+
+    private
 
     def _from_hash(data)
       @hostname = data['hostname']

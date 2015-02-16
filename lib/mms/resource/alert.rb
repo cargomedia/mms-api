@@ -2,10 +2,7 @@ module MMS
 
   class Resource::Alert < Resource
 
-    @client = nil
-
     attr_accessor :name
-    attr_accessor :group
 
     attr_accessor :type_name
     attr_accessor :event_type_name
@@ -17,18 +14,8 @@ module MMS
     attr_accessor :last_notified
     attr_accessor :current_value
 
-    def initialize(client, data)
-      id = data['id']
-      group_id = data['groupId']
-
-      raise MMS::ResourceError.new('`Id` for alert resource must be defined', self) if id.nil?
-      raise MMS::ResourceError.new('`groupId` for alert resource must be defined', self) if group_id.nil?
-
-      @client = client
-
-      @group = MMS::Resource::Group.new(client, {'id' => group_id})
-
-      super id, data
+    def group
+      MMS::Resource::Group.find(@client, @data['groupId'])
     end
 
     def ack(time, description)
@@ -36,18 +23,18 @@ module MMS
           :acknowledgedUntil => time,
           :acknowledgementComment => description
       }
-      alert = @client.post '/groups/' + @group.id + '/alerts/' + @id, data
+      alert = @client.post '/groups/' + group.id + '/alerts/' + @id, data
       !alert.nil?
     end
 
     def table_row
-      [@status, @group.name, @type_name, @event_type_name, @created, @updated, @resolved, @last_notified, JSON.dump(@current_value)]
+      [@status, group.name, @type_name, @event_type_name, @created, @updated, @resolved, @last_notified, JSON.dump(@current_value)]
     end
 
     def table_section
       rows = []
       rows << table_row
-      rows << [{:value => "AlertId: #{@id}   GroupId: #{@group.id}", :colspan => 9, :alignment => :left}]
+      rows << [{:value => "AlertId: #{@id}   GroupId: #{group.id}", :colspan => 9, :alignment => :left}]
       rows << :separator
       rows
     end
@@ -56,11 +43,11 @@ module MMS
       ['Status', 'Group', 'Type', 'Event name', 'Created', 'Updated', 'Resolved', 'Last notified', 'Value']
     end
 
-    private
-
-    def _load(id)
-      @client.get '/groups/' + @group.id + '/alerts/' + id.to_s
+    def self._find(client, group_id, id)
+      client.get('/groups/' + group_id + '/alerts/' + id)
     end
+
+    private
 
     def _from_hash(data)
       @type_name = data['typeName']

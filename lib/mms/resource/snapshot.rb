@@ -4,32 +4,13 @@ module MMS
 
   class Resource::Snapshot < Resource
 
-    @client = nil
-
     attr_accessor :name
-    attr_accessor :cluster
 
     attr_accessor :complete
     attr_accessor :created_date
     attr_accessor :created_increment
     attr_accessor :expires
     attr_accessor :parts
-
-    def initialize(client, data)
-      id = data['id']
-      cluster_id = data['clusterId']
-      group_id = data['groupId']
-
-      raise MMS::ResourceError.new('`Id` for restorejob resource must be defined', self) if id.nil?
-      raise MMS::ResourceError.new('`clusterId` for restorejob resource must be defined', self) if cluster_id.nil?
-      raise MMS::ResourceError.new('`groupId` for restorejob resource must be defined', self) if group_id.nil?
-
-      @client = client
-
-      @cluster = MMS::Resource::Cluster.new(client, {'id' => cluster_id, 'groupId' => group_id})
-
-      super id, data
-    end
 
     def is_cluster
       @parts.length > 1
@@ -44,7 +25,7 @@ module MMS
     end
 
     def cluster_name
-      @cluster.name if is_cluster
+      cluster.name if is_cluster
     end
 
     def config_name
@@ -63,9 +44,13 @@ module MMS
       name
     end
 
+    def cluster
+      MMS::Resource::Cluster.find(@client, @data['groupId'], @data['clusterId'])
+    end
+
     def create_restorejob
       data = {:snapshotId => @id}
-      jobs = @client.post '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/restoreJobs', data
+      jobs = @client.post '/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs', data
 
       if jobs.nil?
         raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
@@ -74,7 +59,7 @@ module MMS
       job_list = []
       # work around due to bug in MMS API; cannot read restoreJob using provided info.
       # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
-      restore_jobs = @cluster.restorejobs
+      restore_jobs = cluster.restorejobs
       jobs.each do |job|
         _list = restore_jobs.select { |restorejob| restorejob.id == job['id'] }
         _list.each do |restorejob|
@@ -85,7 +70,7 @@ module MMS
     end
 
     def table_row
-      [@cluster.group.name, @cluster.name, @id, @complete, @created_increment, @name, @expires]
+      [cluster.group.name, cluster.name, @id, @complete, @created_increment, @name, @expires]
     end
 
     def table_section
@@ -106,11 +91,11 @@ module MMS
       ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']
     end
 
-    private
-
-    def _load(id)
-      @client.get '/groups/' + @cluster.group.id + '/clusters/' + @cluster.id + '/snapshots/' + id.to_s
+    def self._find(client, group_id, cluster_id, id)
+      client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/snapshots/' + id.to_s)
     end
+
+    private
 
     def _from_hash(data)
       @complete = data['complete']
@@ -119,8 +104,6 @@ module MMS
       @expires = data['expires']
       @parts = data['parts']
       @name = @created_date.nil? ? @id : DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
-
-      @cluster = MMS::Resource::Cluster.new(@client, {'id' => data['clusterId'], 'groupId' => data['groupId']})
     end
 
     def _to_hash

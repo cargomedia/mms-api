@@ -10,32 +10,19 @@ module MMS
 
     attr_accessor :clusters
 
-    @client = nil
-
-    def initialize(client, data)
-      id = data['id']
-
-      raise MMS::ResourceError.new('`Id` for group resource must be defined', self) if id.nil?
-
-      @client = client
-
+    def initialize
       @clusters = []
 
-      super id, data
-    end
-
-    def self.findGroups(client)
-      group_list = []
-      client.get('/groups').each do |group|
-        group_list.push MMS::Resource::Group.new(client, group)
-      end
-      group_list
     end
 
     def hosts(page = 1, limit = 10)
       host_list = []
       @client.get('/groups/' + @id + '/hosts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |host|
-        host_list.push MMS::Resource::Host.new(@client, host)
+        h = MMS::Resource::Host.new
+        h.set_client(@client)
+        h.set_data(host)
+
+        host_list.push h
       end
       host_list
     end
@@ -43,36 +30,44 @@ module MMS
     def alerts(page = 1, limit = 10, status = 'OPEN')
       alert_list = []
       @client.get('/groups/' + @id + '/alerts?status=' + status + '&pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
-        alert_list.push MMS::Resource::Alert.new(@client, alert)
+        a = MMS::Resource::Alert.new
+        a.set_client(@client)
+        a.set_group(self)
+        a.set_data(data)
+
+        alert_list.push a
       end
       alert_list
     end
 
     def alert(id)
-      MMS::Resource::Alert.new(@client, {'id' => id, 'groupId' => @id})
+      MMS::Resource::Alert.find(@client, @id, id)
     end
 
     def clusters(page = 1, limit = 10)
       if @clusters.empty?
         @client.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
-          @clusters.push MMS::Resource::Cluster.new(@client, cluster)
+          c = MMS::Resource::Cluster.new
+          c.set_client(@client)
+          c.set_data(cluster)
+          @clusters.push c
         end
       end
       @clusters
     end
 
     def cluster(id)
-      MMS::Resource::Cluster.new(@client, {'id' => id, 'groupId' => @id})
+      MMS::Resource::Cluster.find(@client, @id, id)
     end
 
-    def findSnapshot(id)
+    def find_snapshot(id)
       snapshot = nil
       clusters.each do |cluster|
         begin
           snapshot = cluster.snapshot(id)
         rescue => e
-          # cannot load snapshotId for cluster if config-server is the source?
-          # not supported in current MMS API version
+          # STDERR.puts 'cannot load snapshotId for cluster if config-server is the source!'
+          # STDERR.puts 'not supported in current MMS API version'
         end
       end
       snapshot
@@ -90,11 +85,11 @@ module MMS
       ['Name', 'Active Agents', 'Replicas count', 'Shards count', 'Last Active Agent', 'GroupId']
     end
 
-    private
-
-    def _load(id)
-      @client.get('/groups/' + id.to_s)
+    def self._find(client, id)
+      client.get('/groups/' + id)
     end
+
+    private
 
     def _from_hash(data)
       @name = data['name']
@@ -107,6 +102,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end
