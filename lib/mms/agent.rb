@@ -12,45 +12,55 @@ module MMS
       @client.url = apiurl
     end
 
-    def groups
-      MMS::Resource::Group.findGroups(@client)
+    def groups(id = nil)
+      data = client.get(['/groups', id].compact.join('/'))
+      data = [data] unless data.is_a? (Array)
+
+      [].tap do |l|
+        data.each do |group_data|
+          g = MMS::Resource::Group.new
+          g.set_client(@client)
+          g.set_data(group_data)
+          l.push g
+        end
+      end
     end
 
-    def hosts
+    def hosts(group_id = nil)
       host_list = []
-      groups.each do |group|
+      groups(group_id).each do |group|
         host_list.concat group.hosts
       end
       host_list
     end
 
-    def clusters
+    def clusters(group_id = nil)
       cluster_list = []
-      groups.each do |group|
+      groups(group_id).each do |group|
         cluster_list.concat group.clusters
       end
       cluster_list
     end
 
-    def snapshots
+    def snapshots(group_id = nil)
       snapshot_list = []
-      clusters.each do |cluster|
+      clusters(group_id).each do |cluster|
         snapshot_list.concat cluster.snapshots
       end
       snapshot_list.sort_by { |snapshot| snapshot.created_date }.reverse
     end
 
-    def alerts
+    def alerts(group_id = nil)
       alert_list = []
-      groups.each do |group|
+      groups(group_id).each do |group|
         alert_list.concat group.alerts
       end
       alert_list.sort_by { |alert| alert.created }.reverse
     end
 
-    def restorejobs
+    def restorejobs(group_id = nil)
       restorejob_list = []
-      clusters.each do |cluster|
+      clusters(group_id).each do |cluster|
         restorejob_list.concat cluster.restorejobs
       end
       restorejob_list.sort_by { |job| job.created }.reverse
@@ -81,7 +91,7 @@ module MMS
     end
 
     def findGroup(id)
-      MMS::Resource::Group.new(@client, {'id' => id})
+      MMS::Resource::Group.new(id)
     end
 
   end
