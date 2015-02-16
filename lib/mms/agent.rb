@@ -91,7 +91,7 @@ module MMS
     end
 
     def findGroup(id)
-      MMS::Resource::Group.new(id)
+      MMS::Resource::Group.find(@client, id)
     end
 
   end
