@@ -132,7 +132,7 @@ module MMS
       subcommand 'list', 'Host list' do
 
         def execute
-          print(MMS::Resource::Host.table_header, agent.hosts)
+          print(MMS::Resource::Host.table_header, agent.hosts(@config.default_group_id))
         end
       end
 
@@ -143,11 +143,8 @@ module MMS
       subcommand 'list', 'Group list' do
 
         def execute
-
-          group_list = agent.groups
-          group_list.reject! { |group| group.id != @config.default_group_id } unless @config.default_group_id.nil? or ignore?
-
-          print(MMS::Resource::Group.table_header, group_list)
+          group_id = ignore? ? nil : @config.default_group_id
+          print(MMS::Resource::Group.table_header, agent.groups(group_id))
         end
       end
 
@@ -158,7 +155,9 @@ module MMS
       subcommand 'list', 'Cluster list' do
 
         def execute
-          cluster_list = agent.clusters
+          group_id = ignore? ? nil : @config.default_group_id
+
+          cluster_list = agent.clusters(group_id)
           cluster_list.reject! { |cluster| cluster.id != @config.default_cluster_id } unless @config.default_cluster_id.nil? or ignore?
 
           print(MMS::Resource::Cluster.table_header, cluster_list)
@@ -173,7 +172,8 @@ module MMS
       subcommand 'list', 'Alerts list' do
 
         def execute
-          print(MMS::Resource::Alert.table_header, agent.alerts)
+          group_id = ignore? ? nil : @config.default_group_id
+          print(MMS::Resource::Alert.table_header, agent.alerts(group_id))
         end
 
       end
@@ -199,7 +199,8 @@ module MMS
       subcommand 'list', 'Snapshot list' do
 
         def execute
-          print(MMS::Resource::Snapshot.table_header, agent.snapshots)
+          group_id = ignore? ? nil : @config.default_group_id
+          print(MMS::Resource::Snapshot.table_header, agent.snapshots(group_id))
         end
       end
 
@@ -210,7 +211,8 @@ module MMS
       subcommand 'list', 'Restorejob list' do
 
         def execute
-          print(MMS::Resource::RestoreJob.table_header, agent.restorejobs)
+          group_id = ignore? ? nil : @config.default_group_id
+          print(MMS::Resource::RestoreJob.table_header, agent.restorejobs(group_id))
         end
 
       end
