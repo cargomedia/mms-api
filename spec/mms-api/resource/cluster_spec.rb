@@ -2,9 +2,9 @@ require 'mms'
 
 describe MMS::Resource::Cluster do
   let(:client) { MMS::Client.new }
-  let(:cluster) { MMS::Resource::Cluster.new(client, {'id' => '1', 'groupId' => '2'}) }
 
-  it 'should reload data' do
+  it 'should load data' do
+
     client.stub(:get).and_return(
         {
             "id" => "5196d3628d022db4cbc000000",
@@ -14,16 +14,21 @@ describe MMS::Resource::Cluster do
             "shardName" => "shard001",
             "replicaSetName" => "rs1",
             "lastHeartbeat" => "2014-02-26T17:32:45Z",
+        },
+        {
+            "id" => "5196d3628d022db4cbc111111",
+            "name" => "mms-group-1",
+            "lastActiveAgent" => "2014-04-03T18:18:12Z",
+            "activeAgentCount" => 1,
+            "replicaSetCount" => 3,
+            "shardCount" => 2,
         }
     )
 
-    cluster.id.should eq('1')
-    cluster.group.id.should eq('2')
-    cluster.shard_name.should eq(nil)
-
-    cluster.reload
+    cluster = MMS::Resource::Cluster.find(client, '5196d3628d022db4cbc11111', '5196d3628d022db4cbc000000')
 
     cluster.id.should eq('5196d3628d022db4cbc000000')
+    cluster.group.id.should eq('5196d3628d022db4cbc111111')
     cluster.shard_name.should eq('shard001')
     cluster.name.should eq('Cluster of Animals')
   end
