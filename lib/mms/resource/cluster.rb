@@ -37,6 +37,10 @@ module MMS
       @snapshots
     end
 
+    def snapshot_schedule
+      MMS::Resource::SnapshotSchedule.find(@client, group.id, @id)
+    end
+
     def restorejobs(page = 1, limit = 10)
       if @restorejobs.empty?
         @client.get('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|

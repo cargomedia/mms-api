@@ -116,7 +116,7 @@ module MMS
           rows += resource.table_section
         end
 
-        puts Terminal::Table.new :title => 'Hosts', :headings => (heading.nil? ? [] : heading), :rows => rows
+        puts Terminal::Table.new :headings => (heading.nil? ? [] : heading), :rows => rows
 
         print_tips unless ignore?
       end
@@ -184,6 +184,14 @@ module MMS
 
         def execute
           print(MMS::Resource::Cluster.table_header, cluster_list)
+        end
+      end
+
+      subcommand 'snapshot-schedule', 'Cluster snapshot schedule config' do
+
+        def execute
+          snapshot_schedule_list = cluster_list.collect! { |cluster| cluster.snapshot_schedule }.flatten
+          print(MMS::Resource::SnapshotSchedule.table_header, snapshot_schedule_list)
         end
       end
 
