@@ -2,35 +2,10 @@ require 'mms'
 
 describe MMS::Resource::RestoreJob do
 
-  restorejob_data = {
-      "id" => "3",
-      "groupId" => "0",
-      "clusterId" => "0",
-      "snapshotId" => "0",
-      "created" => "2014-07-09T17:42:43Z",
-      "timestamp" => {
-          "date" => "0",
-          "increment" => 1
-      },
-      "statusName" => "OPEN",
-      "pointInTime" => false,
-      "links" => []
-  }
-
   let(:client) { MMS::Client.new }
-  let(:restorejob) { MMS::Resource::RestoreJob.new(client, restorejob_data) }
 
-  it 'should reload data' do
+  it 'should load data' do
     client.stub(:get).and_return(
-        [{
-             "id" => "0",
-             "groupId" => "0",
-             "typeName" => "REPLICA_SET",
-             "clusterName" => "Cluster 0",
-             "shardName" => "shard001",
-             "replicaSetName" => "rs1",
-             "lastHeartbeat" => "2014-02-26T17:32:45Z",
-         }],
         {
             "id" => "3",
             "groupId" => "525ec8394f5e625c80c7404a",
@@ -53,11 +28,7 @@ describe MMS::Resource::RestoreJob do
         },
     )
 
-    restorejob.id.should eq('3')
-    restorejob.status_name.should eq('OPEN')
-    restorejob.point_in_time.should eq(false)
-
-    restorejob.reload
+    restorejob = MMS::Resource::RestoreJob.find(client, '5196d3628d022db4cbc111111', '5196d3628d022db4cbc000000', '3')
 
     restorejob.id.should eq('3')
     restorejob.status_name.should eq('FINISHED')

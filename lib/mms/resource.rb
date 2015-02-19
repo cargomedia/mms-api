@@ -5,11 +5,17 @@ module MMS
     attr_accessor :id
     attr_accessor :data
 
-    def initialize(id, data = nil)
-      @id = id
-      @data = data
+    attr_accessor :client
 
-      load
+    def set_client(client)
+      @client = client
+    end
+
+    def set_data(data)
+      @data = data
+      from_hash(data)
+      cache_key = "Class::#{self.class.name}:#{@id}"
+      MMS::Cache.instance.set(cache_key, data)
     end
 
     def from_hash(data)
@@ -21,30 +27,6 @@ module MMS
 
     def to_hash
       _to_hash
-    end
-
-    def reload
-      @data = _load(@id)
-      save @data unless @data.nil? or @data.empty?
-    end
-
-    def load
-      _data = MMS::Cache.instance.get "Class::#{self.class.name}:#{@id}"
-
-      if _data.nil? and @data.nil?
-        _data = _load(@id) unless @id.nil?
-
-        if _data.nil?
-          raise "Cannot load data for #{self.class.name}, id `#{@id}`"
-        end
-      end
-
-      save _data || @data
-    end
-
-    def save(data)
-      from_hash data
-      MMS::Cache.instance.set "Class::#{self.class.name}:#{@id}", data
     end
 
     def table_row
@@ -69,6 +51,19 @@ module MMS
 
     def _to_hash
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
+    end
+
+    def self.find(client, *arguments)
+      cache_key = "Class::#{self.name}:#{arguments.last()}"
+      data = MMS::Cache.instance.get(cache_key)
+      unless data
+        data = self._find(client, *arguments)
+      end
+
+      resource = self.new
+      resource.set_client(client)
+      resource.set_data(data)
+      resource
     end
   end
 end

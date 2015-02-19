@@ -2,10 +2,7 @@ module MMS
 
   class Resource::Cluster < Resource
 
-    @client = nil
-
     attr_accessor :name
-    attr_accessor :group
     attr_accessor :shard_name
     attr_accessor :replicaset_name
     attr_accessor :type_name
@@ -14,48 +11,52 @@ module MMS
     attr_accessor :snapshots
     attr_accessor :restorejobs
 
-    def initialize(client, data)
-      id = data['id']
-      group_id = data['groupId']
-
-      raise MMS::ResourceError.new('`Id` for cluster resource must be defined', self) if id.nil?
-      raise MMS::ResourceError.new('`groupId` for cluster resource must be defined', self) if group_id.nil?
-
+    def initialize
       @snapshots = []
       @restorejobs = []
+    end
 
-      @client = client
-
-      @group = MMS::Resource::Group.new(client, {'id' => group_id})
-
-      super id, data
+    def group
+      MMS::Resource::Group.find(@client, @data['groupId'])
     end
 
     def snapshot(id)
-      MMS::Resource::Snapshot.new(@client, {'id' => id, 'clusterId' => @id, 'groupId' => @group.id})
+      MMS::Resource::Snapshot.find(@client, group.id, @id, id)
     end
 
-    def snapshots(page = 1, limit = 10)
+    def snapshots(page = 1, limit = 1000)
       if @snapshots.empty?
-        @client.get('/groups/' + @group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
-          @snapshots.push MMS::Resource::Snapshot.new(@client, snapshot)
+        @client.get('/groups/' + group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
+          s = MMS::Resource::Snapshot.new
+          s.set_client(@client)
+          s.set_data(snapshot)
+
+          @snapshots.push s
         end
       end
       @snapshots
     end
 
-    def restorejobs(page = 1, limit = 10)
+    def snapshot_schedule
+      MMS::Resource::SnapshotSchedule.find(@client, group.id, @id)
+    end
+
+    def restorejobs(page = 1, limit = 1000)
       if @restorejobs.empty?
-        @client.get('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
+        @client.get('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
 
           if job['snapshotId'].nil? and job['clusterId'].nil?
             raise MMS::ResourceError.new("RestoreJob `#{job['id']}` with status `#{job['statusName']}` has no `clusterId` and no `snapshotId`.", self)
           elsif job['clusterId'].nil?
-            snapshot = @group.findSnapshot(job['snapshotId'])
+            snapshot = group.find_snapshot(job['snapshotId'])
             job['clusterId'] = snapshot.cluster.id unless snapshot.nil?
           end
 
-          @restorejobs.push MMS::Resource::RestoreJob.new(@client, job)
+          j = MMS::Resource::RestoreJob.new
+          j.set_client(@client)
+          j.set_data(job)
+
+          @restorejobs.push j
         end
       end
       @restorejobs
@@ -68,7 +69,7 @@ module MMS
               'increment' => 0
           }
       }
-      jobs = @client.post('/groups/' + @group.id + '/clusters/' + @id + '/restoreJobs', data)
+      jobs = @client.post('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs', data)
 
       if jobs.nil?
         raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
@@ -102,7 +103,7 @@ module MMS
     end
 
     def table_row
-      [@group.name, @name, @shard_name, @replicaset_name, @type_name, @last_heartbeat, @id]
+      [group.name, @name, @shard_name, @replicaset_name, @type_name, @last_heartbeat, @id]
     end
 
     def table_section
@@ -113,11 +114,11 @@ module MMS
       ['Group', 'Cluster', 'Shard name', 'Replica name', 'Type', 'Last heartbeat', 'Cluster Id']
     end
 
-    private
-
-    def _load(id)
-      @client.get('/groups/' + @group.id + '/clusters/' + id.to_s)
+    def self._find(client, group_id, id)
+      client.get('/groups/' + group_id + '/clusters/' + id)
     end
+
+    private
 
     def _from_hash(data)
       @name = data['clusterName']

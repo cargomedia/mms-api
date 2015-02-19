@@ -21,6 +21,7 @@ module MMS
   require 'mms/resource/host'
   require 'mms/resource/cluster'
   require 'mms/resource/snapshot'
+  require 'mms/resource/snapshot_schedule'
   require 'mms/resource/restore_job'
   require 'mms/resource/alert'
 

@@ -13,7 +13,15 @@ module MMS
     end
 
     def groups
-      MMS::Resource::Group.findGroups(@client)
+      group_list = []
+      client.get('/groups').each do |group|
+        g = MMS::Resource::Group.new
+        g.set_client(client)
+        g.set_data(group)
+
+        group_list.push g
+      end
+      group_list
     end
 
     def hosts
@@ -58,11 +66,11 @@ module MMS
 
     def restorejob_create(type_value, group_id, cluster_id)
       if type_value.length == 24
-        findGroup(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
+        find_group(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
       elsif datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
         raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:s`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.day, datetime.month].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
-        findGroup(group_id).cluster(cluster_id).create_restorejob(datetime_string)
+        find_group(group_id).cluster(cluster_id).create_restorejob(datetime_string)
       end
     end
 
@@ -70,7 +78,7 @@ module MMS
       timestamp = DateTime.now if timestamp == 'now'
       timestamp = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if timestamp == 'forever'
 
-      group = findGroup(group_id)
+      group = find_group(group_id)
 
       if alert_id == 'all'
         group.alerts.each do |alert|
@@ -80,8 +88,8 @@ module MMS
       end
     end
 
-    def findGroup(id)
-      MMS::Resource::Group.new(@client, {'id' => id})
+    def find_group(id)
+      MMS::Resource::Group.find(@client, id)
     end
 
   end
