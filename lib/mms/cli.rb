@@ -78,7 +78,7 @@ module MMS
 
       def groups
         id = ignore? ? nil : @config.default_group_id
-        id.nil? ? agent.groups : [agent.findGroup(id)]
+        id.nil? ? agent.groups : [agent.find_group(id)]
       end
 
       def clusters
