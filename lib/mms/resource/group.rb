@@ -12,9 +12,11 @@ module MMS
 
     def initialize
       @clusters = []
-
     end
 
+    # @param [Integer] page
+    # @param [Integer] limit
+    # @return [Array<MMS::Resource::Host>]
     def hosts(page = 1, limit = 1000)
       host_list = []
       @client.get('/groups/' + @id + '/hosts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |host|
@@ -27,6 +29,10 @@ module MMS
       host_list
     end
 
+    # @param [Integer] page
+    # @param [Integer] limit
+    # @param [String] status
+    # @return [Array<MMS::Resource::Alert>]
     def alerts(page = 1, limit = 1000, status = 'OPEN')
       alert_list = []
       @client.get('/groups/' + @id + '/alerts?status=' + status + '&pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
@@ -40,10 +46,15 @@ module MMS
       alert_list
     end
 
+    # @param [Integer] id
+    # @return [MMS::Resource::Alert]
     def alert(id)
       MMS::Resource::Alert.find(@client, @id, id)
     end
 
+    # @param [Integer] page
+    # @param [Integer] limit
+    # @return [Array<MMS::Resource::Cluster>]
     def clusters(page = 1, limit = 1000)
       if @clusters.empty?
         @client.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
@@ -56,10 +67,14 @@ module MMS
       @clusters
     end
 
+    # @param [Integer] id
+    # @return [MMS::Resource::Cluster]
     def cluster(id)
       MMS::Resource::Cluster.find(@client, @id, id)
     end
 
+    # @param [Integer] id
+    # @return [MMS::Resource::Snapshot]
     def find_snapshot(id)
       snapshot = nil
       clusters.each do |cluster|

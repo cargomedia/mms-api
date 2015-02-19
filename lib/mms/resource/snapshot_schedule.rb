@@ -11,6 +11,7 @@ module MMS
     attr_accessor :weekly_snapshot_retention_weeks
     attr_accessor :monthly_snapshot_retention_months
 
+    # @return [MMS::Resource::Cluster]
     def cluster
       MMS::Resource::Cluster.find(@client, @data['groupId'], @data['clusterId'])
     end

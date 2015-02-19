@@ -12,30 +12,37 @@ module MMS
     attr_accessor :expires
     attr_accessor :parts
 
+    # @return [TrueClass, FalseClass]
     def is_cluster
       @parts.length > 1
     end
 
+    # @return [TrueClass, FalseClass]
     def is_config
       @parts.length == 1 and @parts.first['typeName'] == 'CONFIG_SERVER'
     end
 
+    # @return [TrueClass, FalseClass]
     def is_replica
       @parts.length == 1 and @parts.first['typeName'] == 'REPLICA_SET'
     end
 
+    # @return [String, NilClass]
     def cluster_name
       cluster.name if is_cluster
     end
 
+    # @return [String, NilClass]
     def config_name
       'config' if is_config
     end
 
+    # @return [String, NilClass]
     def replica_name
       @parts.first['replicaSetName'] if is_replica
     end
 
+    # @return [String, NilClass]
     def source_name
       name = nil
       name = replica_name if is_replica
@@ -44,10 +51,12 @@ module MMS
       name
     end
 
+    # @return [MMS::Resource::Cluster]
     def cluster
       MMS::Resource::Cluster.find(@client, @data['groupId'], @data['clusterId'])
     end
 
+    # @return [Array<MMS::Resource::RestoreJob>]
     def create_restorejob
       data = {:snapshotId => @id}
       jobs = @client.post '/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs', data
@@ -91,6 +100,11 @@ module MMS
       ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']
     end
 
+    # @param [MMS::Client] client
+    # @param [Integer] group_id
+    # @param [Integer] cluster_id
+    # @param [Integer] id
+    # @return [MMS::Resource::Snapshot]
     def self._find(client, group_id, cluster_id, id)
       client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/snapshots/' + id.to_s)
     end
