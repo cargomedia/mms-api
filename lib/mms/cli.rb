@@ -76,33 +76,17 @@ module MMS
         @agent = MMS::Agent.new(client)
       end
 
-      def group_list
+      def groups
         id = ignore? ? nil : @config.default_group_id
         id.nil? ? agent.groups : [agent.findGroup(id)]
       end
 
-      def cluster_list
+      def clusters
         id = ignore? ? nil : @config.default_cluster_id
 
-        group_list.collect! do |group|
+        groups.collect! do |group|
           id.nil? ? group.clusters : group.cluster(id)
         end.flatten
-      end
-
-      def host_list
-        group_list.collect! { |group| group.hosts }.flatten
-      end
-
-      def alert_list
-        group_list.collect! { |group| group.alerts }.flatten
-      end
-
-      def snapshot_list
-        cluster_list.collect! { |cluster| cluster.snapshots }.flatten.sort_by { |snapshot| snapshot.created_date }.reverse
-      end
-
-      def restorejob_list
-        cluster_list.collect! { |cluster| cluster.restorejobs }.flatten.sort_by { |job| job.created }.reverse
       end
 
       def print(heading, resource_list)
@@ -161,7 +145,7 @@ module MMS
       subcommand 'list', 'Group list' do
 
         def execute
-          print(MMS::Resource::Group.table_header, group_list)
+          print(MMS::Resource::Group.table_header, groups)
         end
       end
 
@@ -172,6 +156,7 @@ module MMS
       subcommand 'list', 'Host list' do
 
         def execute
+          host_list = groups.collect! { |group| group.hosts }.flatten
           print(MMS::Resource::Host.table_header, host_list)
         end
       end
@@ -183,14 +168,14 @@ module MMS
       subcommand 'list', 'Cluster list' do
 
         def execute
-          print(MMS::Resource::Cluster.table_header, cluster_list)
+          print(MMS::Resource::Cluster.table_header, clusters)
         end
       end
 
       subcommand 'snapshot-schedule', 'Cluster snapshot schedule config' do
 
         def execute
-          snapshot_schedule_list = cluster_list.collect! { |cluster| cluster.snapshot_schedule }.flatten
+          snapshot_schedule_list = clusters.collect! { |cluster| cluster.snapshot_schedule }.flatten
           print(MMS::Resource::SnapshotSchedule.table_header, snapshot_schedule_list)
         end
       end
@@ -203,6 +188,7 @@ module MMS
       subcommand 'list', 'Alerts list' do
 
         def execute
+          alert_list = groups.collect! { |group| group.alerts }.flatten
           print(MMS::Resource::Alert.table_header, alert_list)
         end
 
@@ -229,6 +215,7 @@ module MMS
       subcommand 'list', 'Snapshot list' do
 
         def execute
+          snapshot_list = clusters.collect! { |cluster| cluster.snapshots }.flatten.sort_by { |snapshot| snapshot.created_date }.reverse
           print(MMS::Resource::Snapshot.table_header, snapshot_list)
         end
       end
@@ -240,6 +227,7 @@ module MMS
       subcommand 'list', 'Restorejob list' do
 
         def execute
+          restorejob_list = clusters.collect! { |cluster| cluster.restorejobs }.flatten.sort_by { |job| job.created }.reverse
           print(MMS::Resource::RestoreJob.table_header, restorejob_list)
         end
 
