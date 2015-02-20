@@ -73,8 +73,8 @@ module MMS
     end
 
     # @param [String] type_value
-    # @param [Object] group_id
-    # @param [Object] cluster_id
+    # @param [String] group_id
+    # @param [String] cluster_id
     # @return [Array<MMS::Resource::RestoreJob>]
     def restorejob_create(type_value, group_id, cluster_id)
       if type_value.length == 24
@@ -89,7 +89,7 @@ module MMS
     # @param [String] alert_id
     # @param [String, Integer] timestamp
     # @param [String] group_id
-    # @return [Array<MMS::Resource::RestoreJob>]
+    # @return [TrueClass, FalseClass]
     def alert_ack(alert_id, timestamp, group_id)
       timestamp = DateTime.now if timestamp == 'now'
       timestamp = DateTime.new(4000, 1, 1, 1, 1, 1, 1, 1) if timestamp == 'forever'
