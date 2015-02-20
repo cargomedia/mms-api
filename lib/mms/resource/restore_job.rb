@@ -20,6 +20,7 @@ module MMS
     attr_accessor :delivery_status_name
     attr_accessor :delivery_url
 
+    # @return [MMS::Resource::Cluster]
     def cluster
       begin
         cluster = MMS::Resource::Cluster.find(@client, @data['groupId'], @data['clusterId'])
@@ -34,6 +35,7 @@ module MMS
       cluster
     end
 
+    # @return [TrueClass, FalseClass]
     def has_cluster
       # cluster definition for config-server cannot be loaded
       # as there is no clusterId for this type of group.
@@ -42,6 +44,7 @@ module MMS
       snapshot != nil
     end
 
+    # @return [MMS::Resource::Snapshot]
     def snapshot
       # snapshot details for config-server cannot be loaded
       # as there is no clusterId. See also has_cluster()
@@ -71,6 +74,7 @@ module MMS
       ['Timestamp / RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
     end
 
+    # @return [Hash, NilClass]
     def self.find_recursively(client, group_id, cluster_id, id)
       cluster = MMS::Resource::Cluster.find(client, group_id, cluster_id)
       # config server has no cluster but owns RestoreJob and Snapshot

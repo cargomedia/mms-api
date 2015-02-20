@@ -14,13 +14,18 @@ module MMS
     attr_accessor :last_notified
     attr_accessor :current_value
 
+    # @return [MMS::Resource::Group]
     def group
       MMS::Resource::Group.find(@client, @data['groupId'])
     end
 
+
+    # @param [Time, Integer] time
+    # @param [String] description
+    # @return [TrueClass, FalseClass]
     def ack(time, description)
       data = {
-          :acknowledgedUntil => time,
+          :acknowledgedUntil => time.to_i,
           :acknowledgementComment => description
       }
       alert = @client.post '/groups/' + group.id + '/alerts/' + @id, data
@@ -43,12 +48,17 @@ module MMS
       ['Status', 'Group', 'Type', 'Event name', 'Created', 'Updated', 'Resolved', 'Last notified', 'Value']
     end
 
+    # @param [MMS::Client] client
+    # @param [String] group_id
+    # @param [String] id
+    # @return [Hash]
     def self._find(client, group_id, id)
       client.get('/groups/' + group_id + '/alerts/' + id)
     end
 
     private
 
+    # @param [Hash] data
     def _from_hash(data)
       @type_name = data['typeName']
       @event_type_name = data['eventTypeName']

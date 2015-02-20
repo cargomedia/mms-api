@@ -2,6 +2,9 @@ module MMS
 
   class RuntimeError < StandardError;
 
+    # @param [String] message
+    # @param [Net::HTTPRequest] request
+    # @param [Net::HTTPResponse] response
     def initialize(message, request, response)
       super(message)
 
@@ -16,6 +19,8 @@ module MMS
 
   class ResourceError < StandardError
 
+    # @param [String] message
+    # @param [MMS::Resource] resource
     def initialize(message, resource)
       super(message)
 

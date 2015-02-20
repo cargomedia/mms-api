@@ -6,22 +6,33 @@ module MMS
     attr_accessor :apikey
     attr_accessor :url
 
+    # @param [String] username
+    # @param [String] apikey
+    # @param [String] url
     def initialize(username = nil, apikey = nil, url = nil)
       @username = username
       @apikey = apikey
       @url = url.nil? ? 'https://mms.mongodb.com:443/api/public/v1.0' : url
     end
 
+    # @param [String] path
+    # @return [Hash]
     def get(path)
       _get(@url + path, @username, @apikey)
     end
 
+    # @param [String] path
+    # @param [Hash] data
+    # @return [Hash]
     def post(path, data)
       _post(@url + path, data, @username, @apikey)
     end
 
     private
 
+    # @param [String] path
+    # @param [String] username
+    # @param [String] password
     def _get(path, username, password)
 
       digest_auth = Net::HTTP::DigestAuth.new
@@ -55,6 +66,10 @@ module MMS
       (response_json.nil? or response_json['results'].nil?) ? response_json : response_json['results']
     end
 
+    # @param [String] path
+    # @param [Hash] data
+    # @param [String] username
+    # @param [String] password
     def _post(path, data, username, password)
       digest_auth = Net::HTTP::DigestAuth.new
       digest_auth.next_nonce

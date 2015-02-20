@@ -17,6 +17,7 @@ module MMS
     attr_accessor :profiler_enabled
     attr_accessor :logs_enabled
 
+    # @return [MMS::Resource::Group]
     def group
       MMS::Resource::Group.find(@client, @data['groupId'])
     end
@@ -33,6 +34,9 @@ module MMS
       ['Group', 'Type', 'Hostname', 'IP', 'Port', 'Last ping', 'Alerts enabled', 'HostId', 'Shard', 'Replica']
     end
 
+    # @param [MMS::Client] client
+    # @param [String] group_id
+    # @param [String] id
     def self._find(client, group_id, id)
       client.get('/groups/' + group_id + '/hosts/' + id)
     end

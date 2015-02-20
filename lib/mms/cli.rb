@@ -71,16 +71,19 @@ module MMS
 
       end
 
+      # @return [MMS::Agent]
       def agent
         @client = MMS::Client.new(@config.username, @config.apikey)
         @agent = MMS::Agent.new(client)
       end
 
+      # @return [Array<MMS::Resource::Group>]
       def groups
         id = ignore? ? nil : @config.default_group_id
         id.nil? ? agent.groups : [agent.find_group(id)]
       end
 
+      # @return [Array<MMS::Resource::Cluster>]
       def clusters
         id = ignore? ? nil : @config.default_cluster_id
 
@@ -89,10 +92,14 @@ module MMS
         end.flatten
       end
 
+      # @param [String] heading
+      # @param [Array<MMS::Resource>]
       def print(heading, resource_list)
         json? ? print_json(resource_list) : print_human(heading, resource_list)
       end
 
+      # @param [String] heading
+      # @param [Array<MMS::Resource>]
       def print_human(heading, resource_list)
         rows = []
 
@@ -105,6 +112,7 @@ module MMS
         print_tips unless ignore?
       end
 
+      # @param [Array<MMS::Resource>]
       def print_json(resource_list)
         rows = []
 
@@ -124,6 +132,8 @@ module MMS
         end
       end
 
+
+      # @param [Array] arguments
       def run(arguments)
         begin
           parse_user_home_config
