@@ -46,7 +46,7 @@ module MMS
       alert_list
     end
 
-    # @param [Integer] id
+    # @param [String] id
     # @return [MMS::Resource::Alert]
     def alert(id)
       MMS::Resource::Alert.find(@client, @id, id)
@@ -67,13 +67,13 @@ module MMS
       @clusters
     end
 
-    # @param [Integer] id
+    # @param [String] id
     # @return [MMS::Resource::Cluster]
     def cluster(id)
       MMS::Resource::Cluster.find(@client, @id, id)
     end
 
-    # @param [Integer] id
+    # @param [String] id
     # @return [MMS::Resource::Snapshot]
     def find_snapshot(id)
       snapshot = nil

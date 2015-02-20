@@ -49,8 +49,8 @@ module MMS
     end
 
     # @param [MMS::Client] client
-    # @param [Integer] group_id
-    # @param [Integer] id
+    # @param [String] group_id
+    # @param [String] id
     # @return [Hash]
     def self._find(client, group_id, id)
       client.get('/groups/' + group_id + '/alerts/' + id)

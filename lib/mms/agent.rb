@@ -86,9 +86,9 @@ module MMS
       end
     end
 
-    # @param [Integer] alert_id
+    # @param [String] alert_id
     # @param [String, Integer] timestamp
-    # @param [Integer] group_id
+    # @param [String] group_id
     # @return [Array<MMS::Resource::RestoreJob>]
     def alert_ack(alert_id, timestamp, group_id)
       timestamp = DateTime.now if timestamp == 'now'
@@ -105,7 +105,7 @@ module MMS
       end
     end
 
-    # @param [Integer] id
+    # @param [String] id
     # @return [MMS::Resource::Group]
     def find_group(id)
       MMS::Resource::Group.find(@client, id)

@@ -101,9 +101,9 @@ module MMS
     end
 
     # @param [MMS::Client] client
-    # @param [Integer] group_id
-    # @param [Integer] cluster_id
-    # @param [Integer] id
+    # @param [String] group_id
+    # @param [String] cluster_id
+    # @param [String] id
     # @return [MMS::Resource::Snapshot]
     def self._find(client, group_id, cluster_id, id)
       client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/snapshots/' + id.to_s)
