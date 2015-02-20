@@ -7,10 +7,12 @@ module MMS
 
     attr_accessor :client
 
+    # @param [MMS::Client] client
     def set_client(client)
       @client = client
     end
 
+    # @param [Hash] data
     def set_data(data)
       @data = data
       from_hash(data)
@@ -18,6 +20,7 @@ module MMS
       MMS::Cache.instance.set(cache_key, data)
     end
 
+    # @param [Hash] data
     def from_hash(data)
       unless data.nil?
         @id = data['id']
@@ -29,14 +32,17 @@ module MMS
       _to_hash
     end
 
+    # @return [Array<String>]
     def table_row
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
+    # @return [Array]
     def table_section
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
+    # @return [Array<String>]
     def self.table_header
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
@@ -45,14 +51,19 @@ module MMS
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
+    # @param [Hash] data
     def _from_hash(data)
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
+    # @return [Hash]
     def _to_hash
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
+    # @param [MMS::Client] client
+    # @param arguments...
+    # @return self
     def self.find(client, *arguments)
       cache_key = "Class::#{self.name}:#{arguments.last()}"
       data = MMS::Cache.instance.get(cache_key)

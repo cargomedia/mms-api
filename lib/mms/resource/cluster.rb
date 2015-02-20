@@ -62,6 +62,8 @@ module MMS
       @restorejobs
     end
 
+    # @param [String] point_in_time
+    # @return [Array<MMS::Resource::RestoreJob>]
     def create_restorejob(point_in_time = nil)
       data = {
           'timestamp' => {
