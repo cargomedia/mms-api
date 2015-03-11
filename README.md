@@ -12,35 +12,91 @@ API coverage
 ------------
 The MMS Public API follows the principles of the REST architectural style to expose a number of internal resources which enable programmatic access to [MMS’s features](http://mms.mongodb.com/help/reference/api/). Current implementation support only a few of API features.
 
-|Resource|Get All|Get One|Create|Update|Delete|
-|:---|:---:|:---:|:---:|:---:|:---:|
-|Groups| + | + | | | | |
-|Hosts| + | + | | | | |
-|Clusters| + | + | | | | |
-|Snapshots| + | + | | | | |
-|Alerts| + | + | | | | |
-|Restore Jobs| + | + | + | | | |
+|Resource     |Get All |Get One |Create |Update |Delete |
+|:------------|:------:|:------:|:-----:|:-----:|:-----:|
+|Groups       | +      | +      |       |       |       |
+|Hosts        | +      | +      |       |       |       |
+|Clusters     | +      | +      |       |       |       |
+|Snapshots    | +      | +      |       |       |       |
+|Alerts       | +      | +      |       |       |       |
+|Restore Jobs | +      | +      | +     |       |       |
 
-Config
-------
+Library usage
+-------------
+
+Source code itself is well-documented so when writing code it should auto-complete and hint in all supported usages.
+
+
+### Client
+Most important part of the api is client. In order to make any request you need to instantiate client with correct params.
+
 ```ruby
-config = MMS::Config.new
+client = MMS::Client.new('username', 'api_key')
 ```
 
-Client
-------
-```ruby
-client = MMS::Client.new(config.username, config.apikey)
-```
+This client is used by all other classes connecting to api no matter if it's Resource or helper class like Agent.
 
-Agent
------
+
+### Agent
+Agent is simple wrapper class for listing all accessible resources.
+
 ```ruby
+client = MMS::Client.new('username', 'api_key')
 agent = MMS::Agent.new(client)
+
+agent.alerts.each do |alert|
+    alert.ack('now')
+end
 ```
 
-Cli
----
+List of resource-listing agent methods:
+- groups
+- hosts
+- clusters
+- snapshots
+- alerts
+- restorejobs
+
+### Resources
+
+You can find lists of resource by using agent as pointed above, or by various resource methods.
+Each resource have a find method loading certain resource with provided id (plus corresponding parent ids), e.g.
+```ruby
+client = new MMS::Client.new('username', 'api_key')
+host = MMS::Resource::Host.find(client, 'group_id', 'host_id')
+```
+
+Additionally some resources have additional instance methods to retrieve sub-resources, e.g.
+```ruby
+client = new MMS::Client.new('username', 'api_key')
+group = MMS::Resource::Group.find(client, 'group_id')
+hosts = group.hosts
+```
+
+Cli usage
+---------
+
+There is a built-in cli with several commands retrieving api resource lists.
+
+### Configuration
+
+Cli uses configuration with all values set to default ones.
+Config itself has `config_file` property which merges itself with params from the file.
+By default `config_file` points to home directory, but it can be changed to points to any file.
+
+```
+username=sysadmin@example.tld
+apikey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+apiurl=https://mms.mydomain.tld/api/public/v1.0
+default_group_id=your-group-id
+default_cluster_id=your-cluster-id
+```
+
+Additionally some options can be modified using cli options.
+
+### Available commands
+
+
 ```bash
 $ mms-api --help
 Usage:
@@ -70,14 +126,4 @@ Options:
     -i, --ignore                  Ignore flag of --group-id and -cluster-id (default: false)
     -j, --json                    Print JSON output (default: false)
     -l, --limit <integer>         Limit for result items
-```
-
-`mms-api` reads default configuration from your home directory `~/.mms-api`. Example configuration:
-
-```
-username=sysadmin@example.tld
-apikey=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-# apiurl=https://mms.mydomain.tld/api/public/v1.0
-default_group_id=your-group-id
-default_cluster_id=your-cluster-id
 ```
