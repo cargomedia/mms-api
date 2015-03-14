@@ -1,3 +1,5 @@
 Gemfile.lock
 .rvmrc
 /pkg
+.buildpath
+.project

@@ -16,7 +16,7 @@ module MMS
     end
 
     # @param [String] path
-    # @return [Hash]
+    # @return [Hash]     
     def get(path)
       _get(@url + path, @username, @apikey)
     end
@@ -29,7 +29,11 @@ module MMS
     end
 
     private
-
+    
+    def _get_ssl()
+      return (@url.split(":")[0]=="https")
+    end
+    
     # @param [String] path
     # @param [String] username
     # @param [String] password
@@ -43,7 +47,7 @@ module MMS
       uri.password= CGI.escape(password)
 
       http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = true
+      http.use_ssl = _get_ssl
 
       req = Net::HTTP::Get.new uri.request_uri
       res = http.request req
@@ -79,7 +83,7 @@ module MMS
       uri.password= CGI.escape(password)
 
       http = Net::HTTP.new uri.host, uri.port
-      http.use_ssl = true
+      http.use_ssl = _get_ssl
 
       req = Net::HTTP::Post.new uri.request_uri, {'Content-Type' => 'application/json'}
       res = http.request req

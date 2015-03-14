@@ -23,6 +23,7 @@ module MMS
 
       option ['-a', '--apiurl'], '<string>', 'MMS api url. Full url including version: https://mms.mydomain.tld/api/public/v1.0' do |u|
         @config.apiurl = u
+        puts "apiurl parsed ---->"+@config.apiurl
       end
 
       option ['-v', '--version'], :flag, 'Version' do |v|
@@ -68,12 +69,11 @@ module MMS
             raise MMS::ConfigError.new("Config option `#{key}` from file `#{config_file}` is not allowed!")
           end
         end
-
       end
 
       # @return [MMS::Agent]
       def agent
-        @client = MMS::Client.new(@config.username, @config.apikey)
+        @client = MMS::Client.new(@config.username, @config.apikey, url=@config.apiurl)
         @agent = MMS::Agent.new(client)
       end
 
