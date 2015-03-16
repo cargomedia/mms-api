@@ -30,7 +30,7 @@ module MMS
         # creation of empty clluster instance is a good solution here.
         cluster = MMS::Resource::Cluster.new
         cluster.set_client(@client)
-        cluster.set_data({'groupId' => @data['groupId']})
+        cluster.set_data({'id' => @data['clusterId'], 'groupId' => @data['groupId']})
       end
       cluster
     end
