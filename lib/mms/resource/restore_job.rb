@@ -20,38 +20,17 @@ module MMS
     attr_accessor :delivery_status_name
     attr_accessor :delivery_url
 
+    attr_accessor :cluster_id
+    attr_accessor :group_id
+
     # @return [MMS::Resource::Cluster]
     def cluster
-      begin
-        cluster = MMS::Resource::Cluster.find(@client, @data['groupId'], @data['clusterId'])
-      rescue
-        # Workaround
-        # time to time the mms-api return data without "clusterId" defined
-        # creation of empty clluster instance is a good solution here.
-        cluster = MMS::Resource::Cluster.new
-        cluster.set_client(@client)
-        cluster.set_data({'id' => @data['clusterId'], 'groupId' => @data['groupId']})
-      end
-      cluster
+      MMS::Resource::Cluster.find(@client, @group_id, @cluster_id)
     end
 
-    # @return [TrueClass, FalseClass]
-    def has_cluster
-      # cluster definition for config-server cannot be loaded
-      # as there is no clusterId for this type of group.
-      # there is snapshotId for RestoreJob but seems to be stored
-      # internally in MMS API. Not accessible by public API.
-      snapshot != nil
-    end
-
-    # @return [MMS::Resource::Snapshot]
+    # @return [MMS::Resource::Snapshot, NilClass]
     def snapshot
-      # snapshot details for config-server cannot be loaded
-      # as there is no clusterId. See also has_cluster()
-      if @snapshot.nil?
-        @snapshot = cluster.group.find_snapshot(@snapshot_id)
-      end
-      @snapshot
+      @snapshot ||= cluster.group.find_snapshot(@snapshot_id)
     end
 
     def table_row
@@ -61,12 +40,12 @@ module MMS
 
     def table_section
       [
-          table_row,
-          [@id, "#{cluster.name} (#{cluster.id})", {:value => '', :colspan => 5}],
-          ['', cluster.group.name, {:value => '', :colspan => 5}],
-          [{:value => 'download url:', :colspan => 7}],
-          [{:value => @delivery_url || '(waiting for link)', :colspan => 7}],
-          :separator
+        table_row,
+        [@id, "#{cluster.name} (#{cluster.id})", {:value => '', :colspan => 5}],
+        ['', cluster.group.name, {:value => '', :colspan => 5}],
+        [{:value => 'download url:', :colspan => 7}],
+        [{:value => @delivery_url || '(waiting for link)', :colspan => 7}],
+        :separator
       ]
     end
 
@@ -74,17 +53,22 @@ module MMS
       ['Timestamp / RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
     end
 
-    # @return [Hash, NilClass]
-    def self.find_recursively(client, group_id, cluster_id, id)
-      cluster = MMS::Resource::Cluster.find(client, group_id, cluster_id)
-      # config server has no cluster but owns RestoreJob and Snapshot
-      restore_jobs = cluster.restorejobs
-      job = restore_jobs.select { |restorejob| restorejob.id == id }
-      job.first.data unless job.nil? and job.empty?
+    def self._find(client, group_id, cluster_id, id)
+      begin
+        client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/restoreJobs/' + id)
+      rescue MMS::ApiError => e
+        # workaround for https://jira.mongodb.org/browse/DOCS-5017
+        self._find_from_list(client, group_id, cluster_id, id)
+      end
     end
 
-    def self._find(client, group_id, cluster_id, id)
-      client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/restoreJobs/' + id)
+    def self._find_from_list(client, group_id, cluster_id, id)
+      cluster = MMS::Resource::Cluster.find(client, group_id, cluster_id)
+
+      job = cluster.restorejobs.find { |restorejob| restorejob.id == id }
+      raise("Cannot find RestoreJob id `#{id}`") if job.nil?
+
+      job.data
     end
 
     private
@@ -99,6 +83,8 @@ module MMS
       @delivery_status_name = data['delivery']['statusName'] unless data['delivery'].nil?
       @delivery_url = data['delivery']['url'] unless data['delivery'].nil?
       @name = DateTime.parse(@created).strftime("%Y-%m-%d %H:%M:%S")
+      @cluster_id = data['clusterId']
+      @group_id = data['groupId']
     end
 
     def _to_hash
