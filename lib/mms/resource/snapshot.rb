@@ -11,6 +11,7 @@ module MMS
     attr_accessor :created_increment
     attr_accessor :expires
     attr_accessor :parts
+    attr_accessor :is_possibly_inconsistent
 
     # @return [TrueClass, FalseClass]
     def is_cluster
@@ -79,7 +80,7 @@ module MMS
     end
 
     def table_row
-      [cluster.group.name, cluster.name, @id, @complete, @created_increment, @name, @expires]
+      [cluster.group.name, cluster.name, @id, @complete, @created_increment, @name, @expires, @is_possibly_inconsistent]
     end
 
     def table_section
@@ -97,7 +98,7 @@ module MMS
     end
 
     def self.table_header
-      ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']
+      ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires', 'Inconsistent']
     end
 
     # @param [MMS::Client] client
@@ -117,6 +118,7 @@ module MMS
       @created_increment = data['created'].nil? ? nil : data['created']['increment']
       @expires = data['expires']
       @parts = data['parts']
+      @is_possibly_inconsistent = data['isPossiblyInconsistent']
       @name = @created_date.nil? ? @id : DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
     end
 
