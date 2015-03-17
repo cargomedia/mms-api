@@ -72,7 +72,7 @@ module MMS
 
       # @return [MMS::Agent]
       def agent
-        @client = MMS::Client.new(@config.username, @config.apikey, url=@config.apiurl)
+        @client = MMS::Client.new(@config.username, @config.apikey, @config.apiurl)
         @agent = MMS::Agent.new(client)
       end
 
