@@ -11,6 +11,7 @@ module MMS
     attr_accessor :created_increment
     attr_accessor :expires
     attr_accessor :parts
+    attr_accessor :is_possibly_inconsistent
 
     # @return [TrueClass, FalseClass]
     def is_cluster
@@ -59,27 +60,22 @@ module MMS
     # @return [Array<MMS::Resource::RestoreJob>]
     def create_restorejob
       data = {:snapshotId => @id}
-      jobs = @client.post '/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs', data
+      job_data_list = @client.post '/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs', data
 
-      if jobs.nil?
+      if job_data_list.nil?
         raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
       end
 
-      job_list = []
-      # work around due to bug in MMS API; cannot read restoreJob using provided info.
-      # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
-      restore_jobs = cluster.restorejobs
-      jobs.each do |job|
-        _list = restore_jobs.select { |restorejob| restorejob.id == job['id'] }
-        _list.each do |restorejob|
-          job_list.push restorejob
-        end
+      job_data_list.map do |job_data|
+        j = MMS::Resource::RestoreJob.new
+        j.set_client(@client)
+        j.set_data(job_data)
+        j
       end
-      job_list
     end
 
     def table_row
-      [cluster.group.name, cluster.name, @id, @complete, @created_increment, @name, @expires]
+      [cluster.group.name, cluster.name, @id, @complete, @created_increment, @name, @expires, @is_possibly_inconsistent]
     end
 
     def table_section
@@ -97,7 +93,7 @@ module MMS
     end
 
     def self.table_header
-      ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires']
+      ['Group', 'Cluster', 'SnapshotId', 'Complete', 'Created increment', 'Name (created date)', 'Expires', 'Inconsistent']
     end
 
     # @param [MMS::Client] client
@@ -117,6 +113,7 @@ module MMS
       @created_increment = data['created'].nil? ? nil : data['created']['increment']
       @expires = data['expires']
       @parts = data['parts']
+      @is_possibly_inconsistent = data['isPossiblyInconsistent']
       @name = @created_date.nil? ? @id : DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
     end
 

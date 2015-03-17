@@ -45,12 +45,8 @@ module MMS
       if @restorejobs.empty?
         @client.get('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
 
-          if job['snapshotId'].nil? and job['clusterId'].nil?
-            raise MMS::ResourceError.new("RestoreJob `#{job['id']}` with status `#{job['statusName']}` has no `clusterId` and no `snapshotId`.", self)
-          elsif job['clusterId'].nil?
-            snapshot = group.find_snapshot(job['snapshotId'])
-            job['clusterId'] = snapshot.cluster.id unless snapshot.nil?
-          end
+          job['clusterId'] = @id
+          job['groupId'] = group.id
 
           j = MMS::Resource::RestoreJob.new
           j.set_client(@client)
@@ -66,42 +62,23 @@ module MMS
     # @return [Array<MMS::Resource::RestoreJob>]
     def create_restorejob(point_in_time = nil)
       data = {
-          'timestamp' => {
-              'date' => point_in_time,
-              'increment' => 0
-          }
+        'timestamp' => {
+          'date' => point_in_time,
+          'increment' => 0
+        }
       }
-      jobs = @client.post('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs', data)
+      job_data_list = @client.post('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs', data)
 
-      if jobs.nil?
+      if job_data_list.nil?
         raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
       end
 
-      job_list = []
-      # work around due to bug in MMS API; cannot read restoreJob using provided info.
-      # The config-server RestoreJob and Snapshot has no own ClusterId to be accessed.
-      tries = 5
-      while tries > 0
-        begin
-          restore_jobs = restorejobs
-          tries = 0
-        rescue Exception => e
-          tries-=1;
-          raise MMS::ResourceError.new(e.message, self) if tries < 1
-
-          STDERR.puts e.message
-          STDERR.puts 'Sleeping for 5 seconds. Trying again...'
-          sleep(5)
-        end
+      job_data_list.map do |job_data|
+        j = MMS::Resource::RestoreJob.new
+        j.set_client(@client)
+        j.set_data(job_data)
+        j
       end
-
-      jobs.each do |job|
-        _list = restore_jobs.select { |restorejob| restorejob.id == job['id'] }
-        _list.each do |restorejob|
-          job_list.push restorejob
-        end
-      end
-      job_list
     end
 
     def table_row

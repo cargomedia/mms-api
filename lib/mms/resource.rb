@@ -16,8 +16,7 @@ module MMS
     def set_data(data)
       @data = data
       from_hash(data)
-      cache_key = "Class::#{self.class.name}:#{@id}"
-      MMS::Cache.instance.set(cache_key, data)
+      MMS::Cache.instance.set(cache_key(@id), data)
     end
 
     # @param [Hash] data
@@ -61,11 +60,15 @@ module MMS
       raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
+    def invalidate_cache
+      MMS::Cache.instance.delete(cache_key(@id))
+    end
+
     # @param [MMS::Client] client
     # @param arguments...
     # @return self
     def self.find(client, *arguments)
-      cache_key = "Class::#{self.name}:#{arguments.last()}"
+      cache_key = self.cache_key(arguments.last())
       data = MMS::Cache.instance.get(cache_key)
       unless data
         data = self._find(client, *arguments)
@@ -76,5 +79,16 @@ module MMS
       resource.set_data(data)
       resource
     end
+
+    private
+
+    def cache_key(id)
+      "Class::#{self.class.name}:#{id}"
+    end
+
+    def self.cache_key(id)
+      "Class::#{self.name}:#{id}"
+    end
+
   end
 end

@@ -74,15 +74,15 @@ module MMS
     end
 
     # @param [String] id
-    # @return [MMS::Resource::Snapshot]
+    # @return [MMS::Resource::Snapshot, NilClass]
     def find_snapshot(id)
       snapshot = nil
       clusters.each do |cluster|
         begin
           snapshot = cluster.snapshot(id)
-        rescue => e
-          # STDERR.puts 'cannot load snapshotId for cluster if config-server is the source!'
-          # STDERR.puts 'not supported in current MMS API version'
+          break unless snapshot.nil?
+        rescue MMS::ApiError => e
+          # Snapshot is not available on this cluster. Skip it!
         end
       end
       snapshot
