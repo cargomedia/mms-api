@@ -18,33 +18,25 @@ module MMS
     # @param [String] path
     # @return [Hash]
     def get(path)
-      method ={
-        :name => "GET",
-        :http_method => Net::HTTP::Get
-      }
-      _request(@url + path, @username, @apikey, nil, method)
+      _request(Net::HTTP::Get, @url + path, @username, @apikey, nil)
     end
 
     # @param [String] path
     # @param [Hash] data
     # @return [Hash]
     def post(path, data)
-      method = {
-        :name => "POST",
-        :http_method => Net::HTTP::Post
-      }
-      _request(@url + path, @username, @apikey, data, method)
+      _request(Net::HTTP::Post, @url + path, @username, @apikey, data)
     end
 
     private
 
+    # @param [Net::HTTPRequest] http_method
     # @param [String] path
     # @param [String] username
     # @param [String] password
     # @param [Hash] data
-    # @param [Hash] method
     # @return [Hash]
-    def _request(path, username, password, data = nil, method = {})
+    def _request(http_method, path, username, password, data = nil)
 
       digest_auth = Net::HTTP::DigestAuth.new
       digest_auth.next_nonce
@@ -56,10 +48,13 @@ module MMS
       http = Net::HTTP.new uri.host, uri.port
       http.use_ssl = (uri.scheme == 'https')
 
-      req = method[:http_method].new uri.request_uri, {'Content-Type' => 'application/json'}
+      req = http_method.new(uri.request_uri, {'Content-Type' => 'application/json'})
       res = http.request req
-      auth = digest_auth.auth_header uri, res['WWW-Authenticate'], method[:name]
-      req = method[:http_method].new uri.request_uri, {'Content-Type' => 'application/json'}
+
+      raise 'Invalid method' unless http_method.kind_of? Class and http_method < Net::HTTPRequest
+      req = http_method.new(uri.request_uri, {'Content-Type' => 'application/json'})
+      method_name = http_method.name.split('::').last.upcase
+      auth = digest_auth.auth_header(uri, res['WWW-Authenticate'], method_name)
       req.add_field 'Authorization', auth
       req.body = data.to_json
 
