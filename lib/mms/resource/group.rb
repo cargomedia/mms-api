@@ -38,7 +38,7 @@ module MMS
       @client.get('/groups/' + @id + '/alerts?status=' + status + '&pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
         a = MMS::Resource::Alert.new
         a.set_client(@client)
-        a.set_data(data)
+        a.set_data(alert)
 
         alert_list.push a
       end
