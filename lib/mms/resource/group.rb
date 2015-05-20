@@ -60,6 +60,7 @@ module MMS
           c = MMS::Resource::Cluster.new
           c.set_client(@client)
           c.set_data(cluster)
+
           @clusters.push c
         end
       end
