@@ -41,6 +41,22 @@ module MMS
       client.get('/groups/' + group_id + '/hosts/' + id)
     end
 
+    def metrics
+      metric_list = []
+      @client.get("/groups/#{@data['groupId']}/hosts/#{@id}/metrics").each do |metric|
+        m = MMS::Resource::Metric.new
+        m.set_client(@client)
+        m.set_data(metric)
+
+        metric_list.push m
+      end
+      metric_list
+    end
+
+    def metric(name)
+      MMS::Resources::Metric.find(@client, @id, name)
+    end
+
     private
 
     def _from_hash(data)

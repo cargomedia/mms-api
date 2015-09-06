@@ -24,6 +24,7 @@ module MMS
   require 'mms/resource/snapshot_schedule'
   require 'mms/resource/restore_job'
   require 'mms/resource/alert'
+  require 'mms/resource/metric'
 
   require 'mms/cli'
 end
