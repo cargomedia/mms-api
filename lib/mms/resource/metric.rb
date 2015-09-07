@@ -30,7 +30,7 @@ module MMS
 
     def get_metric_data(options = {}, d_name = "")
       params = options.map { |k,v| "#{k}=#{v}" }.join('&')
-      client.get("/groups/#{@data['groupId']}/hosts/#{@data['hostId']}/metrics/#{@data['metricName']}/#{d_name}?#{params}")
+      client.get("/groups/#{@data['groupId']}/hosts/#{@data['hostId']}/metrics/#{@data['metricName']}/#{d_name}?#{params}").delete('links')
     end
 
     def _from_hash(data)
