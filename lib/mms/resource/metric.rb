@@ -3,7 +3,6 @@ module MMS
   class Resource::Metric < Resource
 
     attr_accessor :name
-    attr_accessor :units
 
     def group
       MMS::Resource::Group.find(@client, @data['groupId'])
@@ -14,18 +13,14 @@ module MMS
     end
 
     def data_points(options = {})
-      metric_data = client.get("/groups/#{group.id}/hosts/#{host.id}/metrics/#{@name}?#{options.map{ |k,v| "#{k}=#{v}" }.join('&') }")
+      metric_data = get_metric_data(options)
       if !metric_data.is_a?(Array)
-        metric_data['dataPoints']
+        metric_data
       else
         series = []
         metric_data.each do |m|
-          m_data = {}
-          m_data['name'] = m['deviceName'] if m['deviceName'] != nil
-          m_data['name'] = m['databaseName'] if m['databaseName'] != nil
-          m.has_key?('deviceName') ? (m_data['type'] = 'device') : (m_data['type'] = 'database')
-          m_data['data_points'] = client.get("/groups/#{group.id}/hosts/#{host.id}/metrics/#{@name}/#{m_data['name']}?#{options.map{ |k,v| "#{k}=#{v}"  }.join('&') }")['dataPoints']
-          series << data
+          d_name = (m['deviceName'] || "" ) + ( m['databaseName'] || "" )
+          series << get_metric_data(options, d_name)
         end
         series
       end
@@ -33,9 +28,13 @@ module MMS
 
     private
 
+    def get_metric_data(options = {}, d_name = "")
+      params = options.map { |k,v| "#{k}=#{v}" }.join('&')
+      client.get("/groups/#{@data['groupId']}/hosts/#{@data['hostId']}/metrics/#{@data['metricName']}/#{d_name}?#{params}")
+    end
+
     def _from_hash(data)
       @name = data['metricName']
-      @units = data['units']
     end
 
     def _to_hash
