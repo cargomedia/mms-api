@@ -76,9 +76,13 @@ hosts = group.hosts
 #### Metrics
 
 (Not available via CLI)
+
 You can list the available metrics on each host. The list contains the resource type MMS::Resource::Metric. This can be used to see which performance metrics the host hast.
+
 In order to get the metric's data points you'll need to call the specific function.
+
 Note - you can send a hash containing query parameter. With no input it uses MMS default.
+
 The return value of the data points is the hash described in MMS's API reference docs.
 ```ruby
 client = new MMS::Client.new('username', 'api_key')
