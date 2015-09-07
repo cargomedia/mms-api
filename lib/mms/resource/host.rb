@@ -41,18 +41,20 @@ module MMS
       client.get('/groups/' + group_id + '/hosts/' + id)
     end
 
+    # @returns [Array<MMS::Resource::Metric>]
     def metrics
       metric_list = []
       @client.get("/groups/#{@data['groupId']}/hosts/#{@id}/metrics").each do |metric|
         m = MMS::Resource::Metric.new
         m.set_client(@client)
         m.set_data(metric)
-
-        metric_list.push m
+        metric_list << m
       end
       metric_list
     end
 
+    # @params [String] name
+    # @returns [MMS::Resource::Metric]
     def metric(name)
       MMS::Resources::Metric.find(@client, @id, name)
     end
