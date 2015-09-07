@@ -53,12 +53,6 @@ module MMS
       metric_list
     end
 
-    # @params [String] name
-    # @returns [MMS::Resource::Metric]
-    def metric(name)
-      MMS::Resources::Metric.find(@client, @id, name)
-    end
-
     private
 
     def _from_hash(data)

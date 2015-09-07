@@ -35,13 +35,14 @@ module MMS
     # @returns [Hash]
     def get_metric_data(options = {}, d_name = "")
       params = options.map { |k,v| "#{k}=#{v}" }.join('&')
-      ret = JSON.parse(client.get("/groups/#{@data['groupId']}/hosts/#{@data['hostId']}/metrics/#{@data['metricName']}/#{d_name}?#{params}"))
+      ret = client.get("/groups/#{@data['groupId']}/hosts/#{@data['hostId']}/metrics/#{@data['metricName']}/#{d_name}?#{params}")
       ret.delete("links")
       ret
     end
 
     def _from_hash(data)
       @name = data['metricName']
+      data.delete('links')
     end
 
     def _to_hash
