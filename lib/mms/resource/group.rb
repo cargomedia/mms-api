@@ -12,6 +12,7 @@ module MMS
 
     def initialize
       @clusters = []
+      @backup_configs = []
     end
 
     # @param [Integer] page
@@ -71,6 +72,19 @@ module MMS
     # @return [MMS::Resource::Cluster]
     def cluster(id)
       MMS::Resource::Cluster.find(@client, @id, id)
+    end
+
+    def backup_configs
+      if @backup_configs.empty?
+        @client.get('/groups/' + @id + '/backupConfigs').each do |backup_config|
+          bc = MMS::Resource::BackupConfig.new
+          bc.set_client(@client)
+          bc.set_data(backup_config)
+
+          @backup_configs.push bc
+        end
+      end
+      @backup_configs
     end
 
     # @param [String] id
