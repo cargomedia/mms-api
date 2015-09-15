@@ -22,15 +22,25 @@ module MMS
 
     attr_accessor :cluster_id
     attr_accessor :group_id
+    attr_accessor :host_id
 
     # @return [MMS::Resource::Cluster]
     def cluster
       MMS::Resource::Cluster.find(@client, @group_id, @cluster_id)
     end
 
+    def host
+      MMS::Resource::Host.find(@client, @group_id, @host_id)
+    end
+
+    def has_host?
+      !@host_id.nil?
+    end
+
     # @return [MMS::Resource::Snapshot, NilClass]
     def snapshot
-      @snapshot ||= cluster.group.find_snapshot(@snapshot_id)
+      group = has_host? ? host.group : cluster.group
+      @snapshot ||= group.find_snapshot(@snapshot_id)
     end
 
     def table_row
@@ -53,22 +63,16 @@ module MMS
       ['Timestamp / RestoreId', 'SnapshotId / Cluster / Group', 'Name (created)', 'Status', 'Point in time', 'Delivery', 'Restore status']
     end
 
-    def self._find(client, group_id, cluster_id, id)
-      begin
-        client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/restoreJobs/' + id)
-      rescue MMS::ApiError => e
-        # workaround for https://jira.mongodb.org/browse/DOCS-5017
-        self._find_from_list(client, group_id, cluster_id, id)
-      end
+    def self._find(client, group_id, cluster_id, host_id, id)
+      (cluster_id.nil? and !host_id.nil?) ? self._find_by_host(client, group_id, host_id, id) : self._find_by_cluster(client, group_id, cluster_id, id)
     end
 
-    def self._find_from_list(client, group_id, cluster_id, id)
-      cluster = MMS::Resource::Cluster.find(client, group_id, cluster_id)
+    def self._find_by_host(client, group_id, host_id, id)
+      client.get('/groups/' + group_id + '/hosts/' + host_id + '/restoreJobs/' + id)
+    end
 
-      job = cluster.restorejobs.find { |restorejob| restorejob.id == id }
-      raise("Cannot find RestoreJob id `#{id}`") if job.nil?
-
-      job.data
+    def self._find_by_cluster(client, group_id, cluster_id, id)
+      client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/restoreJobs/' + id)
     end
 
     private
@@ -85,6 +89,7 @@ module MMS
       @name = DateTime.parse(@created).strftime("%Y-%m-%d %H:%M:%S")
       @cluster_id = data['clusterId']
       @group_id = data['groupId']
+      @host_id = data['hostId']
     end
 
     def _to_hash
