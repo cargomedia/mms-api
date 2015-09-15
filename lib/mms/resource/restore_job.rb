@@ -63,7 +63,7 @@ module MMS
     end
 
     def self._find(client, group_id, cluster_id, host_id, id)
-      !host_id.nil? ? self._find_by_host(client, group_id, host_id, id) : self._find_by_cluster(client, group_id, cluster_id, id)
+      host_id.nil? ? self._find_by_cluster(client, group_id, cluster_id, id) : self._find_by_host(client, group_id, host_id, id)
     end
 
     def self._find_by_host(client, group_id, host_id, id)
