@@ -77,6 +77,7 @@ module MMS
     # @return [MMS::Resource::Snapshot, NilClass]
     def find_snapshot(id)
       snapshot = nil
+
       clusters.each do |cluster|
         begin
           snapshot = cluster.snapshot(id)
@@ -85,6 +86,18 @@ module MMS
           # Snapshot is not available on this cluster. Skip it!
         end
       end
+
+      if snapshot.nil?
+        hosts.each do |host|
+          begin
+            snapshot = host.snapshot(id)
+            break unless snapshot.nil?
+          rescue MMS::ApiError => e
+            # Snapshot is not available on this host. Skip it!
+          end
+        end
+      end
+
       snapshot
     end
 
