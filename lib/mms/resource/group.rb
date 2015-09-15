@@ -77,7 +77,6 @@ module MMS
     # @return [MMS::Resource::Snapshot, NilClass]
     def find_snapshot(id)
       snapshot = nil
-
       clusters.each do |cluster|
         begin
           snapshot = cluster.snapshot(id)
@@ -86,7 +85,6 @@ module MMS
           # Snapshot is not available on this cluster. Skip it!
         end
       end
-
       if snapshot.nil?
         hosts.each do |host|
           begin
@@ -97,7 +95,6 @@ module MMS
           end
         end
       end
-
       snapshot
     end
 
