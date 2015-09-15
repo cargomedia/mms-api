@@ -39,8 +39,7 @@ module MMS
 
     # @return [MMS::Resource::Snapshot, NilClass]
     def snapshot
-      group = has_host? ? host.group : cluster.group
-      @snapshot ||= group.find_snapshot(@snapshot_id)
+      has_host? ? host.snapshot(@snapshot_id) : cluster.snapshot(@snapshot_id)
     end
 
     def table_row
@@ -64,7 +63,7 @@ module MMS
     end
 
     def self._find(client, group_id, cluster_id, host_id, id)
-      (cluster_id.nil? and !host_id.nil?) ? self._find_by_host(client, group_id, host_id, id) : self._find_by_cluster(client, group_id, cluster_id, id)
+      !host_id.nil? ? self._find_by_host(client, group_id, host_id, id) : self._find_by_cluster(client, group_id, cluster_id, id)
     end
 
     def self._find_by_host(client, group_id, host_id, id)
