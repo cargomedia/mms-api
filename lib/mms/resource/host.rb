@@ -17,6 +17,10 @@ module MMS
     attr_accessor :profiler_enabled
     attr_accessor :logs_enabled
 
+    def initialize
+      @metric_list = []
+    end
+
     # @return [MMS::Resource::Group]
     def group
       MMS::Resource::Group.find(@client, @data['groupId'])
@@ -60,14 +64,16 @@ module MMS
 
     # @returns [Array<MMS::Resource::Metric>]
     def metrics
-      metric_list = []
-      @client.get("/groups/#{@data['groupId']}/hosts/#{@id}/metrics").each do |metric|
-        m = MMS::Resource::Metric.new
-        m.set_client(@client)
-        m.set_data(metric)
-        metric_list << m
+      if @metric_list.empty?
+        @client.get('/groups/' + group.id + '/hosts/' + @id + '/metrics').each do |metric|
+          m = MMS::Resource::Metric.new
+          m.set_client(@client)
+          m.set_data(metric)
+
+          @metric_list.push m
+        end
       end
-      metric_list
+      @metric_list
     end
 
     private
