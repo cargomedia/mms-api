@@ -25,6 +25,7 @@ module MMS
   require 'mms/resource/restore_job'
   require 'mms/resource/alert'
   require 'mms/resource/backup_config'
+  require 'mms/resource/metric'
 
   require 'mms/cli'
 end

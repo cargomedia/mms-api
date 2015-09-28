@@ -20,7 +20,8 @@ The MMS Public API follows the principles of the REST architectural style to exp
 |Snapshots      | +      | +      |       |       |       |
 |Alerts         | +      | +      |       |       |       |
 |Restore Jobs   | +      | +      | +     |       |       |
-|Backup Config  | +      | +      |       |       |       |
+|Backup Configs | +      | +      |       |       |       |
+|Metrics        | +      | +      |       |       |       |
 
 Library usage
 -------------
@@ -73,6 +74,28 @@ client = new MMS::Client.new('username', 'api_key')
 group = MMS::Resource::Group.find(client, 'group_id')
 hosts = group.hosts
 ```
+
+#### Metrics
+
+(Not available via CLI)
+
+You can list the available metrics on each host. The list contains the resource type MMS::Resource::Metric. This can be used to see which performance metrics the host has.
+
+In order to get the metric's data points you'll need to call the specific function.
+
+Note - you can send a hash containing query parameter. With no input it uses MMS default.
+
+The return value of the data points is the hash described in MMS's API reference docs.
+```ruby
+client = new MMS::Client.new('username', 'api_key')
+host = MMS::Resource::Host.find(client, 'group_id', 'host_id')
+metrics = host.metrics
+options = {"granularity" => "HOUR", "period" => "P1DT12H" }
+metrics.each do |m|
+  puts m.data_points(options)
+end
+```
+In case of hardware or database metrics, the return value will be an array that each value contains the data points for the relevant device or database.
 
 Cli usage
 ---------
