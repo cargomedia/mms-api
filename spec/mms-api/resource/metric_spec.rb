@@ -1,32 +1,37 @@
 require 'mms'
 
-describe MMS::Resource::BackupConfig do
+describe MMS::Resource::Metric do
   let(:client) { MMS::Client.new }
 
   it 'should load data' do
 
     client.stub(:get).and_return(
       {
-        "groupId" => "5196d3628d022db4cbc11111",
-        "clusterId" => "5196d3628d022db4cbc000000",
-        "statusName" => "STARTED",
-        "storageEngineName" => "WIRED_TIGER",
-        "authMechanismName" => "MONGODB_CR",
-        "username" => "johnny5",
-        "password" => "guess!",
-        "sslEnabled" => false,
-        "syncSource" => "PRIMARY",
-        "provisioned" => true,
-        "excludedNamespaces" => ["a", "b", "c.d"]
+        "hostId" => "5196d3628d022db4cbc000000",
+        "groupId" => "5196d3628d022db4cbc111111",
+        "metricName" => "OPCOUNTERS_UPDATE",
+        "units" => "RAW",
+        "granularity" => "MINUTE",
+        "dataPoints" => [
+          {
+            "timestamp" => "2014-08-26T16:42:00Z",
+            "value" => 10.3911
+          }, {
+            "timestamp" => "2014-08-26T16:43:00Z",
+            "value" => 14.938
+          }, {
+            "timestamp" => "2014-08-26T16:44:00Z",
+            "value" => 12.8882
+          },
+        ],
+        "links" => {}
       },
       {
         "id" => "5196d3628d022db4cbc000000",
         "groupId" => "5196d3628d022db4cbc111111",
-        "typeName" => "REPLICA_SET",
-        "clusterName" => "Cluster of Animals",
-        "shardName" => "shard001",
-        "replicaSetName" => "rs1",
-        "lastHeartbeat" => "2014-02-26T17:32:45Z",
+        "hostname" => "localhost",
+        "port" => 27017,
+        "typeName" => "SHARD_SECONDARY",
       },
       {
         "id" => "5196d3628d022db4cbc111111",
@@ -38,12 +43,13 @@ describe MMS::Resource::BackupConfig do
       }
     )
 
-    backup_config = MMS::Resource::BackupConfig.find(client, '5196d3628d022db4cbc11111', '5196d3628d022db4cbc000000')
+    metric = MMS::Resource::Metric.find(client, '5196d3628d022db4cbc11111', '5196d3628d022db4cbc000000', 'OPCOUNTERS_UPDATE')
 
-    backup_config.cluster.id.should eq('5196d3628d022db4cbc000000')
-    backup_config.cluster.group.id.should eq('5196d3628d022db4cbc111111')
-    backup_config.status_name.should eq('STARTED')
-    backup_config.is_active.should eq(true)
+    metric.host.id.should eq('5196d3628d022db4cbc000000')
+    metric.host.group.id.should eq('5196d3628d022db4cbc111111')
+    metric.name.should eq('OPCOUNTERS_UPDATE')
+    metric.granularity.should eq('MINUTE')
+    metric.units.should eq('RAW')
   end
 
 end
