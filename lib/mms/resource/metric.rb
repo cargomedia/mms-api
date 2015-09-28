@@ -31,6 +31,7 @@ module MMS
     # @param [String] group_id
     # @param [String] host_id
     # @param [String] metric_name
+    # @returns [Hash]
     def self._find(client, group_id, host_id, metric_name)
       client.get('/groups/' + group_id + '/hosts/' + host_id + '/metrics/' + metric_name)
     end
