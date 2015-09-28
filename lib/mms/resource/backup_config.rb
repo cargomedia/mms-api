@@ -43,8 +43,6 @@ module MMS
     private
 
     def _from_hash(data)
-      puts '--------------------------------------------------------------------'
-      puts data.inspect
       @cluster_id = data['clusterId']
       @excluded_namespaces = data['excludedNamespaces']
       @group_id = data['groupId']
