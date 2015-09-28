@@ -20,7 +20,8 @@ The MMS Public API follows the principles of the REST architectural style to exp
 |Snapshots      | +      | +      |       |       |       |
 |Alerts         | +      | +      |       |       |       |
 |Restore Jobs   | +      | +      | +     |       |       |
-|Backup Config  | +      | +      |       |       |       |
+|Backup Configs | +      | +      |       |       |       |
+|Metrics        | +      | +      |       |       |       |
 
 Library usage
 -------------
@@ -78,7 +79,7 @@ hosts = group.hosts
 
 (Not available via CLI)
 
-You can list the available metrics on each host. The list contains the resource type MMS::Resource::Metric. This can be used to see which performance metrics the host hast.
+You can list the available metrics on each host. The list contains the resource type MMS::Resource::Metric. This can be used to see which performance metrics the host has.
 
 In order to get the metric's data points you'll need to call the specific function.
 
