@@ -28,7 +28,7 @@ describe MMS::Resource::RestoreJob do
         },
     )
 
-    restorejob = MMS::Resource::RestoreJob.find(client, '5196d3628d022db4cbc111111', '5196d3628d022db4cbc000000', '3')
+    restorejob = MMS::Resource::RestoreJob.find(client, '5196d3628d022db4cbc111111', '5196d3628d022db4cbc000000', '3', '4')
 
     restorejob.id.should eq('3')
     restorejob.status_name.should eq('FINISHED')

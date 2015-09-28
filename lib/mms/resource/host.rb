@@ -22,6 +22,23 @@ module MMS
       MMS::Resource::Group.find(@client, @data['groupId'])
     end
 
+    def snapshot(id)
+      MMS::Resource::Snapshot.find(@client, group.id, nil, @id, id)
+    end
+
+    def snapshots(page = 1, limit = 1000)
+      if @snapshots.empty?
+        @client.get('/groups/' + group.id + '/hosts/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
+          s = MMS::Resource::Snapshot.new
+          s.set_client(@client)
+          s.set_data(snapshot)
+
+          @snapshots.push s
+        end
+      end
+      @snapshots
+    end
+
     def table_row
       [group.name, @type_name, @name, @ip_address, @port, @last_ping, @alerts_enabled, @id, @shard_name, @replicaset_name]
     end

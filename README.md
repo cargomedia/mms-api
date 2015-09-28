@@ -12,14 +12,15 @@ API coverage
 ------------
 The MMS Public API follows the principles of the REST architectural style to expose a number of internal resources which enable programmatic access to [MMS’s features](http://mms.mongodb.com/help/reference/api/). Current implementation support only a few of API features.
 
-|Resource     |Get All |Get One |Create |Update |Delete |
-|:------------|:------:|:------:|:-----:|:-----:|:-----:|
-|Groups       | +      | +      |       |       |       |
-|Hosts        | +      | +      |       |       |       |
-|Clusters     | +      | +      |       |       |       |
-|Snapshots    | +      | +      |       |       |       |
-|Alerts       | +      | +      |       |       |       |
-|Restore Jobs | +      | +      | +     |       |       |
+|Resource       |Get All |Get One |Create |Update |Delete |
+|:--------------|:------:|:------:|:-----:|:-----:|:-----:|
+|Groups         | +      | +      |       |       |       |
+|Hosts          | +      | +      |       |       |       |
+|Clusters       | +      | +      |       |       |       |
+|Snapshots      | +      | +      |       |       |       |
+|Alerts         | +      | +      |       |       |       |
+|Restore Jobs   | +      | +      | +     |       |       |
+|Backup Config  | +      | +      |       |       |       |
 
 Library usage
 -------------

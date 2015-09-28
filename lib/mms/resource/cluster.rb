@@ -21,7 +21,7 @@ module MMS
     end
 
     def snapshot(id)
-      MMS::Resource::Snapshot.find(@client, group.id, @id, id)
+      MMS::Resource::Snapshot.find(@client, group.id, @id, nil, id)
     end
 
     def snapshots(page = 1, limit = 1000)

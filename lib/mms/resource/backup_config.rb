@@ -40,11 +40,16 @@ module MMS
       ['Group', 'Cluster', 'BackupId', 'Excluded namespaces', 'Group Id', 'Links', 'Status name', 'Cluster id']
     end
 
+    # @param [MMS::Client] client
+    # @param [String] group_id
+    # @param [String] cluster_id
+    def self._find(client, group_id, cluster_id)
+      client.get('/groups/' + group_id + '/backupConfigs/' + cluster_id)
+    end
+
     private
 
     def _from_hash(data)
-      puts '--------------------------------------------------------------------'
-      puts data.inspect
       @cluster_id = data['clusterId']
       @excluded_namespaces = data['excludedNamespaces']
       @group_id = data['groupId']

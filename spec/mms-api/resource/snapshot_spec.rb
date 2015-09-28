@@ -36,7 +36,7 @@ describe MMS::Resource::Snapshot do
         }
     )
 
-    snapshot = MMS::Resource::Snapshot.find(client, '1', '2', '3')
+    snapshot = MMS::Resource::Snapshot.find(client, '1', '2', '3', '4')
 
     snapshot.id.should eq('003')
     snapshot.cluster.id.should eq('002')

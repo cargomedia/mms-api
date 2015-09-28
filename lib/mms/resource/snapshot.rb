@@ -20,12 +20,12 @@ module MMS
 
     # @return [TrueClass, FalseClass]
     def is_config
-      @parts.length == 1 and @parts.first['typeName'] == 'CONFIG_SERVER'
+      @parts.length == 1 and @parts.first['typeName'] == 'REPLICA_SET' and !@parts.first['hostId'].nil?
     end
 
     # @return [TrueClass, FalseClass]
     def is_replica
-      @parts.length == 1 and @parts.first['typeName'] == 'REPLICA_SET'
+      @parts.length == 1 and @parts.first['typeName'] == 'REPLICA_SET' and !@parts.first['clusterId'].nil?
     end
 
     # @return [String, NilClass]
@@ -101,8 +101,16 @@ module MMS
     # @param [String] cluster_id
     # @param [String] id
     # @return [MMS::Resource::Snapshot]
-    def self._find(client, group_id, cluster_id, id)
+    def self._find(client, group_id, cluster_id, host_id, id)
+      host_id.nil? ? self._find_by_cluster(client, group_id, cluster_id, id) : self._find_by_host(client, group_id, host_id, id)
+    end
+
+    def self._find_by_cluster(client, group_id, cluster_id, id)
       client.get('/groups/' + group_id + '/clusters/' + cluster_id + '/snapshots/' + id.to_s)
+    end
+
+    def self._find_by_host(client, group_id, host_id, id)
+      client.get('/groups/' + group_id + '/hosts/' + host_id + '/snapshots/' + id.to_s)
     end
 
     private
