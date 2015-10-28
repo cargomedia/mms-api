@@ -23,6 +23,7 @@ module MMS
     attr_accessor :cluster_id
     attr_accessor :group_id
     attr_accessor :host_id
+    attr_accessor :hashes
 
     # @return [MMS::Resource::Cluster]
     def cluster
@@ -89,6 +90,7 @@ module MMS
       @cluster_id = data['clusterId']
       @group_id = data['groupId']
       @host_id = data['hostId']
+      @hashes = data['hashes']
     end
 
     def _to_hash
