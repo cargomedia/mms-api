@@ -78,6 +78,9 @@ module MMS
     private
 
     def _from_hash(data)
+      puts '--- DEBUG FROM HASH ------------------------------------------------------------'
+      puts data.inspect
+      puts '--- DEBUG FROM HASH ------------------------------------------------------------'
       @snapshot_id = data['snapshotId']
       @created = data['created']
       @status_name = data['statusName']
