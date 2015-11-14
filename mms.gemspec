@@ -18,5 +18,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'clamp', '~> 0.6.0'
 
   s.add_development_dependency 'rake'
+  s.add_development_dependency 'pry'
   s.add_development_dependency 'rspec', '~> 2.0'
 end
