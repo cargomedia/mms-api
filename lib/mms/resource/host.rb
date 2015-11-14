@@ -30,7 +30,7 @@ module MMS
       MMS::Resource::Snapshot.find(@client, group.id, nil, @id, id)
     end
 
-    def snapshots(page = 1, limit = 1000)
+    def snapshots(page = 1, limit = 100)
       if @snapshots.empty?
         @client.get('/groups/' + group.id + '/hosts/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
           s = MMS::Resource::Snapshot.new

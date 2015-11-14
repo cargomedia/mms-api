@@ -18,7 +18,7 @@ module MMS
     # @param [Integer] page
     # @param [Integer] limit
     # @return [Array<MMS::Resource::Host>]
-    def hosts(page = 1, limit = 1000)
+    def hosts(page = 1, limit = 100)
       host_list = []
       @client.get('/groups/' + @id + '/hosts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |host|
         h = MMS::Resource::Host.new
@@ -34,7 +34,7 @@ module MMS
     # @param [Integer] limit
     # @param [String] status
     # @return [Array<MMS::Resource::Alert>]
-    def alerts(page = 1, limit = 1000, status = 'OPEN')
+    def alerts(page = 1, limit = 100, status = 'OPEN')
       alert_list = []
       @client.get('/groups/' + @id + '/alerts?status=' + status + '&pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
         a = MMS::Resource::Alert.new
@@ -55,7 +55,7 @@ module MMS
     # @param [Integer] page
     # @param [Integer] limit
     # @return [Array<MMS::Resource::Cluster>]
-    def clusters(page = 1, limit = 1000)
+    def clusters(page = 1, limit = 100)
       if @clusters.empty?
         @client.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
           c = MMS::Resource::Cluster.new
