@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::Metric < Resource
-
     attr_accessor :name
     attr_accessor :units
     attr_accessor :granularity
@@ -44,7 +42,7 @@ module MMS
     def get_metric_data(options = {}, d_name = '')
       params = options.map { |k, v| "#{k}=#{v}" }.join('&')
       ret = client.get("/groups/#{@data['groupId']}/hosts/#{@data['hostId']}/metrics/#{@data['metricName']}/#{d_name}?#{params}")
-      ret.delete("links")
+      ret.delete('links')
       ret
     end
 

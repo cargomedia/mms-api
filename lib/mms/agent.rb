@@ -1,7 +1,5 @@
 module MMS
-
   class Agent
-
     attr_accessor :client
 
     # @param [MMS::Client] client
@@ -10,7 +8,7 @@ module MMS
     end
 
     # @param [String] apiurl
-    def set_apiurl(apiurl)
+    def apiurl(apiurl)
       @client.url = apiurl
     end
 
@@ -19,8 +17,8 @@ module MMS
       group_list = []
       client.get('/groups').each do |group|
         g = MMS::Resource::Group.new
-        g.set_client(client)
-        g.set_data(group)
+        g.client(client)
+        g.data(group)
 
         group_list.push g
       end
@@ -51,7 +49,7 @@ module MMS
       clusters.each do |cluster|
         snapshot_list.concat cluster.snapshots
       end
-      snapshot_list.sort_by { |snapshot| snapshot.created_date }.reverse
+      snapshot_list.sort_by(&:created_date).reverse
     end
 
     # @return [Array<MMS::Resource::Alert>]
@@ -60,7 +58,7 @@ module MMS
       groups.each do |group|
         alert_list.concat group.alerts
       end
-      alert_list.sort_by { |alert| alert.created }.reverse
+      alert_list.sort_by(&:created).reverse
     end
 
     # @return [Array<MMS::Resource::RestoreJob>]
@@ -69,7 +67,7 @@ module MMS
       clusters.each do |cluster|
         restorejob_list.concat cluster.restorejobs
       end
-      restorejob_list.sort_by { |job| job.created }.reverse
+      restorejob_list.sort_by(&:created).reverse
     end
 
     # @param [String] type_value
@@ -79,8 +77,8 @@ module MMS
     def restorejob_create(type_value, group_id, cluster_id)
       if type_value.length == 24
         find_group(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
-      elsif datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
-        raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:sZ`') if datetime.nil?
+      elsif datetime == (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
+        fail('Invalid datetime. Correct `YYYY-MM-RRTH:m:sZ`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.month, datetime.day].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
         find_group(group_id).cluster(cluster_id).create_restorejob(datetime_string)
       end
@@ -110,6 +108,5 @@ module MMS
     def find_group(id)
       MMS::Resource::Group.find(@client, id)
     end
-
   end
 end

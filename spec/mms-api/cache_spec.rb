@@ -33,5 +33,4 @@ describe MMS::Cache do
 
     cache.storage.should eq({})
   end
-
 end

@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::Alert < Resource
-
     attr_accessor :name
 
     attr_accessor :type_name
@@ -19,14 +17,13 @@ module MMS
       MMS::Resource::Group.find(@client, @data['groupId'])
     end
 
-
     # @param [Time, Integer] time
     # @param [String] description
     # @return [TrueClass, FalseClass]
     def ack(time, description)
       data = {
-          :acknowledgedUntil => time.to_i,
-          :acknowledgementComment => description
+        acknowledgedUntil: time.to_i,
+        acknowledgementComment: description
       }
       alert = @client.post '/groups/' + group.id + '/alerts/' + @id, data
       !alert.nil?
@@ -39,7 +36,7 @@ module MMS
     def table_section
       rows = []
       rows << table_row
-      rows << [{:value => "AlertId: #{@id}   GroupId: #{group.id}", :colspan => 9, :alignment => :left}]
+      rows << [{ value: "AlertId: #{@id}   GroupId: #{group.id}", colspan: 9, alignment: :left }]
       rows << :separator
       rows
     end
@@ -75,6 +72,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end

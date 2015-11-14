@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::Cluster < Resource
-
     attr_accessor :name
     attr_accessor :shard_name
     attr_accessor :replicaset_name
@@ -28,8 +26,8 @@ module MMS
       if @snapshots.empty?
         @client.get('/groups/' + group.id + '/clusters/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
           s = MMS::Resource::Snapshot.new
-          s.set_client(@client)
-          s.set_data(snapshot)
+          s.client(@client)
+          s.data(snapshot)
 
           @snapshots.push s
         end
@@ -44,13 +42,12 @@ module MMS
     def restorejobs(page = 1, limit = 100)
       if @restorejobs.empty?
         @client.get('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |job|
-
           job['clusterId'] = @id
           job['groupId'] = group.id
 
           j = MMS::Resource::RestoreJob.new
-          j.set_client(@client)
-          j.set_data(job)
+          j.client(@client)
+          j.data(job)
 
           @restorejobs.push j
         end
@@ -70,13 +67,13 @@ module MMS
       job_data_list = @client.post('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs', data)
 
       if job_data_list.nil?
-        raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
+        fail MMS::ResourceError.new("Cannot create job from snapshot `#{id}`", self)
       end
 
       job_data_list.map do |job_data|
         j = MMS::Resource::RestoreJob.new
-        j.set_client(@client)
-        j.set_data(job_data)
+        j.client(@client)
+        j.data(job_data)
         j
       end
     end
@@ -110,6 +107,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end

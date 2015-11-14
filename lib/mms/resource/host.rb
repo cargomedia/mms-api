@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::Host < Resource
-
     attr_accessor :name
     attr_accessor :hostname
     attr_accessor :port
@@ -34,8 +32,8 @@ module MMS
       if @snapshots.empty?
         @client.get('/groups/' + group.id + '/hosts/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
           s = MMS::Resource::Snapshot.new
-          s.set_client(@client)
-          s.set_data(snapshot)
+          s.client(@client)
+          s.data(snapshot)
 
           @snapshots.push s
         end
@@ -68,8 +66,8 @@ module MMS
       if @metric_list.empty?
         @client.get('/groups/' + group.id + '/hosts/' + @id + '/metrics').each do |metric|
           m = MMS::Resource::Metric.new
-          m.set_client(@client)
-          m.set_data(metric)
+          m.client(@client)
+          m.data(metric)
 
           @metric_list.push m
         end
@@ -99,6 +97,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end

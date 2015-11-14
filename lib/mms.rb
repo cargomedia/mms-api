@@ -1,10 +1,10 @@
 module MMS
-  require 'rubygems'  # For ruby < 1.9
+  require 'rubygems' # For ruby < 1.9
 
-  require "uri"
-  require "json"
-  require "cgi"
-  require "net/http"
+  require 'uri'
+  require 'json'
+  require 'cgi'
+  require 'net/http'
   require 'net/http/digest_auth'
   require 'terminal-table'
   require 'pathname'
