@@ -4,3 +4,4 @@ Gemfile.lock
 .buildpath
 .project
 .ruby-version
+.bundle/
