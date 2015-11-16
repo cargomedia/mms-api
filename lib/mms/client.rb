@@ -26,6 +26,19 @@ module MMS
       _request(Net::HTTP::Post, @url + path, @username, @apikey, data)
     end
 
+    # @param [String] path
+    # @return [Hash]
+    def delete(path)
+      _request(Net::HTTP::Delete, @url + path, @username, @apikey, nil)
+    end
+
+    # @param [String] path
+    # @param [Hash] data
+    # @return [Hash]
+    def patch(path, data)
+      _request(Net::HTTP::Patch, @url + path, @username, @apikey, data)
+    end
+
     private
 
     # @param [Net::HTTPRequest] http_method
