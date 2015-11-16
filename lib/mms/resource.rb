@@ -49,7 +49,7 @@ module MMS
       fail("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
-    # @param [Hash] data
+    # @param [Hash] _data
     def _from_hash(_data)
       fail("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
@@ -64,7 +64,7 @@ module MMS
     end
 
     # @param [MMS::Client] client
-    # @param arguments...
+    # @param [Hash] arguments
     # @return self
     def self.find(client, *arguments)
       cache_key = self.cache_key(arguments.last)

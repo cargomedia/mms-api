@@ -89,13 +89,13 @@ module MMS
       end
 
       # @param [String] heading
-      # @param [Array<MMS::Resource>]
+      # @param [Array<MMS::Resource>] resource_list
       def print(heading, resource_list)
         json? ? print_json(resource_list) : print_human(heading, resource_list)
       end
 
       # @param [String] heading
-      # @param [Array<MMS::Resource>]
+      # @param [Array<MMS::Resource>] resource_list
       def print_human(heading, resource_list)
         rows = []
 
@@ -108,7 +108,7 @@ module MMS
         print_tips unless ignore?
       end
 
-      # @param [Array<MMS::Resource>]
+      # @param [Array<MMS::Resource>] resource_list
       def print_json(resource_list)
         rows = []
 

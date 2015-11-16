@@ -56,12 +56,12 @@ module MMS
     # @param [MMS::Client] client
     # @param [String] group_id
     # @param [String] id
-    # @returns [Hash]
+    # @return [Hash]
     def self._find(client, group_id, id)
       client.get('/groups/' + group_id + '/hosts/' + id)
     end
 
-    # @returns [Array<MMS::Resource::Metric>]
+    # @return [Array<MMS::Resource::Metric>]
     def metrics
       if @metric_list.empty?
         @client.get('/groups/' + group.id + '/hosts/' + @id + '/metrics').each do |metric|
