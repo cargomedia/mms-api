@@ -62,6 +62,71 @@ describe MMS::Agent do
     host_list.first.group.id.should eq('5196d3628d022db4cbc11111')
   end
 
+  it 'should create a host' do
+    client.stub(:post).and_return(
+      'id' => '56e9378f601dc49360a40949c8a6df6c',
+      'groupId' => '5196d3628d022db4cbc11111',
+      'hostname' => 'localhost',
+      'port' => 26000,
+      'deactivated' => false,
+      'sslEnabled' => true,
+      'logsEnabled' => false,
+      'created' => '2014-04-22T19:56:50Z',
+      'hostEnabled' => true,
+      'journalingEnabled' => false,
+      'alertsEnabled' => true,
+      'profilerEnabled' => false
+    )
+
+    new_host = agent.host_create('5196d3628d022db4cbc11111',
+                                 'localhost',
+                                 26000,
+                                 sslEnabled: true)
+
+    new_host.hostname.should eq('localhost')
+    new_host.port.should eq(26000)
+    new_host.alerts_enabled.should eq(true)
+    new_host.profiler_enabled.should eq(false)
+    new_host.logs_enabled.should eq(false)
+  end
+
+  it 'should patch a host' do
+    client.stub(:patch).and_return(
+      'id' => '56e9378f601dc49360a40949c8a6df6c',
+      'groupId' => '5196d3628d022db4cbc11111',
+      'hostname' => 'localhost',
+      'port' => 26000,
+      'deactivated' => false,
+      'sslEnabled' => true,
+      'logsEnabled' => true,
+      'created' => '2014-04-22T19:56:50Z',
+      'hostEnabled' => true,
+      'journalingEnabled' => false,
+      'alertsEnabled' => true,
+      'profilerEnabled' => false
+    )
+
+    updated_host = agent.host_update('5196d3628d022db4cbc11111',
+                                     '56e9378f601dc49360a40949c8a6df6c',
+                                     sslEnabled: true,
+                                     logsEnabled: true)
+
+    updated_host.hostname.should eq('localhost')
+    updated_host.port.should eq(26000)
+    updated_host.alerts_enabled.should eq(true)
+    updated_host.profiler_enabled.should eq(false)
+    updated_host.logs_enabled.should eq(true)
+  end
+
+  it 'should delete a host' do
+    client.stub(:delete).and_return({})
+
+    delete_ret = agent.host_delete('5196d3628d022db4cbc11111',
+                                   '56e9378f601dc49360a40949c8a6df6c')
+
+    delete_ret.should eq(true)
+  end
+
   it 'should list snapshots' do
     client.stub(:get).and_return(
       [{

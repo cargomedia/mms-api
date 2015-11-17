@@ -34,6 +34,72 @@ module MMS
       host_list
     end
 
+    # @param [String] groupid
+    # @param [String] hostname
+    # @param [Integer] port
+    # @option options [String] username Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [String] password Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [TrueClass, FalseClass] sslEnabled Must be true if the authMechanismName is MONGODB_X509. Default is false if omitted.
+    # @option options [TrueClass, FalseClass] logsEnabled Default is false if omitted.
+    # @option options [TrueClass, FalseClass] alertsEnabled Default is true if omitted.
+    # @option options [TrueClass, FalseClass] profilerEnabled Default is false if omitted.
+    # @option options [Integer] muninPort Default is 0 and Munin stats are not collected if omitted.
+    # @option options [String] authMechanismName Default is NONE if omitted. If set to MONGODB_CR then you must provide the username and password.
+    # @return [<MMS::Resource::Host>]
+    def host_create(groupid, hostname, port, options = {})
+      data = {}
+      data[:hostname] = hostname
+      data[:port] = port
+      data[:username] = options[:username] || nil
+      data[:password] = options[:password] || nil
+      data[:sslEnabled] = options[:sslEnabled] || false
+      data[:logsEnabled] = options[:logsEnabled] || false
+      data[:alertsEnabled] = options[:alertsEnabled] || true
+      data[:profilerEnabled] = options[:profilerEnabled] || false
+      data[:muninPort] = options[:muninPort] || 0
+      data[:authMechanismName] = options[:authMechanismName] || nil
+      ret_host = client.post("/groups/#{groupid}/hosts", data)
+      host = MMS::Resource::Host.new
+      host._from_hash(ret_host)
+      host
+    end
+
+    # @param [String] groupid
+    # @param [String] hostid
+    # @option options [String] username Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [String] password Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [TrueClass, FalseClass] sslEnabled Must be true if the authMechanismName is MONGODB_X509. Default is false if omitted.
+    # @option options [TrueClass, FalseClass] logsEnabled Default is false if omitted.
+    # @option options [TrueClass, FalseClass] alertsEnabled Default is true if omitted.
+    # @option options [TrueClass, FalseClass] profilerEnabled Default is false if omitted.
+    # @option options [Integer] muninPort Default is 0 and Munin stats are not collected if omitted.
+    # @option options [String] authMechanismName Default is NONE if omitted. If set to MONGODB_CR then you must provide the username and password.
+    # @return [<MMS::Resource::Host>]
+    def host_update(groupid, hostid, options = {})
+      data = {}
+      data[:username] = options[:username] if options.include?(:username)
+      data[:password] = options[:password] if options.include?(:password)
+      data[:sslEnabled] = options[:sslEnabled] if options.include?(:sslEnabled)
+      data[:logsEnabled] = options[:logsEnabled] if options.include?(:logsEnabled)
+      data[:alertsEnabled] = options[:alertsEnabled] if options.include?(:alertsEnabled)
+      data[:profilerEnabled] = options[:profilerEnabled] if options.include?(:profilerEnabled)
+      data[:muninPort] = options[:muninPort] if options.include?(:muninPort)
+      data[:authMechanismName] = options[:authMechanismName] if options.include?(:authMechanismName)
+      ret_host = client.patch("/groups/#{groupid}/hosts/#{hostid}", data)
+      host = MMS::Resource::Host.new
+      host._from_hash(ret_host)
+      host
+    end
+
+    # @param [String] groupid
+    # @param [String] hostid
+    # @return [TrueClass, FalseClass]
+    def host_delete(groupid, hostid)
+      client.delete("/groups/#{groupid}/hosts/#{hostid}")
+      host = client.delete("/groups/#{groupid}/hosts/#{hostid}")
+      host == {} ? true : false
+    end
+
     # @return [Array<MMS::Resource::Cluster>]
     def clusters
       cluster_list = []

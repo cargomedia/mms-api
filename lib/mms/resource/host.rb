@@ -75,8 +75,6 @@ module MMS
       @metric_list
     end
 
-    private
-
     def _from_hash(data)
       @hostname = data['hostname']
       @port = data['port']
