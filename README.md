@@ -14,14 +14,20 @@ The MMS Public API follows the principles of the REST architectural style to exp
 
 |Resource       |Get All |Get One |Create |Update |Delete |
 |:--------------|:------:|:------:|:-----:|:-----:|:-----:|
-|Groups         | +      | +      |       |       |       |
-|Hosts          | +      | +      | +     | +     |+      |
-|Clusters       | +      | +      |       | +     |       |
-|Snapshots      | +      | +      |       |       |       |
-|Alerts         | +      | +      |       |       |       |
-|Restore Jobs   | +      | +      | +     |       |       |
-|Backup Configs | +      | +      |       |       |       |
-|Metrics        | +      | +      |       |       |       |
+|Groups         | +      | +      | -     | -     | -     |
+|Hosts          | +      | +      | +     | +     | +     |
+|Clusters       | +      | +      | x     | +     | x     |
+|Snapshots      | +      | +      | x     | x     | -     |
+|Alerts         | +      | +      | x     | -     | x     |
+|Restore Jobs   | +      | +      | +     | x     | x     |
+|Backup Configs | +      | +      | x     | -     | x     |
+|Metrics        | +      | +      | x     | x     | x     |
+
+```
++ : supported by gem
+- : not supported by gem
+x : not supported by MMS
+```
 
 Library usage
 -------------
