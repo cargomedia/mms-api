@@ -1,15 +1,14 @@
 require 'singleton'
 
 module MMS
-
   class Cache
-
     include Singleton
 
     attr_accessor :storage
+    attr_reader :storage
 
     def initialize
-      @storage = Hash.new {|hash, key| hash[key] = nil }
+      @storage = Hash.new { |hash, key| hash[key] = nil }
     end
 
     # @param [String] key
@@ -31,10 +30,6 @@ module MMS
 
     def clear
       initialize
-    end
-
-    def storage
-      @storage
     end
   end
 end

@@ -1,9 +1,7 @@
 require 'date'
 
 module MMS
-
   class Resource::RestoreJob < Resource
-
     attr_accessor :name
 
     # this is source point from where RestoreJob was created
@@ -44,17 +42,17 @@ module MMS
     end
 
     def table_row
-      time_str = DateTime.parse(@timestamp).strftime("%m/%d/%Y %H:%M")
+      time_str = DateTime.parse(@timestamp).strftime('%m/%d/%Y %H:%M')
       [time_str, @snapshot_id, @name, @status_name, @point_in_time, @delivery_method_name, @delivery_status_name]
     end
 
     def table_section
       [
         table_row,
-        [@id, "#{cluster.name} (#{cluster.id})", {:value => '', :colspan => 5}],
-        ['', cluster.group.name, {:value => '', :colspan => 5}],
-        [{:value => 'download url:', :colspan => 7}],
-        [{:value => @delivery_url || '(waiting for link)', :colspan => 7}],
+        [@id, "#{cluster.name} (#{cluster.id})", { value: '', colspan: 5 }],
+        ['', cluster.group.name, { value: '', colspan: 5 }],
+        [{ value: 'download url:', colspan: 7 }],
+        [{ value: @delivery_url || '(waiting for link)', colspan: 7 }],
         :separator
       ]
     end
@@ -64,7 +62,7 @@ module MMS
     end
 
     def self._find(client, group_id, cluster_id, host_id, id)
-      host_id.nil? ? self._find_by_cluster(client, group_id, cluster_id, id) : self._find_by_host(client, group_id, host_id, id)
+      host_id.nil? ? _find_by_cluster(client, group_id, cluster_id, id) : _find_by_host(client, group_id, host_id, id)
     end
 
     def self._find_by_host(client, group_id, host_id, id)
@@ -86,7 +84,7 @@ module MMS
       @delivery_method_name = data['delivery']['methodName'] unless data['delivery'].nil?
       @delivery_status_name = data['delivery']['statusName'] unless data['delivery'].nil?
       @delivery_url = data['delivery']['url'] unless data['delivery'].nil?
-      @name = DateTime.parse(@created).strftime("%Y-%m-%d %H:%M:%S")
+      @name = DateTime.parse(@created).strftime('%Y-%m-%d %H:%M:%S')
       @cluster_id = data['clusterId']
       @group_id = data['groupId']
       @host_id = data['hostId']

@@ -1,9 +1,7 @@
 require 'date'
 
 module MMS
-
   class Resource::BackupConfig < Resource
-
     attr_accessor :cluster_id
     attr_accessor :excluded_namespaces
     attr_accessor :group_id
@@ -60,6 +58,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end

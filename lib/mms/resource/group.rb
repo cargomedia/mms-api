@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::Group < Resource
-
     attr_reader :name
     attr_reader :active_agent_count
     attr_reader :replicaset_count
@@ -18,12 +16,12 @@ module MMS
     # @param [Integer] page
     # @param [Integer] limit
     # @return [Array<MMS::Resource::Host>]
-    def hosts(page = 1, limit = 1000)
+    def hosts(page = 1, limit = 100)
       host_list = []
       @client.get('/groups/' + @id + '/hosts?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |host|
         h = MMS::Resource::Host.new
-        h.set_client(@client)
-        h.set_data(host)
+        h.client(@client)
+        h.data(host)
 
         host_list.push h
       end
@@ -34,12 +32,12 @@ module MMS
     # @param [Integer] limit
     # @param [String] status
     # @return [Array<MMS::Resource::Alert>]
-    def alerts(page = 1, limit = 1000, status = 'OPEN')
+    def alerts(page = 1, limit = 100, status = 'OPEN')
       alert_list = []
       @client.get('/groups/' + @id + '/alerts?status=' + status + '&pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |alert|
         a = MMS::Resource::Alert.new
-        a.set_client(@client)
-        a.set_data(alert)
+        a.client(@client)
+        a.data(alert)
 
         alert_list.push a
       end
@@ -55,12 +53,12 @@ module MMS
     # @param [Integer] page
     # @param [Integer] limit
     # @return [Array<MMS::Resource::Cluster>]
-    def clusters(page = 1, limit = 1000)
+    def clusters(page = 1, limit = 100)
       if @clusters.empty?
         @client.get('/groups/' + @id + '/clusters?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |cluster|
           c = MMS::Resource::Cluster.new
-          c.set_client(@client)
-          c.set_data(cluster)
+          c.client(@client)
+          c.data(cluster)
 
           @clusters.push c
         end
@@ -78,8 +76,8 @@ module MMS
       if @backup_configs.empty?
         @client.get('/groups/' + @id + '/backupConfigs').each do |backup_config|
           bc = MMS::Resource::BackupConfig.new
-          bc.set_client(@client)
-          bc.set_data(backup_config)
+          bc.client(@client)
+          bc.data(backup_config)
 
           @backup_configs.push bc
         end
@@ -95,7 +93,7 @@ module MMS
         begin
           snapshot = cluster.snapshot(id)
           break unless snapshot.nil?
-        rescue MMS::ApiError => e
+        rescue MMS::ApiError => _e
           # Snapshot is not available on this cluster. Skip it!
         end
       end
@@ -104,7 +102,7 @@ module MMS
           begin
             snapshot = host.snapshot(id)
             break unless snapshot.nil?
-          rescue MMS::ApiError => e
+          rescue MMS::ApiError => _e
             # Snapshot is not available on this host. Skip it!
           end
         end

@@ -1,7 +1,5 @@
 module MMS
-
   class Agent
-
     attr_accessor :client
 
     # @param [MMS::Client] client
@@ -10,7 +8,7 @@ module MMS
     end
 
     # @param [String] apiurl
-    def set_apiurl(apiurl)
+    def apiurl(apiurl)
       @client.url = apiurl
     end
 
@@ -19,8 +17,8 @@ module MMS
       group_list = []
       client.get('/groups').each do |group|
         g = MMS::Resource::Group.new
-        g.set_client(client)
-        g.set_data(group)
+        g.client(client)
+        g.data(group)
 
         group_list.push g
       end
@@ -34,6 +32,72 @@ module MMS
         host_list.concat group.hosts
       end
       host_list
+    end
+
+    # @param [String] groupid
+    # @param [String] hostname
+    # @param [Integer] port
+    # @option options [String] username Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [String] password Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [TrueClass, FalseClass] sslEnabled Must be true if the authMechanismName is MONGODB_X509. Default is false if omitted.
+    # @option options [TrueClass, FalseClass] logsEnabled Default is false if omitted.
+    # @option options [TrueClass, FalseClass] alertsEnabled Default is true if omitted.
+    # @option options [TrueClass, FalseClass] profilerEnabled Default is false if omitted.
+    # @option options [Integer] muninPort Default is 0 and Munin stats are not collected if omitted.
+    # @option options [String] authMechanismName Default is NONE if omitted. If set to MONGODB_CR then you must provide the username and password.
+    # @return [<MMS::Resource::Host>]
+    def host_create(groupid, hostname, port, options = {})
+      data = {}
+      data[:hostname] = hostname
+      data[:port] = port
+      data[:username] = options[:username] || nil
+      data[:password] = options[:password] || nil
+      data[:sslEnabled] = options[:sslEnabled] || false
+      data[:logsEnabled] = options[:logsEnabled] || false
+      data[:alertsEnabled] = options[:alertsEnabled] || true
+      data[:profilerEnabled] = options[:profilerEnabled] || false
+      data[:muninPort] = options[:muninPort] || 0
+      data[:authMechanismName] = options[:authMechanismName] || nil
+      ret_host = client.post("/groups/#{groupid}/hosts", data)
+      host = MMS::Resource::Host.new
+      host._from_hash(ret_host)
+      host
+    end
+
+    # @param [String] groupid
+    # @param [String] hostid
+    # @option options [String] username Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [String] password Required if authMechanismName is MONGODB_CR. Otherwise illegal.
+    # @option options [TrueClass, FalseClass] sslEnabled Must be true if the authMechanismName is MONGODB_X509. Default is false if omitted.
+    # @option options [TrueClass, FalseClass] logsEnabled Default is false if omitted.
+    # @option options [TrueClass, FalseClass] alertsEnabled Default is true if omitted.
+    # @option options [TrueClass, FalseClass] profilerEnabled Default is false if omitted.
+    # @option options [Integer] muninPort Default is 0 and Munin stats are not collected if omitted.
+    # @option options [String] authMechanismName Default is NONE if omitted. If set to MONGODB_CR then you must provide the username and password.
+    # @return [<MMS::Resource::Host>]
+    def host_update(groupid, hostid, options = {})
+      data = {}
+      data[:username] = options[:username] if options.include?(:username)
+      data[:password] = options[:password] if options.include?(:password)
+      data[:sslEnabled] = options[:sslEnabled] if options.include?(:sslEnabled)
+      data[:logsEnabled] = options[:logsEnabled] if options.include?(:logsEnabled)
+      data[:alertsEnabled] = options[:alertsEnabled] if options.include?(:alertsEnabled)
+      data[:profilerEnabled] = options[:profilerEnabled] if options.include?(:profilerEnabled)
+      data[:muninPort] = options[:muninPort] if options.include?(:muninPort)
+      data[:authMechanismName] = options[:authMechanismName] if options.include?(:authMechanismName)
+      ret_host = client.patch("/groups/#{groupid}/hosts/#{hostid}", data)
+      host = MMS::Resource::Host.new
+      host._from_hash(ret_host)
+      host
+    end
+
+    # @param [String] groupid
+    # @param [String] hostid
+    # @return [TrueClass, FalseClass]
+    def host_delete(groupid, hostid)
+      client.delete("/groups/#{groupid}/hosts/#{hostid}")
+      host = client.delete("/groups/#{groupid}/hosts/#{hostid}")
+      host == {} ? true : false
     end
 
     # @return [Array<MMS::Resource::Cluster>]
@@ -51,7 +115,7 @@ module MMS
       clusters.each do |cluster|
         snapshot_list.concat cluster.snapshots
       end
-      snapshot_list.sort_by { |snapshot| snapshot.created_date }.reverse
+      snapshot_list.sort_by(&:created_date).reverse
     end
 
     # @return [Array<MMS::Resource::Alert>]
@@ -60,7 +124,7 @@ module MMS
       groups.each do |group|
         alert_list.concat group.alerts
       end
-      alert_list.sort_by { |alert| alert.created }.reverse
+      alert_list.sort_by(&:created).reverse
     end
 
     # @return [Array<MMS::Resource::RestoreJob>]
@@ -69,7 +133,7 @@ module MMS
       clusters.each do |cluster|
         restorejob_list.concat cluster.restorejobs
       end
-      restorejob_list.sort_by { |job| job.created }.reverse
+      restorejob_list.sort_by(&:created).reverse
     end
 
     # @param [String] type_value
@@ -79,8 +143,9 @@ module MMS
     def restorejob_create(type_value, group_id, cluster_id)
       if type_value.length == 24
         find_group(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
-      elsif datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
-        raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:sZ`') if datetime.nil?
+      else
+        datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
+        fail('Invalid datetime. Correct `YYYY-MM-RRTH:m:sZ`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.month, datetime.day].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
         find_group(group_id).cluster(cluster_id).create_restorejob(datetime_string)
       end
@@ -110,6 +175,5 @@ module MMS
     def find_group(id)
       MMS::Resource::Group.find(@client, id)
     end
-
   end
 end

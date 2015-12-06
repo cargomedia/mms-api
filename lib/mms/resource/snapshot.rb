@@ -1,9 +1,7 @@
 require 'date'
 
 module MMS
-
   class Resource::Snapshot < Resource
-
     attr_accessor :name
 
     attr_accessor :complete
@@ -20,12 +18,12 @@ module MMS
 
     # @return [TrueClass, FalseClass]
     def is_config
-      @parts.length == 1 and @parts.first['typeName'] == 'REPLICA_SET' and !@parts.first['hostId'].nil?
+      @parts.length == 1 && @parts.first['typeName'] == 'REPLICA_SET' && !@parts.first['hostId'].nil?
     end
 
     # @return [TrueClass, FalseClass]
     def is_replica
-      @parts.length == 1 and @parts.first['typeName'] == 'REPLICA_SET' and !@parts.first['clusterId'].nil?
+      @parts.length == 1 && @parts.first['typeName'] == 'REPLICA_SET' && !@parts.first['clusterId'].nil?
     end
 
     # @return [String, NilClass]
@@ -59,17 +57,17 @@ module MMS
 
     # @return [Array<MMS::Resource::RestoreJob>]
     def create_restorejob
-      data = {:snapshotId => @id}
+      data = { snapshotId: @id }
       job_data_list = @client.post '/groups/' + cluster.group.id + '/clusters/' + cluster.id + '/restoreJobs', data
 
       if job_data_list.nil?
-        raise MMS::ResourceError.new("Cannot create job from snapshot `#{self.id}`", self)
+        fail MMS::ResourceError.new("Cannot create job from snapshot `#{id}`", self)
       end
 
       job_data_list.map do |job_data|
         j = MMS::Resource::RestoreJob.new
-        j.set_client(@client)
-        j.set_data(job_data)
+        j.client(@client)
+        j.data(job_data)
         j
       end
     end
@@ -84,8 +82,8 @@ module MMS
       rows << :separator
       part_count = 0
       @parts.each do |part|
-        file_size_mb = part['fileSizeBytes'].to_i / (1024*1024)
-        rows << [{:value => "part #{part_count}", :colspan => 4, :alignment => :right}, part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
+        file_size_mb = part['fileSizeBytes'].to_i / (1024 * 1024)
+        rows << [{ value: "part #{part_count}", colspan: 4, alignment: :right }, part['typeName'], part['replicaSetName'], "#{file_size_mb} MB"]
         part_count += 1
       end
       rows << :separator
@@ -102,7 +100,7 @@ module MMS
     # @param [String] id
     # @return [MMS::Resource::Snapshot]
     def self._find(client, group_id, cluster_id, host_id, id)
-      host_id.nil? ? self._find_by_cluster(client, group_id, cluster_id, id) : self._find_by_host(client, group_id, host_id, id)
+      host_id.nil? ? _find_by_cluster(client, group_id, cluster_id, id) : _find_by_host(client, group_id, host_id, id)
     end
 
     def self._find_by_cluster(client, group_id, cluster_id, id)
@@ -122,12 +120,11 @@ module MMS
       @expires = data['expires']
       @parts = data['parts']
       @is_possibly_inconsistent = data['isPossiblyInconsistent']
-      @name = @created_date.nil? ? @id : DateTime.parse(@created_date).strftime("%Y-%m-%d %H:%M:%S")
+      @name = @created_date.nil? ? @id : DateTime.parse(@created_date).strftime('%Y-%m-%d %H:%M:%S')
     end
 
     def _to_hash
       @data
     end
-
   end
 end

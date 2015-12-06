@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::SnapshotSchedule < Resource
-
     attr_accessor :name
 
     attr_accessor :snapshot_interval_hours
@@ -18,14 +16,14 @@ module MMS
 
     def table_row
       [
-          cluster.group.name,
-          cluster.name,
-          @snapshot_interval_hours,
-          @snapshot_retention_days,
-          @cluster_checkpoint_interval_min,
-          @daily_snapshot_retention_days,
-          @weekly_snapshot_retention_weeks,
-          @monthly_snapshot_retention_months,
+        cluster.group.name,
+        cluster.name,
+        @snapshot_interval_hours,
+        @snapshot_retention_days,
+        @cluster_checkpoint_interval_min,
+        @daily_snapshot_retention_days,
+        @weekly_snapshot_retention_weeks,
+        @monthly_snapshot_retention_months
       ]
     end
 
@@ -34,7 +32,7 @@ module MMS
     end
 
     def self.table_header
-      ['Group', 'Cluster', 'IntervalHours', 'RetentionDays', 'CheckpointIntervalMin', 'RetentionDays', 'RetentionWeeks', 'RetentionMonths']
+      %w(Group Cluster IntervalHours RetentionDays CheckpointIntervalMin RetentionDays RetentionWeeks RetentionMonths)
     end
 
     def self._find(client, group_id, cluster_id)
@@ -55,6 +53,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end

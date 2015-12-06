@@ -1,7 +1,5 @@
 module MMS
-
-  class RuntimeError < StandardError;
-
+  class RuntimeError < StandardError
     # @param [String] message
     # @param [Net::HTTPRequest] request
     # @param [Net::HTTPResponse] response
@@ -14,11 +12,9 @@ module MMS
 
     attr_reader :request
     attr_reader :response
-
   end
 
   class ResourceError < StandardError
-
     # @param [String] message
     # @param [MMS::Resource] resource
     def initialize(message, resource)
@@ -28,19 +24,15 @@ module MMS
     end
 
     attr_reader :resource
-
   end
 
   class ApiError < RuntimeError
-
-    def initialize(message, request, response)
+    def initialize(_message, request, response)
       super("API Response error! Code: #{response.code}, body: #{response.body}", request, response)
     end
-
   end
 
   class AuthError < RuntimeError; end
 
   class ConfigError < StandardError; end
-
 end

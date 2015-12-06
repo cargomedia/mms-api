@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::Host < Resource
-
     attr_accessor :name
     attr_accessor :hostname
     attr_accessor :port
@@ -30,12 +28,12 @@ module MMS
       MMS::Resource::Snapshot.find(@client, group.id, nil, @id, id)
     end
 
-    def snapshots(page = 1, limit = 1000)
+    def snapshots(page = 1, limit = 100)
       if @snapshots.empty?
         @client.get('/groups/' + group.id + '/hosts/' + @id + '/snapshots?pageNum=' + page.to_s + '&itemsPerPage=' + limit.to_s).each do |snapshot|
           s = MMS::Resource::Snapshot.new
-          s.set_client(@client)
-          s.set_data(snapshot)
+          s.client(@client)
+          s.data(snapshot)
 
           @snapshots.push s
         end
@@ -58,26 +56,24 @@ module MMS
     # @param [MMS::Client] client
     # @param [String] group_id
     # @param [String] id
-    # @returns [Hash]
+    # @return [Hash]
     def self._find(client, group_id, id)
       client.get('/groups/' + group_id + '/hosts/' + id)
     end
 
-    # @returns [Array<MMS::Resource::Metric>]
+    # @return [Array<MMS::Resource::Metric>]
     def metrics
       if @metric_list.empty?
         @client.get('/groups/' + group.id + '/hosts/' + @id + '/metrics').each do |metric|
           m = MMS::Resource::Metric.new
-          m.set_client(@client)
-          m.set_data(metric)
+          m.client(@client)
+          m.data(metric)
 
           @metric_list.push m
         end
       end
       @metric_list
     end
-
-    private
 
     def _from_hash(data)
       @hostname = data['hostname']
@@ -99,6 +95,5 @@ module MMS
     def _to_hash
       @data
     end
-
   end
 end

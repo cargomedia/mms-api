@@ -1,0 +1,94 @@
+# Offense count: 2
+Lint/HandleExceptions:
+  Exclude:
+    - 'lib/mms/resource/group.rb'
+
+# Offense count: 2
+Lint/RescueException:
+  Exclude:
+    - 'lib/mms/cli.rb'
+
+# Offense count: 84
+# Configuration parameters: AllowURI, URISchemes.
+Metrics/LineLength:
+  Max: 159
+
+# Offense count: 11
+# Configuration parameters: CountComments.
+Metrics/MethodLength:
+  Max: 24
+
+# Offense count: 13
+Metrics/AbcSize:
+  Max: 51
+
+# Offense count: 2
+# Configuration parameters: CountComments.
+Metrics/ClassLength:
+  Max: 120
+
+# Offense count: 1
+Metrics/CyclomaticComplexity:
+  Max: 9
+
+# Offense count: 1
+Metrics/PerceivedComplexity:
+  Max: 9
+
+# Offense count: 17
+# Configuration parameters: EnforcedStyle, SupportedStyles.
+Style/ClassAndModuleChildren:
+  Exclude:
+    - 'lib/mms/cli.rb'
+    - 'lib/mms/resource/alert.rb'
+    - 'lib/mms/resource/backup_config.rb'
+    - 'lib/mms/resource/cluster.rb'
+    - 'lib/mms/resource/group.rb'
+    - 'lib/mms/resource/host.rb'
+    - 'lib/mms/resource/metric.rb'
+    - 'lib/mms/resource/restore_job.rb'
+    - 'lib/mms/resource/snapshot.rb'
+    - 'lib/mms/resource/snapshot_schedule.rb'
+
+# Offense count: 1
+# Configuration parameters: Exclude.
+Style/FileName:
+  Exclude:
+    - 'bin/mms-api'
+
+# Offense count: 2
+# Configuration parameters: MinBodyLength.
+Style/GuardClause:
+  Exclude:
+    - 'lib/mms/cli.rb'
+    - 'lib/mms/resource.rb'
+
+# Offense count: 5
+# Cop supports --auto-correct.
+Style/NumericLiterals:
+  MinDigits: 9
+
+# Offense count: 5
+# Configuration parameters: NamePrefix, NamePrefixBlacklist, NameWhitelist.
+Style/PredicateName:
+  Exclude:
+    - 'lib/mms/resource/backup_config.rb'
+    - 'lib/mms/resource/restore_job.rb'
+    - 'lib/mms/resource/snapshot.rb'
+
+# Offense count: 3
+# Configuration parameters: SupportedStyles.
+Style/RaiseArgs:
+  EnforcedStyle: compact
+
+# Offense count: 27
+# Configuration parameters: Exclude.
+Style/Documentation:
+  Enabled: false
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: ExactNameMatch, AllowPredicates, AllowDSLWriters, IgnoreClassMethods, Whitelist.
+Style/TrivialAccessors:
+  Exclude:
+    - 'lib/mms/resource.rb'

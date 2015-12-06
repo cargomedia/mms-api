@@ -1,7 +1,5 @@
 module MMS
-
   class Resource::Metric < Resource
-
     attr_accessor :name
     attr_accessor :units
     attr_accessor :granularity
@@ -12,7 +10,7 @@ module MMS
     end
 
     # @param [Hash] options
-    # @returns [Array<Hash>]
+    # @return [Array<Hash>]
     def data_points(options = {})
       series = []
       metric_data = get_metric_data(options)
@@ -31,7 +29,7 @@ module MMS
     # @param [String] group_id
     # @param [String] host_id
     # @param [String] metric_name
-    # @returns [Hash]
+    # @return [Hash]
     def self._find(client, group_id, host_id, metric_name)
       client.get('/groups/' + group_id + '/hosts/' + host_id + '/metrics/' + metric_name)
     end
@@ -39,12 +37,12 @@ module MMS
     private
 
     # @param [Hash] options
-    # @param [String] name
-    # @returns [Hash]
+    # @param [String] d_name
+    # @return [Hash]
     def get_metric_data(options = {}, d_name = '')
       params = options.map { |k, v| "#{k}=#{v}" }.join('&')
       ret = client.get("/groups/#{@data['groupId']}/hosts/#{@data['hostId']}/metrics/#{@data['metricName']}/#{d_name}?#{params}")
-      ret.delete("links")
+      ret.delete('links')
       ret
     end
 

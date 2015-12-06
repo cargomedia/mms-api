@@ -2,11 +2,8 @@ require 'clamp'
 require 'parseconfig'
 
 module MMS
-
   class CLI
-
     class MMS::CLI::Command < Clamp::Command
-
       attr_accessor :app_name
       attr_accessor :config
 
@@ -25,7 +22,7 @@ module MMS
         @config.apiurl = u
       end
 
-      option ['-v', '--version'], :flag, 'Version' do |v|
+      option ['-v', '--version'], :flag, 'Version' do |_v|
         puts "mms-api v#{MMS::VERSION}"
         exit
       end
@@ -43,28 +40,28 @@ module MMS
         parse_user_home_config
       end
 
-      option ['-i', '--ignore'], :flag, 'Ignore flag of --group-id and -cluster-id', :default => false
+      option ['-i', '--ignore'], :flag, 'Ignore flag of --group-id and -cluster-id', default: false
 
-      option ['-j', '--json'], :flag, 'Print JSON output', :default => false
+      option ['-j', '--json'], :flag, 'Print JSON output', default: false
 
       option ['-l', '--limit'], '<integer>', 'Limit for result items' do |l|
         @config.limit = Integer(l)
       end
 
-      def initialize(invocation_path, context = {}, parent_attribute_values = {})
+      def initialize(_invocation_path, _context = {}, _parent_attribute_values = {})
         @config ||= MMS::Config.new
       end
 
       def parse_user_home_config
-        raise(MMS::ConfigError.new('Config file path is not set!')) if @config.config_path.nil?
+        fail(MMS::ConfigError.new('Config file path is not set!')) if @config.config_path.nil?
         config_file = Pathname.new(@config.config_path)
-        raise(MMS::ConfigError.new("Config file `#{config_file}` does not exist")) unless config_file.exist?
+        fail(MMS::ConfigError.new("Config file `#{config_file}` does not exist")) unless config_file.exist?
 
         config = ParseConfig.new(config_file)
         config.params.map do |key, value|
           begin
             @config.send("#{key}=", value)
-          rescue Exception => e
+          rescue Exception => _e
             raise MMS::ConfigError.new("Config option `#{key}` from file `#{config_file}` is not allowed!")
           end
         end
@@ -92,13 +89,13 @@ module MMS
       end
 
       # @param [String] heading
-      # @param [Array<MMS::Resource>]
+      # @param [Array<MMS::Resource>] resource_list
       def print(heading, resource_list)
         json? ? print_json(resource_list) : print_human(heading, resource_list)
       end
 
       # @param [String] heading
-      # @param [Array<MMS::Resource>]
+      # @param [Array<MMS::Resource>] resource_list
       def print_human(heading, resource_list)
         rows = []
 
@@ -106,12 +103,12 @@ module MMS
           rows += resource.table_section
         end
 
-        puts Terminal::Table.new :headings => (heading.nil? ? [] : heading), :rows => rows
+        puts Terminal::Table.new headings: (heading.nil? ? [] : heading), rows: rows
 
         print_tips unless ignore?
       end
 
-      # @param [Array<MMS::Resource>]
+      # @param [Array<MMS::Resource>] resource_list
       def print_json(resource_list)
         rows = []
 
@@ -126,127 +123,100 @@ module MMS
         puts 'Default group: ' + @config.default_group_id unless @config.default_group_id.nil?
         puts 'Default cluster: ' + @config.default_cluster_id unless @config.default_cluster_id.nil?
 
-        if !@config.default_group_id.nil? or !@config.default_cluster_id.nil?
+        if !@config.default_group_id.nil? || !@config.default_cluster_id.nil?
           puts "Add flag --ignore or update --default-group-id, --default-cluster-id or update your `#{@config.config_path}` to see all resources"
         end
       end
 
-
       # @param [Array] arguments
       def run(arguments)
-        begin
-          parse_user_home_config
-          super
-        rescue Clamp::HelpWanted => e
-          raise(help)
-        rescue Clamp::UsageError => e
-          raise([e.message, help].join("\n"))
-        rescue MMS::AuthError => e
-          raise('Authorisation problem. Please check you credential!')
-        rescue MMS::ResourceError => e
-          raise(["Resource #{e.resource.class.name} problem:", e.message].join("\n"))
-        end
+        parse_user_home_config
+        super
+      rescue Clamp::HelpWanted => _e
+        raise(help)
+      rescue Clamp::UsageError => e
+        raise([e.message, help].join("\n"))
+      rescue MMS::AuthError => _e
+        raise('Authorisation problem. Please check you credential!')
+      rescue MMS::ResourceError => e
+        raise(["Resource #{e.resource.class.name} problem:", e.message].join("\n"))
       end
     end
 
     class MMS::CLI::Command::Groups < MMS::CLI::Command
-
       subcommand 'list', 'Group list' do
-
         def execute
           print(MMS::Resource::Group.table_header, groups)
         end
       end
-
     end
 
     class MMS::CLI::Command::Hosts < MMS::CLI::Command
-
       subcommand 'list', 'Host list' do
-
         def execute
-          host_list = groups.collect! { |group| group.hosts }.flatten
+          host_list = groups.collect!(&:hosts).flatten
           print(MMS::Resource::Host.table_header, host_list)
         end
       end
-
     end
 
     class MMS::CLI::Command::Clusters < MMS::CLI::Command
-
       subcommand 'list', 'Cluster list' do
-
         def execute
           print(MMS::Resource::Cluster.table_header, clusters)
         end
       end
 
       subcommand 'snapshot-schedule', 'Cluster snapshot schedule config' do
-
         def execute
-          snapshot_schedule_list = clusters.collect! { |cluster| cluster.snapshot_schedule }.flatten
+          snapshot_schedule_list = clusters.collect!(&:snapshot_schedule).flatten
           print(MMS::Resource::SnapshotSchedule.table_header, snapshot_schedule_list)
         end
       end
-
     end
 
-
     class MMS::CLI::Command::Alerts < MMS::CLI::Command
-
       subcommand 'list', 'Alerts list' do
-
         def execute
-          alert_list = groups.collect! { |group| group.alerts }.flatten
+          alert_list = groups.collect!(&:alerts).flatten
           print(MMS::Resource::Alert.table_header, alert_list)
         end
-
       end
 
       subcommand 'ack', 'Acknowledge alert' do
-
-        parameter '[alert-id]', 'Alert ID', :default => 'all'
-        parameter '[group-id]', 'Group ID', :default => '--default-group-id'
-        parameter '[timestamp]', 'Postpone to timestamp', :default => 'forever'
+        parameter '[alert-id]', 'Alert ID', default: 'all'
+        parameter '[group-id]', 'Group ID', default: '--default-group-id'
+        parameter '[timestamp]', 'Postpone to timestamp', default: 'forever'
 
         def execute
           g_id = group_id == '--default-group-id' ? @config.default_group_id : group_id
           agent.alert_ack(alert_id, timestamp, g_id)
           puts 'Done.'
         end
-
       end
-
     end
 
     class MMS::CLI::Command::Snapshots < MMS::CLI::Command
-
       subcommand 'list', 'Snapshot list' do
-
         def execute
-          snapshot_list = clusters.collect! { |cluster| cluster.snapshots }.flatten.sort_by { |snapshot| snapshot.created_date }.reverse
+          snapshot_list = clusters.collect!(&:snapshots).flatten.sort_by(&:created_date).reverse
           print(MMS::Resource::Snapshot.table_header, snapshot_list)
         end
       end
-
     end
 
     class MMS::CLI::Command::RestoreJobs < MMS::CLI::Command
-
       subcommand 'list', 'Restorejob list' do
-
         def execute
-          restorejob_list = clusters.collect! { |cluster| cluster.restorejobs }.flatten.sort_by { |job| job.created }.reverse
+          restorejob_list = clusters.collect!(&:restorejobs).flatten.sort_by(&:created).reverse
           print(MMS::Resource::RestoreJob.table_header, restorejob_list)
         end
-
       end
 
       subcommand 'create', 'Restorejob create' do
-
-        parameter '[snapshot-source]', 'Restore from source. Options: now | timestamp | snapshot-id', :default => 'now'
-        parameter '[group-id]', 'Group ID', :default => '--default-group-id'
-        parameter '[cluster-id]', 'Cluster ID', :default => '--default-cluster-id'
+        parameter '[snapshot-source]', 'Restore from source. Options: now | timestamp | snapshot-id', default: 'now'
+        parameter '[group-id]', 'Group ID', default: '--default-group-id'
+        parameter '[cluster-id]', 'Cluster ID', default: '--default-cluster-id'
 
         def execute
           g_id = group_id == '--default-group-id' ? @config.default_group_id : group_id
@@ -256,19 +226,14 @@ module MMS
 
           puts 'Done.'
         end
-
       end
-
     end
 
     class MMS::CLI::CommandManager < MMS::CLI::Command
-
       def run(arguments)
-        begin
-          super
-        rescue Exception => e
-          abort(e.message.empty? ? 'Unknown error/Interrupt' : e.message)
-        end
+        super
+      rescue Exception => e
+        abort(e.message.empty? ? 'Unknown error/Interrupt' : e.message)
       end
 
       subcommand 'groups', 'Groups ', MMS::CLI::Command::Groups
@@ -277,9 +242,6 @@ module MMS
       subcommand 'alerts', 'Alerts', MMS::CLI::Command::Alerts
       subcommand 'snapshots', 'Snapshots', MMS::CLI::Command::Snapshots
       subcommand 'restorejobs', 'Restorejobs', MMS::CLI::Command::RestoreJobs
-
     end
-
   end
-
 end
