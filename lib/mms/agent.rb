@@ -109,6 +109,18 @@ module MMS
       cluster_list
     end
 
+    # @param [String] groupid
+    # @param [String] clusterid
+    # @param [String] name
+    # @return [<MMS::Resource::Cluster>]
+    def cluster_update(groupid, clusterid, name)
+      data = { clusterName: name }
+      ret_cluster = client.patch("/groups/#{groupid}/clusters/#{clusterid}", data)
+      cluster = MMS::Resource::Cluster.new
+      cluster._from_hash(ret_cluster)
+      cluster
+    end
+
     # @return [Array<MMS::Resource::Snapshot>]
     def snapshots
       snapshot_list = []

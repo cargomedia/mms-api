@@ -16,7 +16,7 @@ The MMS Public API follows the principles of the REST architectural style to exp
 |:--------------|:------:|:------:|:-----:|:-----:|:-----:|
 |Groups         | +      | +      |       |       |       |
 |Hosts          | +      | +      | +     | +     |+      |
-|Clusters       | +      | +      |       |       |       |
+|Clusters       | +      | +      |       | +     |       |
 |Snapshots      | +      | +      |       |       |       |
 |Alerts         | +      | +      |       |       |       |
 |Restore Jobs   | +      | +      | +     |       |       |

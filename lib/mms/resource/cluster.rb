@@ -94,8 +94,6 @@ module MMS
       client.get('/groups/' + group_id + '/clusters/' + id)
     end
 
-    private
-
     def _from_hash(data)
       @name = data['clusterName']
       @shard_name = data['shardName']

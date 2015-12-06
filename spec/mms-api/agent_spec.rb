@@ -127,6 +127,23 @@ describe MMS::Agent do
     delete_ret.should eq(true)
   end
 
+  it 'should patch a cluster' do
+    client.stub(:patch).and_return(
+      'id' => '533d7d4730040be257defe88',
+      'groupId' => '5196d3628d022db4cbc11111',
+      'typeName' => 'SHARDED_REPLICA_SET',
+      'clusterName' => 'Animals2',
+      'lastHeartbeat' => '2014-04-03T15:26:58Z',
+      'links' => []
+    )
+
+    updated_cluster = agent.cluster_update('5196d3628d022db4cbc11111',
+                                           '533d7d4730040be257defe88',
+                                           'Animals2')
+
+    updated_cluster.name.should eq('Animals2')
+  end
+
   it 'should list snapshots' do
     client.stub(:get).and_return(
       [{
