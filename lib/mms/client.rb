@@ -39,6 +39,13 @@ module MMS
       _request(Net::HTTP::Patch, @url + path, @username, @apikey, data)
     end
 
+    # @param [String] path
+    # @param [Hash] data
+    # @return [Hash]
+    def put(path, data)
+      _request(Net::HTTP::Put, @url + path, @username, @apikey, data)
+    end
+
     private
 
     # @param [Net::HTTPRequest] http_method
