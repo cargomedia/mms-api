@@ -32,31 +32,31 @@ module MMS
 
     # @return [Array<String>]
     def table_row
-      fail("`#{__method__}` is not implemented for `#{self.class.name}`")
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
     # @return [Array]
     def table_section
-      fail("`#{__method__}` is not implemented for `#{self.class.name}`")
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
     # @return [Array<String>]
     def self.table_header
-      fail("`#{__method__}` is not implemented for `#{self.class.name}`")
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
     def _load(_id)
-      fail("`#{__method__}` is not implemented for `#{self.class.name}`")
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
     # @param [Hash] _data
     def _from_hash(_data)
-      fail("`#{__method__}` is not implemented for `#{self.class.name}`")
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
     # @return [Hash]
     def _to_hash
-      fail("`#{__method__}` is not implemented for `#{self.class.name}`")
+      raise("`#{__method__}` is not implemented for `#{self.class.name}`")
     end
 
     def invalidate_cache
@@ -84,8 +84,10 @@ module MMS
       "Class::#{self.class.name}:#{id}"
     end
 
-    def self.cache_key(id)
-      "Class::#{name}:#{id}"
+    class << self
+      def cache_key(id)
+        "Class::#{name}:#{id}"
+      end
     end
   end
 end
