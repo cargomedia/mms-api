@@ -157,7 +157,7 @@ module MMS
         find_group(group_id).cluster(cluster_id).snapshot(type_value).create_restorejob
       else
         datetime = (type_value == 'now' ? DateTime.now : DateTime.parse(type_value))
-        fail('Invalid datetime. Correct `YYYY-MM-RRTH:m:sZ`') if datetime.nil?
+        raise('Invalid datetime. Correct `YYYY-MM-RRTH:m:sZ`') if datetime.nil?
         datetime_string = [[datetime.year, datetime.month, datetime.day].join('-'), 'T', [datetime.hour, datetime.minute, datetime.second].join(':'), 'Z'].join
         find_group(group_id).cluster(cluster_id).create_restorejob(datetime_string)
       end

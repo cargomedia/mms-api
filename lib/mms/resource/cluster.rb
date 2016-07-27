@@ -67,7 +67,7 @@ module MMS
       job_data_list = @client.post('/groups/' + group.id + '/clusters/' + @id + '/restoreJobs', data)
 
       if job_data_list.nil?
-        fail MMS::ResourceError.new("Cannot create job from snapshot `#{id}`", self)
+        raise MMS::ResourceError.new("Cannot create job from snapshot `#{id}`", self)
       end
 
       job_data_list.map do |job_data|

@@ -68,7 +68,7 @@ module MMS
       req = http_method.new(uri.request_uri, 'Content-Type' => 'application/json')
       res = http.request req
 
-      fail 'Invalid method' unless http_method.is_a?(Class) && http_method < Net::HTTPRequest
+      raise 'Invalid method' unless http_method.is_a?(Class) && http_method < Net::HTTPRequest
       req = http_method.new(uri.request_uri, 'Content-Type' => 'application/json')
       method_name = http_method.name.split('::').last.upcase
       auth = digest_auth.auth_header(uri, res['WWW-Authenticate'], method_name)
@@ -82,11 +82,11 @@ module MMS
         msg = "http 'get' error for url `#{url}`"
         msg = response_json['detail'] unless response_json['detail'].nil?
 
-        fail MMS::AuthError.new(msg, req, response) if response.code == '401'
-        fail MMS::ApiError.new(msg, req, response)
+        raise MMS::AuthError.new(msg, req, response) if response.code == '401'
+        raise MMS::ApiError.new(msg, req, response)
       end
 
-      (response_json.nil? || response_json['results'].nil?) ? response_json : response_json['results']
+      response_json.nil? || response_json['results'].nil? ? response_json : response_json['results']
     end
   end
 end
