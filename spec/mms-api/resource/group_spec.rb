@@ -19,4 +19,10 @@ describe MMS::Resource::Group do
     group.name.should eq('mms-group-1')
     group.shard_count.should eq(2)
   end
+
+  it 'should return dedicated cache_key name for group resource' do
+    group = MMS::Resource::Group.new
+
+    group.send(:cache_key, 'mygroup').should eq('Class::MMS::Resource::Group:mygroup')
+  end
 end
