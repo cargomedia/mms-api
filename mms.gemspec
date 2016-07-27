@@ -19,6 +19,6 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency 'rake'
   s.add_development_dependency 'pry'
-  s.add_development_dependency 'rubocop', '~> 0.42'
+  s.add_development_dependency 'rubocop', '~> 0.41.2'
   s.add_development_dependency 'rspec', '~> 2.0'
 end
