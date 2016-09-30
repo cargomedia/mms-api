@@ -1,5 +1,4 @@
 module MMS
-
   require 'uri'
   require 'json'
   require 'cgi'
