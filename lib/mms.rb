@@ -1,6 +1,4 @@
 module MMS
-  require 'rubygems' # For ruby < 1.9
-
   require 'uri'
   require 'json'
   require 'cgi'
