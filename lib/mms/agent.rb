@@ -95,7 +95,6 @@ module MMS
     # @param [String] hostid
     # @return [TrueClass, FalseClass]
     def host_delete(groupid, hostid)
-      client.delete("/groups/#{groupid}/hosts/#{hostid}")
       host = client.delete("/groups/#{groupid}/hosts/#{hostid}")
       host == {} ? true : false
     end
