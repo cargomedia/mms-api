@@ -4,7 +4,7 @@ describe MMS::Resource::BackupConfig do
   let(:client) { MMS::Client.new }
 
   it 'should load data' do
-    client.stub(:get).and_return(
+    allow(client).to receive(:get).and_return(
       {
         'groupId' => '5196d3628d022db4cbc11111',
         'clusterId' => '5196d3628d022db4cbc000000',
@@ -37,9 +37,9 @@ describe MMS::Resource::BackupConfig do
 
     backup_config = MMS::Resource::BackupConfig.find(client, '5196d3628d022db4cbc11111', '5196d3628d022db4cbc000000')
 
-    backup_config.cluster.id.should eq('5196d3628d022db4cbc000000')
-    backup_config.cluster.group.id.should eq('5196d3628d022db4cbc111111')
-    backup_config.status_name.should eq('STARTED')
-    backup_config.is_active.should eq(true)
+    expect(backup_config.cluster.id).to eq('5196d3628d022db4cbc000000')
+    expect(backup_config.cluster.group.id).to eq('5196d3628d022db4cbc111111')
+    expect(backup_config.status_name).to eq('STARTED')
+    expect(backup_config.is_active).to be true
   end
 end

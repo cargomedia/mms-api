@@ -4,7 +4,7 @@ describe MMS::Resource::Metric do
   let(:client) { MMS::Client.new }
 
   it 'should load data' do
-    client.stub(:get).and_return(
+    allow(client).to receive(:get).and_return(
       {
         'hostId' => '5196d3628d022db4cbc000000',
         'groupId' => '5196d3628d022db4cbc111111',
@@ -42,10 +42,10 @@ describe MMS::Resource::Metric do
 
     metric = MMS::Resource::Metric.find(client, '5196d3628d022db4cbc11111', '5196d3628d022db4cbc000000', 'OPCOUNTERS_UPDATE')
 
-    metric.host.id.should eq('5196d3628d022db4cbc000000')
-    metric.host.group.id.should eq('5196d3628d022db4cbc111111')
-    metric.name.should eq('OPCOUNTERS_UPDATE')
-    metric.granularity.should eq('MINUTE')
-    metric.units.should eq('RAW')
+    expect(metric.host.id).to eq('5196d3628d022db4cbc000000')
+    expect(metric.host.group.id).to eq('5196d3628d022db4cbc111111')
+    expect(metric.name).to eq('OPCOUNTERS_UPDATE')
+    expect(metric.granularity).to eq('MINUTE')
+    expect(metric.units).to eq('RAW')
   end
 end
