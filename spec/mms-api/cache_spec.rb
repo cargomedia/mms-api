@@ -7,15 +7,15 @@ describe MMS::Cache do
     cache.set('key-1', 999)
     cache.set('key-2', 'value')
 
-    cache.get('key-1').should eq(999)
-    cache.get('key-2').should eq('value')
+    expect(cache.get('key-1')).to eq(999)
+    expect(cache.get('key-2')).to eq('value')
   end
 
   it 'should delete key' do
     cache.set('key-1', 'to_delete')
     cache.delete('key-1')
 
-    cache.get('key-1').should eq(nil)
+    expect(cache.get('key-1')).to be_nil
   end
 
   it 'should keep key/value into local storage' do
@@ -23,7 +23,7 @@ describe MMS::Cache do
     cache.set('key-1', 999)
     cache.set('key-2', 'value')
 
-    cache.storage.length.should eq(2)
+    expect(cache.storage.length).to eq(2)
   end
 
   it 'should clear storage' do
@@ -31,6 +31,6 @@ describe MMS::Cache do
     cache.set('key-2', 'value')
     cache.clear
 
-    cache.storage.should eq({})
+    expect(cache.storage).to eq({})
   end
 end

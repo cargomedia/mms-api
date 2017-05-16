@@ -5,7 +5,7 @@ describe MMS::Agent do
   let(:agent) { MMS::Agent.new(client) }
 
   it 'should list all mms groups' do
-    client.stub(:get).and_return(
+    allow(client).to receive(:get).and_return(
       [{
         'id' => '5196d3628d022db4cbc11111',
         'name' => 'mms-group-1',
@@ -26,11 +26,11 @@ describe MMS::Agent do
 
     group_list = agent.groups
 
-    group_list.length.should eq(2)
+    expect(group_list.length).to eq(2)
   end
 
   it 'should list hosts' do
-    client.stub(:get).and_return(
+    allow(client).to receive(:get).and_return(
       [{
         'id' => '5196d3628d022db4cbc11111',
         'name' => 'mms-group-1',
@@ -57,13 +57,13 @@ describe MMS::Agent do
 
     host_list = agent.hosts
 
-    host_list.length.should eq(1)
-    host_list.first.id.should eq('56e9378f601dc49360a40949c8a6df6c')
-    host_list.first.group.id.should eq('5196d3628d022db4cbc11111')
+    expect(host_list.length).to eq(1)
+    expect(host_list.first.id).to eq('56e9378f601dc49360a40949c8a6df6c')
+    expect(host_list.first.group.id).to eq('5196d3628d022db4cbc11111')
   end
 
   it 'should create a host' do
-    client.stub(:post).and_return(
+    allow(client).to receive(:post).and_return(
       'id' => '56e9378f601dc49360a40949c8a6df6c',
       'groupId' => '5196d3628d022db4cbc11111',
       'hostname' => 'localhost',
@@ -83,15 +83,15 @@ describe MMS::Agent do
                                  26000,
                                  sslEnabled: true)
 
-    new_host.hostname.should eq('localhost')
-    new_host.port.should eq(26000)
-    new_host.alerts_enabled.should eq(true)
-    new_host.profiler_enabled.should eq(false)
-    new_host.logs_enabled.should eq(false)
+    expect(new_host.hostname).to eq('localhost')
+    expect(new_host.port).to eq(26000)
+    expect(new_host.alerts_enabled).to be true
+    expect(new_host.profiler_enabled).to be false
+    expect(new_host.logs_enabled).to be false
   end
 
   it 'should patch a host' do
-    client.stub(:patch).and_return(
+    allow(client).to receive(:patch).and_return(
       'id' => '56e9378f601dc49360a40949c8a6df6c',
       'groupId' => '5196d3628d022db4cbc11111',
       'hostname' => 'localhost',
@@ -111,24 +111,24 @@ describe MMS::Agent do
                                      sslEnabled: true,
                                      logsEnabled: true)
 
-    updated_host.hostname.should eq('localhost')
-    updated_host.port.should eq(26000)
-    updated_host.alerts_enabled.should eq(true)
-    updated_host.profiler_enabled.should eq(false)
-    updated_host.logs_enabled.should eq(true)
+    expect(updated_host.hostname).to eq('localhost')
+    expect(updated_host.port).to eq(26000)
+    expect(updated_host.alerts_enabled).to be true
+    expect(updated_host.profiler_enabled).to be false
+    expect(updated_host.logs_enabled).to be true
   end
 
   it 'should delete a host' do
-    client.stub(:delete).and_return({})
+    allow(client).to receive(:delete).and_return({})
 
     delete_ret = agent.host_delete('5196d3628d022db4cbc11111',
                                    '56e9378f601dc49360a40949c8a6df6c')
 
-    delete_ret.should eq(true)
+    expect(delete_ret).to be true
   end
 
   it 'should patch a cluster' do
-    client.stub(:patch).and_return(
+    allow(client).to receive(:patch).and_return(
       'id' => '533d7d4730040be257defe88',
       'groupId' => '5196d3628d022db4cbc11111',
       'typeName' => 'SHARDED_REPLICA_SET',
@@ -141,11 +141,11 @@ describe MMS::Agent do
                                            '533d7d4730040be257defe88',
                                            'Animals2')
 
-    updated_cluster.name.should eq('Animals2')
+    expect(updated_cluster.name).to eq('Animals2')
   end
 
   it 'should list snapshots' do
-    client.stub(:get).and_return(
+    allow(client).to receive(:get).and_return(
       [{
         'id' => '5196d3628d022db4cbc11111',
         'name' => 'mms-group-1',
@@ -186,23 +186,23 @@ describe MMS::Agent do
 
     snapshot_list = agent.snapshots
 
-    snapshot_list.length.should eq(1)
+    expect(snapshot_list.length).to eq(1)
 
     snapshot_first = snapshot_list.first
-    snapshot_first.id.should eq('53bd5fb5e4b0774946a16fad')
-    snapshot_first.cluster.id.should eq('533d7d4730040be257defe88')
-    snapshot_first.cluster.group.id.should eq('5196d3628d022db4cbc11111')
+    expect(snapshot_first.id).to eq('53bd5fb5e4b0774946a16fad')
+    expect(snapshot_first.cluster.id).to eq('533d7d4730040be257defe88')
+    expect(snapshot_first.cluster.group.id).to eq('5196d3628d022db4cbc11111')
 
-    snapshot_first.is_cluster.should eq(false)
-    snapshot_first.is_replica.should eq(true)
-    snapshot_first.replica_name.should eq('rs0')
+    expect(snapshot_first.is_cluster).to be false
+    expect(snapshot_first.is_replica).to be true
+    expect(snapshot_first.replica_name).to eq('rs0')
   end
 
   it 'should override API end point' do
     api_endpoint = client.url
     agent.apiurl('http://some.example.com:8080/api/public/v1.0')
 
-    client.url.should eq('http://some.example.com:8080/api/public/v1.0')
+    expect(client.url).to eq('http://some.example.com:8080/api/public/v1.0')
 
     agent.apiurl(api_endpoint) # setting to previous value as this is singleton
   end

@@ -4,7 +4,7 @@ describe MMS::Resource::Snapshot do
   let(:client) { MMS::Client.new }
 
   it 'should load data' do
-    client.stub(:get).and_return(
+    allow(client).to receive(:get).and_return(
       {
         'id' => '003',
         'groupId' => '001',
@@ -36,10 +36,10 @@ describe MMS::Resource::Snapshot do
 
     snapshot = MMS::Resource::Snapshot.find(client, '1', '2', '3', '4')
 
-    snapshot.id.should eq('003')
-    snapshot.cluster.id.should eq('002')
-    snapshot.cluster.group.id.should eq('001')
-    snapshot.complete.should eq(true)
-    snapshot.name.should eq('2014-02-01 12:34:12')
+    expect(snapshot.id).to eq('003')
+    expect(snapshot.cluster.id).to eq('002')
+    expect(snapshot.cluster.group.id).to eq('001')
+    expect(snapshot.complete).to be true
+    expect(snapshot.name).to eq('2014-02-01 12:34:12')
   end
 end

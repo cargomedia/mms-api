@@ -4,7 +4,7 @@ describe MMS::Resource::Cluster do
   let(:client) { MMS::Client.new }
 
   it 'should load data' do
-    client.stub(:get).and_return(
+    allow(client).to receive(:get).and_return(
       {
         'id' => '5196d3628d022db4cbc000000',
         'groupId' => '5196d3628d022db4cbc111111',
@@ -24,9 +24,9 @@ describe MMS::Resource::Cluster do
 
     cluster = MMS::Resource::Cluster.find(client, '5196d3628d022db4cbc11111', '5196d3628d022db4cbc000000')
 
-    cluster.id.should eq('5196d3628d022db4cbc000000')
-    cluster.group.id.should eq('5196d3628d022db4cbc111111')
-    cluster.shard_name.should eq('shard001')
-    cluster.name.should eq('Cluster of Animals')
+    expect(cluster.id).to eq('5196d3628d022db4cbc000000')
+    expect(cluster.group.id).to eq('5196d3628d022db4cbc111111')
+    expect(cluster.shard_name).to eq('shard001')
+    expect(cluster.name).to eq('Cluster of Animals')
   end
 end
