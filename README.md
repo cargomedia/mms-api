@@ -1,3 +1,8 @@
+UNMAINTAINED
+============
+This project is not maintained anymore.
+If you want to take over contact us at tech@cargomedia.ch.
+
 mms-api [![Build Status](https://travis-ci.org/cargomedia/mms-api.svg)](https://travis-ci.org/cargomedia/mms-api)
 =======
 Minimalistic [MMS API](http://mms.mongodb.com/) agent for ruby
